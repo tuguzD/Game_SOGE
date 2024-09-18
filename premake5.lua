@@ -13,7 +13,7 @@ workspace "SOGE"
 
     project "SOGE"
         location "SOGE"
-        kind "SharedLib"
+        kind "StaticLib"
         language "C++"
         cppdialect "C++20"
         staticruntime "on"
@@ -21,18 +21,19 @@ workspace "SOGE"
         targetdir("build/bin/" .. buildpattern .. "/%{prj.name}")
         objdir("build/int/" .. buildpattern .. "/%{prj.name}")
 
-        -- pchheader "sogepch.hpp"
-        -- pchsource "%{wks.location}/%{prj.name}/sources/sogepch.cpp"
+        pchheader "sogepch.hpp"
+        pchsource "%{wks.location}/%{prj.name}/source/sogepch.cpp"
 
         files
         {
             "%{wks.location}/%{prj.name}/include/**.hpp",
-            "%{wks.location}/%{prj.name}/sources/**.cpp"
+            "%{wks.location}/%{prj.name}/source/**.cpp"
         }
 
         includedirs
         {
-            "%{wks.location}/%{prj.name}/include"
+            "%{wks.location}/%{prj.name}/include",
+            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}"
         }
 
         defines
@@ -94,13 +95,14 @@ workspace "SOGE"
         files
         {
             "%{wks.location}/%{prj.name}/include/**.hpp",
-            "%{wks.location}/%{prj.name}/sources/**.cpp"
+            "%{wks.location}/%{prj.name}/source/**.cpp"
         }
 
         includedirs
         {
             "%{wks.location}/%{prj.name}/include",
-            "%{wks.location}/SOGE/include"
+            "%{wks.location}/SOGE/include",
+            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}"
         }
 
         links
