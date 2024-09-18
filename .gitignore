@@ -4,7 +4,7 @@
 # User defined
 [Cc]ge/
 
-!./SOGEEngine/include/SOGE/Debug
+# !./SOGEEngine/include/SOGE/Debug
 
 # Build results
 [Dd]ebug/
@@ -42,6 +42,7 @@ bld/
 *.o
 *.obj
 *.pdb
+*.exe
 
 # Precompiled Headers
 *.gch
@@ -62,4 +63,4 @@ bld/
 *.a
 *.lib
 
-!Scripts/MakeSpriteFont.exe
+# !Scripts/MakeSpriteFont.exe
