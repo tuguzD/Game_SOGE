@@ -82,7 +82,7 @@ workspace "SOGE"
 
     project "GAME"
         location "GAME"
-        kind "ConsoleApp"
+        -- kind "ConsoleApp"
         language "C++"
         cppdialect "C++20"
         staticruntime "on"
@@ -112,6 +112,8 @@ workspace "SOGE"
 
         filter "system:windows"
             systemversion "latest"
+            kind 'WindowedApp'
+            entrypoint "wWinMainCRTStartup"
 
             defines
             {
