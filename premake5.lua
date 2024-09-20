@@ -33,7 +33,8 @@ workspace "SOGE"
         includedirs
         {
             "%{wks.location}/%{prj.name}/include",
-            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}"
         }
 
         defines
@@ -102,7 +103,8 @@ workspace "SOGE"
         {
             "%{wks.location}/%{prj.name}/include",
             "%{wks.location}/SOGE/include",
-            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}"
         }
 
         links

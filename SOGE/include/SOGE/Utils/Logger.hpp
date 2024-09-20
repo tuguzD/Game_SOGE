@@ -5,10 +5,19 @@
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/null_sink.h>
+#include <iostream>
 
 
 namespace soge
 {
+    class StackTraceFormater final : public spdlog::custom_flag_formatter
+    {
+    public:
+        void format(const spdlog::details::log_msg&, const std::tm&, spdlog::memory_buf_t& aDest) override;
+        std::unique_ptr<spdlog::custom_flag_formatter> clone() const override;
+
+    };
+
     class Logger final
     {
         using _LoggerPtr = std::shared_ptr<spdlog::logger>;
@@ -24,6 +33,7 @@ namespace soge
         static _LoggerRef GetEngineSideLogger();
         static _LoggerRef GetApplicationSideLogger();
 
+        static void PrintStackTrace();
     };
 
 
