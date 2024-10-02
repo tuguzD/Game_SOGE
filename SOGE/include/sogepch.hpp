@@ -21,6 +21,23 @@
 #include <unordered_map>
 #include <unordered_set>
 
+// EASTL
+
+#include <EASTL/vector.h>
+#include <EASTL/memory.h>
+#include <EASTL/unique_ptr.h>
+#include <EASTL/shared_ptr.h>
+#include <EASTL/string.h>
+#include <EASTL/unordered_map.h>
+#include <EASTL/unordered_set.h>
+#include <EASTL/chrono.h>
+#include <EASTL/random.h>
+#include <EASTL/map.h>
+#include <EASTL/tuple.h>
+#include <EASTL/algorithm.h>
+#include <EASTL/utility.h>
+#include <EASTL/functional.h>
+
 // Engine
 
 #include "SOGE/Utils/Logger.hpp"
