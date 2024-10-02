@@ -1,6 +1,6 @@
 #include "sogepch.hpp"
 #include "SOGE/Core/Engine.hpp"
-
+#include <EASTL/vector.h>
 
 namespace soge
 {
@@ -18,6 +18,9 @@ namespace soge
         SOGE_INFO_LOG("Initialize engine...");
 
         mIsRunning = false;
+        eastl::vector<int> vec;
+        vec.push_back(1);
+        SOGE_INFO_LOG("{0}", vec[0]);
     }
 
     void Engine::Run()
