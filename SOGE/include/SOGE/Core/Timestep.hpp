@@ -29,7 +29,7 @@ namespace soge
         static float RealDeltaTime();
         static float FrameTime();
 
-        static std::uint64_t GetMillisceonds();
+        static std::uint64_t GetMilliseconds();
         static std::uint64_t GetMicroseconds();
         static std::uint64_t GetNanoseconds();
         static std::uint64_t GetSeconds();

@@ -75,10 +75,9 @@ namespace soge
         }
     }
 
-    void Stopwatch::CalculateDuration()
+    _ChronoNSpace::nanoseconds Stopwatch::Duration()
     {
-        const _ChronoNSpace::nanoseconds duration = mEndTimePoint - mStartTimePoint;
-        mUnits = duration;
+        return mEndTimePoint - mStartTimePoint;
     }
 
     void Stopwatch::Start() noexcept
@@ -95,7 +94,7 @@ namespace soge
         }
 
         if (aCalculateAtStop) {
-            CalculateDuration();
+            mUnits = Duration();
         }
     }
 

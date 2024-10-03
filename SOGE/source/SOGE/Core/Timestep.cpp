@@ -53,7 +53,7 @@ namespace soge
         return mFrameTime;
     }
 
-    std::uint64_t Timestep::GetMillisceonds()
+    std::uint64_t Timestep::GetMilliseconds()
     {
         return _ChronoNSpace::duration_cast<_ChronoNSpace::milliseconds>(_ClockEngine::now().time_since_epoch()).count();
     }
