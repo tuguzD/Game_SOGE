@@ -16,6 +16,9 @@ namespace soge
     Engine::Engine()
     {
         SOGE_INFO_LOG("Initialize engine...");
+        SOGE_ERROR_LOG("Error");
+
+        SOGE_INFO_LOG("Just info");
 
         mIsRunning = false;
     }

@@ -12,7 +12,7 @@ namespace soge
         backward::TraceResolver workAround; // https://github.com/bombela/backward-cpp/issues/206
         mStackTrace = std::make_unique<backward::StackTrace>();
         mStackTrace->load_here(64);
-        mStackTrace->skip_n_firsts(10);
+        mStackTrace->skip_n_firsts(3);
     }
 
     StackTrace::StackTrace(const StackTrace& aOther)
