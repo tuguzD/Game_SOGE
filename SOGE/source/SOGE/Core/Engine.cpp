@@ -27,6 +27,7 @@ namespace soge
         while (mIsRunning) {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
+            SOGE_INFO_LOG("DeltaTime: {0}", Timestep::RealDeltaTime());
         }
 
         this->Shutdown();

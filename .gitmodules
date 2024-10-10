@@ -1,6 +1,9 @@
 [submodule "3rdparty/spdlog/spdlog"]
 	path = 3rdparty/spdlog/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "3rdparty/backwardcpp/backwardcpp"]
+	path = 3rdparty/backwardcpp/backwardcpp
+	url = https://github.com/bombela/backward-cpp.git
 [submodule "3rdparty/EASTL/EASTL"]
 	path = 3rdparty/EASTL/EASTL
 	url = https://github.com/electronicarts/EASTL.git
