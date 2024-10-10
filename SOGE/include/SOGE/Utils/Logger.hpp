@@ -12,7 +12,7 @@ namespace soge
 {
     class Logger final
     {
-        using _LoggerPtr = std::shared_ptr<spdlog::logger>;
+        using _LoggerPtr = eastl::shared_ptr<spdlog::logger>;
         using _LoggerRef = _LoggerPtr&;
 
     private:

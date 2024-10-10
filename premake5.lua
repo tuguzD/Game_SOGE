@@ -11,6 +11,10 @@ workspace "SOGE"
 
     buildpattern = "%{cfg.buildcfg}.%{cfg.system}.%{cfg.architecture}"
 
+    group "Dependencies"
+        include "3rdparty/EASTL/premake5.lua"
+    group ""
+
     project "SOGE"
         location "SOGE"
         kind "StaticLib"
@@ -34,7 +38,9 @@ workspace "SOGE"
         {
             "%{wks.location}/%{prj.name}/include",
             "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}"
         }
 
         defines
@@ -45,7 +51,7 @@ workspace "SOGE"
 
         links
         {
-
+            "EASTL"
         }
 
         filter "system:windows"
@@ -105,6 +111,9 @@ workspace "SOGE"
             "%{wks.location}/SOGE/include",
             "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
             "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}"
         }
 
         links

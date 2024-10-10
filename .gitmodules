@@ -4,3 +4,9 @@
 [submodule "3rdparty/backwardcpp/backwardcpp"]
 	path = 3rdparty/backwardcpp/backwardcpp
 	url = https://github.com/bombela/backward-cpp.git
+[submodule "3rdparty/EASTL/EASTL"]
+	path = 3rdparty/EASTL/EASTL
+	url = https://github.com/electronicarts/EASTL.git
+[submodule "SOGE-UTEST"]
+	path = SOGE-UTEST
+	url = https://github.com/GaikanStudio/SOGE-UTEST.git

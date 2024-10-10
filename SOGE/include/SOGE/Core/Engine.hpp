@@ -20,6 +20,8 @@ namespace soge
         void operator=(Engine&) = delete;
 
         void Run();
+        void Update();
+        void FixedUpdate();
         void RequestShutdown();
 
     public:

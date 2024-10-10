@@ -1,5 +1,6 @@
 #include "sogepch.hpp"
 #include "SOGE/Core/Engine.hpp"
+#include "SOGE/Core/Timestep.hpp"
 
 
 namespace soge
@@ -27,10 +28,21 @@ namespace soge
     {
         mIsRunning = true;
         while (mIsRunning) {
-
+            Timestep::StartFrame();
+            Timestep::CalculateDelta();
         }
 
         this->Shutdown();
+    }
+
+    void Engine::Update()
+    {
+        FixedUpdate();
+    }
+
+    void Engine::FixedUpdate()
+    {
+
     }
 
     void Engine::RequestShutdown()
