@@ -1,5 +1,5 @@
-#ifndef GAME_GAME_ENTRY_POINT_HPP
-#define GAME_GAME_ENTRY_POINT_HPP
+#ifndef GAME_APPENTRYPOINT_HPP
+#define GAME_APPENTRYPOINT_HPP
 
 #include <SOGE/SOGE.hpp>
 #include <SOGE/Core/EntryPoint.hpp>
@@ -12,8 +12,7 @@ namespace game
     public:
         Game();
         ~Game();
-
     };
 }
 
-#endif // !GAME_GAME_ENTRY_POINT_HPP
+#endif // GAME_APPENTRYPOINT_HPP

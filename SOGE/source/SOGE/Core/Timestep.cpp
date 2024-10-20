@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Core/Timestep.hpp"
 
 
@@ -13,7 +14,8 @@ namespace soge
 
     void Timestep::StartFrame()
     {
-        if (mFrameTime == 0) {
+        if (mFrameTime == 0)
+        {
             mFrameTime = GetMicroseconds();
             mFrameTimeForRealDelta = mFrameTime;
         }
@@ -55,12 +57,14 @@ namespace soge
 
     std::uint64_t Timestep::GetMilliseconds()
     {
-        return _ChronoNSpace::duration_cast<_ChronoNSpace::milliseconds>(_ClockEngine::now().time_since_epoch()).count();
+        return _ChronoNSpace::duration_cast<_ChronoNSpace::milliseconds>(_ClockEngine::now().time_since_epoch())
+            .count();
     }
 
     std::uint64_t Timestep::GetMicroseconds()
     {
-        return _ChronoNSpace::duration_cast<_ChronoNSpace::microseconds>(_ClockEngine::now().time_since_epoch()).count();
+        return _ChronoNSpace::duration_cast<_ChronoNSpace::microseconds>(_ClockEngine::now().time_since_epoch())
+            .count();
     }
 
     std::uint64_t Timestep::GetNanoseconds()

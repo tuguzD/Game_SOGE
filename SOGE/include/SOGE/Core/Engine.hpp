@@ -1,5 +1,5 @@
-#ifndef SOGE_ENGINE_HPP
-#define SOGE_ENGINE_HPP
+#ifndef SOGE_CORE_ENGINE_HPP
+#define SOGE_CORE_ENGINE_HPP
 
 
 namespace soge
@@ -16,8 +16,8 @@ namespace soge
         void Shutdown();
 
     public:
-        Engine(Engine&)         = delete;
-        void operator=(Engine&) = delete;
+        Engine(Engine&) = delete;
+        auto operator=(Engine&) = delete;
 
         void Run();
         void Update();
@@ -26,10 +26,9 @@ namespace soge
 
     public:
         static Engine* GetInstance();
-
     };
 
     Engine* CreateApplication();
 }
 
-#endif // !SOGE_ENGINE_HPP
+#endif // SOGE_CORE_ENGINE_HPP

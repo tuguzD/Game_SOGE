@@ -1,5 +1,5 @@
-#ifndef SOGE_STACK_TRACE_HPP
-#define SOGE_STACK_TRACE_HPP
+#ifndef SOGE_UTILS_STACKTRACE_HPP
+#define SOGE_UTILS_STACKTRACE_HPP
 
 
 namespace backward
@@ -24,8 +24,7 @@ namespace soge
         std::string Get() const;
 
         StackTrace& operator=(const StackTrace& aOther);
-
     };
 }
 
-#endif // !SOGE_STACK_TRACE_HPP
+#endif // SOGE_UTILS_STACKTRACE_HPP

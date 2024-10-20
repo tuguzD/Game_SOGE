@@ -1,11 +1,11 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Utils/Stopwatch.hpp"
 
 
 namespace soge
 {
-    TimeUnit::TimeUnit()
-        : mNanoCount(0)
+    TimeUnit::TimeUnit() : mNanoCount(0)
     {
     }
 
@@ -63,14 +63,14 @@ namespace soge
         return mNanoCount == static_cast<std::uint64_t>(aValue);
     }
 
-    Stopwatch::Stopwatch()
-        : mStartTimePoint(), mEndTimePoint(), mIsStopped(false), mUnits()
+    Stopwatch::Stopwatch() : mStartTimePoint(), mEndTimePoint(), mIsStopped(false), mUnits()
     {
     }
 
     Stopwatch::~Stopwatch()
     {
-        if (!mIsStopped) {
+        if (!mIsStopped)
+        {
             Stop();
         }
     }
@@ -82,18 +82,21 @@ namespace soge
 
     void Stopwatch::Start() noexcept
     {
-        if (mIsStopped) mIsStopped = false;
+        if (mIsStopped)
+            mIsStopped = false;
         mStartTimePoint = _ClockEngine::now();
     }
 
     void Stopwatch::Stop(bool aCalculateAtStop) noexcept
     {
-        if (!mIsStopped) {
+        if (!mIsStopped)
+        {
             mEndTimePoint = _ClockEngine::now();
             mIsStopped = true;
         }
 
-        if (aCalculateAtStop) {
+        if (aCalculateAtStop)
+        {
             mUnits = Duration();
         }
     }

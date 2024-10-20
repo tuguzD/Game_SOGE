@@ -1,5 +1,5 @@
-#ifndef SOGE_TIME_STEP_HPP
-#define SOGE_TIME_STEP_HPP
+#ifndef SOGE_CORE_TIMESTEP_HPP
+#define SOGE_CORE_TIMESTEP_HPP
 
 
 namespace soge
@@ -33,8 +33,7 @@ namespace soge
         static std::uint64_t GetMicroseconds();
         static std::uint64_t GetNanoseconds();
         static std::uint64_t GetSeconds();
-
     };
 }
 
-#endif // !SOGE_TIME_STEP_HPP
+#endif // SOGE_CORE_TIMESTEP_HPP

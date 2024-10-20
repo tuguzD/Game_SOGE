@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Utils/StackTrace.hpp"
 #include "SOGE/Utils/StringHelpers.hpp"
 
@@ -15,8 +16,7 @@ namespace soge
         mStackTrace->skip_n_firsts(3);
     }
 
-    StackTrace::StackTrace(const StackTrace& aOther)
-        : mStackTrace(std::make_unique<backward::StackTrace>(*mStackTrace))
+    StackTrace::StackTrace(const StackTrace& aOther) : mStackTrace(std::make_unique<backward::StackTrace>(*mStackTrace))
     {
     }
 

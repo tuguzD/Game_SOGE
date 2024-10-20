@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Core/Engine.hpp"
 #include "SOGE/Core/Timestep.hpp"
 
@@ -6,8 +7,10 @@
 namespace soge
 {
     Engine* Engine::sInstance = nullptr;
-    Engine* Engine::GetInstance() {
-        if (sInstance == nullptr) {
+    Engine* Engine::GetInstance()
+    {
+        if (sInstance == nullptr)
+        {
             sInstance = new Engine();
         }
 
@@ -24,7 +27,8 @@ namespace soge
     void Engine::Run()
     {
         mIsRunning = true;
-        while (mIsRunning) {
+        while (mIsRunning)
+        {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
             SOGE_INFO_LOG("DeltaTime: {0}", Timestep::RealDeltaTime());
@@ -40,7 +44,6 @@ namespace soge
 
     void Engine::FixedUpdate()
     {
-
     }
 
     void Engine::RequestShutdown()

@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Utils/Logger.hpp"
 #include "SOGE/Utils/StackTrace.hpp"
 
@@ -34,7 +35,8 @@ namespace soge
 
     void Logger::PrintStackTrace()
     {
-        if (mIsStackTraceOnErrorEnabled) {
+        if (mIsStackTraceOnErrorEnabled)
+        {
             StackTrace stackTraceInfo;
             mEngineSideLogger->debug(stackTraceInfo.Get());
         }

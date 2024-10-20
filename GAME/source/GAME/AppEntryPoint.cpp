@@ -5,7 +5,7 @@ namespace game
 {
     Game::Game()
     {
-        SOGE_APP_INFO_LOG("Initilize game...");
+        SOGE_APP_INFO_LOG("Initialize game...");
     }
 
     Game::~Game()
@@ -13,6 +13,7 @@ namespace game
     }
 }
 
-soge::Engine* soge::CreateApplication() {
+soge::Engine* soge::CreateApplication()
+{
     return new game::Game();
 }

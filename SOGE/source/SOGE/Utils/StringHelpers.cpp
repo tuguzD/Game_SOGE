@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Utils/StringHelpers.hpp"
 
 
@@ -11,7 +12,8 @@ namespace soge
 
         std::size_t actual;
         mbstowcs_s(&actual, wide.data(), wide.size(), aNarrow.c_str(), _TRUNCATE);
-        if (actual > 0) {
+        if (actual > 0)
+        {
             wide.resize(actual - 1);
             return wide;
         }
