@@ -20,7 +20,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
     soge::Logger::Init();
 
-    auto app = soge::CreateApplication();
+    const auto app = soge::CreateApplication();
     app->Run();
     delete app;
 

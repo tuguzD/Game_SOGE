@@ -4,19 +4,19 @@
 
 namespace soge
 {
-    namespace _ChronoNSpace = eastl::chrono;
+    namespace chrono = eastl::chrono;
 
     class Timestep final
     {
         friend class Engine;
-        using _ClockEngine = _ChronoNSpace::high_resolution_clock;
+        using ClockEngine = chrono::high_resolution_clock;
 
     private:
-        static std::uint64_t mFrameTime;
-        static std::uint64_t mFrameTimeForRealDelta;
-        static float mDeltaTime;
-        static float mRealDeltaTime;
-        static float mGlobalTime;
+        static std::uint64_t s_frameTime;
+        static std::uint64_t s_frameTimeForRealDelta;
+        static float s_deltaTime;
+        static float s_realDeltaTime;
+        static float s_globalTime;
 
     private:
         static void StartFrame();

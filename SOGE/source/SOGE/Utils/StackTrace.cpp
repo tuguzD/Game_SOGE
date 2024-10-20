@@ -11,12 +11,13 @@ namespace soge
     StackTrace::StackTrace()
     {
         backward::TraceResolver workAround; // https://github.com/bombela/backward-cpp/issues/206
-        mStackTrace = std::make_unique<backward::StackTrace>();
-        mStackTrace->load_here(64);
-        mStackTrace->skip_n_firsts(3);
+        m_stackTrace = std::make_unique<backward::StackTrace>();
+        m_stackTrace->load_here(64);
+        m_stackTrace->skip_n_firsts(3);
     }
 
-    StackTrace::StackTrace(const StackTrace& aOther) : mStackTrace(std::make_unique<backward::StackTrace>(*mStackTrace))
+    StackTrace::StackTrace(const StackTrace& aOther)
+        : m_stackTrace(std::make_unique<backward::StackTrace>(*m_stackTrace))
     {
     }
 
@@ -29,7 +30,7 @@ namespace soge
         std::ostringstream oss;
         backward::Printer printer;
 
-        printer.print(*mStackTrace, oss);
+        printer.print(*m_stackTrace, oss);
         return StdToWide(oss.str());
     }
 
@@ -38,13 +39,13 @@ namespace soge
         std::ostringstream oss;
         backward::Printer printer;
 
-        printer.print(*mStackTrace, oss);
+        printer.print(*m_stackTrace, oss);
         return oss.str();
     }
 
     StackTrace& StackTrace::operator=(const StackTrace& aOther)
     {
-        mStackTrace = std::make_unique<backward::StackTrace>(*mStackTrace);
+        m_stackTrace = std::make_unique<backward::StackTrace>(*m_stackTrace);
         return *this;
     }
 }

@@ -1,1 +1,57 @@
-Checks: '-*,llvm-header-guard'
+Checks: 'llvm-header-guard,readability-identifier-naming'
+
+CheckOptions:
+  # Namespaces
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case
+  # Templates
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: camelBack
+  # Concepts
+  - key: readability-identifier-naming.ConceptCase
+    value: CamelCase
+  # Functions
+  - key: readability-identifier-naming.FunctionCase
+    value: CamelCase
+  - key: readability-identifier-naming.IgnoreMainLikeFunctions
+    value: true
+  # Parameters
+  - key: readability-identifier-naming.ParameterCase
+    value: camelBack
+  # Variables
+  - key: readability-identifier-naming.VariableCase
+    value: camelBack
+  - key: readability-identifier-naming.GlobalVariablePrefix
+    value: g_
+  # Type aliases
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+  # Classes
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  # Class fields
+  - key: readability-identifier-naming.MemberCase
+    value: camelBack
+  - key: readability-identifier-naming.MemberPrefix
+    value: m_
+  # Static class fields
+  - key: readability-identifier-naming.ClassMemberPrefix
+    value: s_
+  # Structs
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  # Unions
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
+  # Enumerations
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+  # Macros
+  - key: readability-identifier-naming.MacroDefinitionCase
+    value: UPPER_CASE

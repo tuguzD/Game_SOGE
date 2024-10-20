@@ -6,28 +6,28 @@
 
 namespace soge
 {
-    Engine* Engine::sInstance = nullptr;
+    Engine* Engine::s_instance = nullptr;
     Engine* Engine::GetInstance()
     {
-        if (sInstance == nullptr)
+        if (s_instance == nullptr)
         {
-            sInstance = new Engine();
+            s_instance = new Engine();
         }
 
-        return sInstance;
+        return s_instance;
     }
 
     Engine::Engine()
     {
         SOGE_INFO_LOG("Initialize engine...");
 
-        mIsRunning = false;
+        m_isRunning = false;
     }
 
     void Engine::Run()
     {
-        mIsRunning = true;
-        while (mIsRunning)
+        m_isRunning = true;
+        while (m_isRunning)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
@@ -48,7 +48,7 @@ namespace soge
 
     void Engine::RequestShutdown()
     {
-        mIsRunning = false;
+        m_isRunning = false;
     }
 
     void Engine::Shutdown()

@@ -5,7 +5,7 @@
 namespace soge
 {
     // Alias to change chrono module, just in case...
-    namespace _ChronoNSpace = eastl::chrono;
+    namespace chrono = eastl::chrono;
 
     /**
      * @class TimeUnit Stopwatch.hpp "SOGE/Utils/Stopwatch.hpp"
@@ -13,7 +13,7 @@ namespace soge
      */
     class TimeUnit final
     {
-        using _ReturnType = unsigned long long;
+        using ReturnType = unsigned long long;
 
     private:
         std::uint64_t mNanoCount;
@@ -28,32 +28,32 @@ namespace soge
          * @brief Constructs class with given nanoseconds value.
          * @param[in] aDuration - Duration between start and end time points in nanoseconds.
          */
-        TimeUnit(_ChronoNSpace::nanoseconds aDuration);
+        TimeUnit(chrono::nanoseconds aDuration);
         ~TimeUnit();
 
         /**
          * @returns uint64_t value converted to milliseconds.
          */
-        const _ReturnType Milliseconds() const;
+        const ReturnType Milliseconds() const;
 
         /**
          * @returns Non converted class value.
          */
-        const _ReturnType Nanoseconds() const;
+        const ReturnType Nanoseconds() const;
 
         /**
          * @returns uint64_t value converted to microseconds.
          */
-        const _ReturnType Microseconds() const;
+        const ReturnType Microseconds() const;
 
         /**
          * @returns uint64_t value converted to seconds.
          */
-        const _ReturnType Seconds() const;
+        const ReturnType Seconds() const;
 
         TimeUnit& operator=(const TimeUnit& aOther);
         constexpr bool operator==(const TimeUnit& aOther);
-        TimeUnit& operator=(const _ChronoNSpace::nanoseconds& aNano);
+        TimeUnit& operator=(const chrono::nanoseconds& aNano);
         constexpr bool operator==(const std::uint64_t& aValue);
     };
 
@@ -64,8 +64,8 @@ namespace soge
      */
     class Stopwatch
     {
-        using _ClockEngine = _ChronoNSpace::high_resolution_clock;
-        using _TimePoint = _ChronoNSpace::time_point<_ClockEngine>;
+        using _ClockEngine = chrono::high_resolution_clock;
+        using _TimePoint = chrono::time_point<_ClockEngine>;
 
     private:
         _TimePoint mStartTimePoint;
@@ -98,7 +98,7 @@ namespace soge
          * @brief Calculates duration between start and end point of stopwatch.
          * By default calls automaticaly when Stop() method called.
          */
-        _ChronoNSpace::nanoseconds Duration();
+        chrono::nanoseconds Duration();
 
         /**
          * @returns Returns TimeUnit value elapsed between points

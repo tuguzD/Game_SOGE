@@ -7,11 +7,11 @@ namespace soge
     class Engine
     {
     private:
-        bool mIsRunning;
+        bool m_isRunning;
 
     protected:
         Engine();
-        static Engine* sInstance;
+        static Engine* s_instance;
 
         void Shutdown();
 

@@ -12,71 +12,71 @@ namespace soge
 {
     class Logger final
     {
-        using _LoggerPtr = eastl::shared_ptr<spdlog::logger>;
-        using _LoggerRef = _LoggerPtr&;
+        using LoggerPtr = eastl::shared_ptr<spdlog::logger>;
+        using LoggerRef = LoggerPtr&;
 
     private:
-        static _LoggerPtr mEngineSideLogger;
-        static _LoggerPtr mApplicationSideLogger;
-        static bool mIsStackTraceOnErrorEnabled;
-        static bool mIsStackTraceOnWarnEnabled;
+        static LoggerPtr s_engineSideLogger;
+        static LoggerPtr s_applicationSideLogger;
+        static bool s_isStackTraceOnErrorEnabled;
+        static bool s_isStackTraceOnWarnEnabled;
 
         static void PrintStackTrace();
 
     public:
         static void Init();
 
-        static _LoggerRef GetEngineSideLogger();
-        static _LoggerRef GetApplicationSideLogger();
+        static LoggerRef GetEngineSideLogger();
+        static LoggerRef GetApplicationSideLogger();
 
-        template <typename... _Va>
-        static void EngineLogErrorMessage(_Va&&... aArgs);
+        template <typename... Args>
+        static void EngineLogErrorMessage(Args&&... args);
 
-        template <typename... _Va>
-        static void EngineLogWarnMessage(_Va&&... aArgs);
+        template <typename... Args>
+        static void EngineLogWarnMessage(Args&&... args);
 
-        template <typename... _Va>
-        static void AppLogErrorMessage(_Va&&... aArgs);
+        template <typename... Args>
+        static void AppLogErrorMessage(Args&&... args);
 
-        template <typename... _Va>
-        static void AppLogWarnMessage(_Va&&... aArgs);
+        template <typename... Args>
+        static void AppLogWarnMessage(Args&&... args);
     };
 
-    template <typename... _Va>
-    inline void Logger::EngineLogErrorMessage(_Va&&... aArgs)
+    template <typename... Args>
+    inline void Logger::EngineLogErrorMessage(Args&&... args)
     {
-        mEngineSideLogger->error(std::forward<_Va>(aArgs)...);
-        if (mIsStackTraceOnErrorEnabled)
+        s_engineSideLogger->error(std::forward<Args>(args)...);
+        if (s_isStackTraceOnErrorEnabled)
         {
             PrintStackTrace();
         }
     }
 
-    template <typename... _Va>
-    inline void Logger::EngineLogWarnMessage(_Va&&... aArgs)
+    template <typename... Args>
+    inline void Logger::EngineLogWarnMessage(Args&&... args)
     {
-        mEngineSideLogger->warn(std::forward<_Va>(aArgs)...);
-        if (mIsStackTraceOnWarnEnabled)
+        s_engineSideLogger->warn(std::forward<Args>(args)...);
+        if (s_isStackTraceOnWarnEnabled)
         {
             PrintStackTrace();
         }
     }
 
-    template <typename... _Va>
-    inline void Logger::AppLogErrorMessage(_Va&&... aArgs)
+    template <typename... Args>
+    inline void Logger::AppLogErrorMessage(Args&&... args)
     {
-        mApplicationSideLogger->error(std::forward<_Va>(aArgs)...);
-        if (mIsStackTraceOnErrorEnabled)
+        s_applicationSideLogger->error(std::forward<Args>(args)...);
+        if (s_isStackTraceOnErrorEnabled)
         {
             PrintStackTrace();
         }
     }
 
-    template <typename... _Va>
-    inline void Logger::AppLogWarnMessage(_Va&&... aArgs)
+    template <typename... Args>
+    inline void Logger::AppLogWarnMessage(Args&&... args)
     {
-        mApplicationSideLogger->warn(std::forward<_Va>(aArgs)...);
-        if (mIsStackTraceOnWarnEnabled)
+        s_applicationSideLogger->warn(std::forward<Args>(args)...);
+        if (s_isStackTraceOnWarnEnabled)
         {
             PrintStackTrace();
         }

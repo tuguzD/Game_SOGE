@@ -8,22 +8,22 @@
 
 namespace soge
 {
-    template <typename _Ty>
-    using sharedPtr = eastl::shared_ptr<_Ty>;
+    template <typename T>
+    using SharedPtr = eastl::shared_ptr<T>;
 
-    template <typename _Ty, typename... _Args>
-    constexpr sharedPtr<_Ty> CreateShared(_Args&&... args)
+    template <typename T, typename... Args>
+    constexpr SharedPtr<T> CreateShared(Args&&... args)
     {
-        return eastl::make_shared<_Ty>(eastl::forward<_Args>(args)...);
+        return eastl::make_shared<T>(eastl::forward<Args>(args)...);
     }
 
-    template <typename _Ty>
-    using uniquePtr = eastl::unique_ptr<_Ty>;
+    template <typename T>
+    using UniquePtr = eastl::unique_ptr<T>;
 
-    template <typename _Ty, typename... _Args>
-    constexpr uniquePtr<_Ty> CreateUnique(_Args&&... args)
+    template <typename T, typename... Args>
+    constexpr UniquePtr<T> CreateUnique(Args&&... args)
     {
-        return eastl::make_unique<_Ty>(eastl::forward<_Args>(args)...);
+        return eastl::make_unique<T>(eastl::forward<Args>(args)...);
     }
 }
 

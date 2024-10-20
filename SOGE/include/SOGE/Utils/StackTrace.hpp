@@ -13,15 +13,15 @@ namespace soge
     {
     private:
         // Using Pimpl technique to prevent a lot of backward::stacktrace including
-        std::unique_ptr<backward::StackTrace> mStackTrace;
+        std::unique_ptr<backward::StackTrace> m_stackTrace;
 
     public:
         StackTrace();
         StackTrace(const StackTrace& aOther);
         ~StackTrace();
 
-        std::wstring GetWide() const;
-        std::string Get() const;
+        [[nodiscard]] std::wstring GetWide() const;
+        [[nodiscard]] std::string Get() const;
 
         StackTrace& operator=(const StackTrace& aOther);
     };
