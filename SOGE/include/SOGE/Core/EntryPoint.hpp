@@ -1,5 +1,5 @@
-#ifndef SOGE_ENTRY_POINT_HPP
-#define SOGE_ENTRY_POINT_HPP
+#ifndef SOGE_CORE_ENTRYPOINT_HPP
+#define SOGE_CORE_ENTRYPOINT_HPP
 
 #include "SOGE/Utils/Logger.hpp"
 
@@ -10,12 +10,7 @@ extern soge::Engine* soge::CreateApplication();
 
 #include <Windows.h>
 
-int WINAPI wWinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    PWSTR pCmdLine,
-    int nCmdShow
-)
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nShowCmd)
 {
 
 #ifdef SOGE_DEBUG
@@ -25,7 +20,7 @@ int WINAPI wWinMain(
 
     soge::Logger::Init();
 
-    auto app = soge::CreateApplication();
+    const auto app = soge::CreateApplication();
     app->Run();
     delete app;
 
@@ -46,4 +41,4 @@ int main(int argc, char** argv)
 }
 
 #endif // SOGE_WINDOWS
-#endif // !SOGE_ENTRY_POINT_HPP
+#endif // SOGE_CORE_ENTRYPOINT_HPP

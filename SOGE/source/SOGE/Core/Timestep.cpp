@@ -1,75 +1,77 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Core/Timestep.hpp"
 
 
 namespace soge
 {
-    std::uint64_t Timestep::mFrameTime = 0;
-    std::uint64_t Timestep::mFrameTimeForRealDelta = 0;
-    float Timestep::mDeltaTime = 0.0f;
-    float Timestep::mRealDeltaTime = 0.0f;
-    float Timestep::mGlobalTime = 0.0f;
+    std::uint64_t Timestep::s_frameTime = 0;
+    std::uint64_t Timestep::s_frameTimeForRealDelta = 0;
+    float Timestep::s_deltaTime = 0.0f;
+    float Timestep::s_realDeltaTime = 0.0f;
+    float Timestep::s_globalTime = 0.0f;
 
 
     void Timestep::StartFrame()
     {
-        if (mFrameTime == 0) {
-            mFrameTime = GetMicroseconds();
-            mFrameTimeForRealDelta = mFrameTime;
+        if (s_frameTime == 0)
+        {
+            s_frameTime = GetMicroseconds();
+            s_frameTimeForRealDelta = s_frameTime;
         }
 
         std::uint64_t timestamp = GetMicroseconds();
-        float delta = static_cast<float>((timestamp - mFrameTime) / 1000000.0f);
+        float delta = static_cast<float>((timestamp - s_frameTime) / 1000000.0f);
 
-        mRealDeltaTime = delta;
-        mDeltaTime = eastl::min(0.1f, eastl::max(0.0004f, delta));
+        s_realDeltaTime = delta;
+        s_deltaTime = eastl::min(0.1f, eastl::max(0.0004f, delta));
 
-        mFrameTime = timestamp;
+        s_frameTime = timestamp;
     }
 
     void Timestep::CalculateDelta()
     {
-        mRealDeltaTime = static_cast<float>((mFrameTime - mFrameTimeForRealDelta) / 1000000.0f);
-        mFrameTimeForRealDelta = mFrameTime;
+        s_realDeltaTime = static_cast<float>((s_frameTime - s_frameTimeForRealDelta) / 1000000.0f);
+        s_frameTimeForRealDelta = s_frameTime;
     }
 
     void Timestep::SetDelta(float aDelta)
     {
-        mDeltaTime = aDelta;
+        s_deltaTime = aDelta;
     }
 
     float Timestep::DeltaTime()
     {
-        return mDeltaTime;
+        return s_deltaTime;
     }
 
     float Timestep::RealDeltaTime()
     {
-        return mRealDeltaTime;
+        return s_realDeltaTime;
     }
 
     float Timestep::FrameTime()
     {
-        return mFrameTime;
+        return s_frameTime;
     }
 
     std::uint64_t Timestep::GetMilliseconds()
     {
-        return _ChronoNSpace::duration_cast<_ChronoNSpace::milliseconds>(_ClockEngine::now().time_since_epoch()).count();
+        return chrono::duration_cast<chrono::milliseconds>(ClockEngine::now().time_since_epoch()).count();
     }
 
     std::uint64_t Timestep::GetMicroseconds()
     {
-        return _ChronoNSpace::duration_cast<_ChronoNSpace::microseconds>(_ClockEngine::now().time_since_epoch()).count();
+        return chrono::duration_cast<chrono::microseconds>(ClockEngine::now().time_since_epoch()).count();
     }
 
     std::uint64_t Timestep::GetNanoseconds()
     {
-        return _ChronoNSpace::duration_cast<_ChronoNSpace::nanoseconds>(_ClockEngine::now().time_since_epoch()).count();
+        return chrono::duration_cast<chrono::nanoseconds>(ClockEngine::now().time_since_epoch()).count();
     }
 
     std::uint64_t Timestep::GetSeconds()
     {
-        return _ChronoNSpace::duration_cast<_ChronoNSpace::seconds>(_ClockEngine::now().time_since_epoch()).count();
+        return chrono::duration_cast<chrono::seconds>(ClockEngine::now().time_since_epoch()).count();
     }
 }

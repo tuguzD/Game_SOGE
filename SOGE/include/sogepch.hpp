@@ -1,5 +1,5 @@
-#ifndef SOGE_SOGEPCH_HPP
-#define SOGE_SOGEPCH_HPP
+#ifndef SOGEPCH_HPP
+#define SOGEPCH_HPP
 
 
 // STL
@@ -42,4 +42,4 @@
 
 #include "SOGE/Utils/Logger.hpp"
 
-#endif // !SOGE_SOGEPCH_HPP
+#endif // SOGEPCH_HPP

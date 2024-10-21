@@ -7,4 +7,4 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Utils/Stopwatch.hpp"
 
-#endif // !SOGE_HPP
+#endif // SOGE_HPP

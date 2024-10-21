@@ -1,0 +1,22 @@
+Language: Cpp
+BasedOnStyle: Microsoft
+ColumnLimit: 120
+
+DerivePointerAlignment: False
+PointerAlignment: Left
+
+NamespaceIndentation: All
+FixNamespaceComments: False
+
+AccessModifierOffset: -4
+
+InsertNewlineAtEOF: True
+MaxEmptyLinesToKeep: 2
+
+AlignConsecutiveMacros: Consecutive
+AlignTrailingComments: Always
+
+AlwaysBreakTemplateDeclarations: Yes
+
+BreakAfterAttributes: Always
+BreakBeforeConceptDeclarations: Always

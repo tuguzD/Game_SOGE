@@ -1,5 +1,5 @@
-#ifndef SOGE_STRING_HELPERS_HPP
-#define SOGE_STRING_HELPERS_HPP
+#ifndef SOGE_UTILS_STRINGHELPERS_HPP
+#define SOGE_UTILS_STRINGHELPERS_HPP
 
 
 namespace soge
@@ -8,4 +8,4 @@ namespace soge
     std::string StdToNarrow(const std::wstring& aWide);
 }
 
-#endif // !SOGE_STRING_HELPERS_HPP
+#endif // SOGE_UTILS_STRINGHELPERS_HPP

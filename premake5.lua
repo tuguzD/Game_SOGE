@@ -145,3 +145,23 @@ workspace "SOGE"
             {
                 "SOGE_RELEASE"
             }
+
+-----------------------
+--- Overrides
+-----------------------
+
+require "vstudio"
+
+-- https://github.com/premake/premake-core/pull/2187
+local function clangtidy(cfg)
+    if _ACTION >= "vs2019" then
+        premake.vstudio.vc2010.element("EnableClangTidyCodeAnalysis", nil, "true")
+        premake.vstudio.vc2010.element("ClangTidyChecks", nil, "\"--config-file=../.clang-tidy\"")
+    end
+end
+
+premake.override(premake.vstudio.vc2010.elements, "outputProperties", function(base, cfg)
+    local calls = base(cfg)
+    table.insert(calls, clangtidy)
+    return calls
+end)

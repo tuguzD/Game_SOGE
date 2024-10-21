@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Utils/StringHelpers.hpp"
 
 
@@ -11,7 +12,8 @@ namespace soge
 
         std::size_t actual;
         mbstowcs_s(&actual, wide.data(), wide.size(), aNarrow.c_str(), _TRUNCATE);
-        if (actual > 0) {
+        if (actual > 0)
+        {
             wide.resize(actual - 1);
             return wide;
         }
@@ -21,10 +23,10 @@ namespace soge
 
     std::string StdToNarrow(const std::wstring& aWide)
     {
-        // Wstring has 2 bytes per character
+        // Wide string has 2 bytes per character
         // Narrow string has variable bytes per character
-        // So we double the size to much sizes
-        // Actually it may have larger size, so if it will be a problem, try encrease the size
+        // So we double the size to match sizes
+        // Actually it may have larger size, so if it will be a problem, try increase the size
 
         std::string narrow;
         narrow.resize(aWide.size() * 2);

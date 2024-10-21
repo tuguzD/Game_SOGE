@@ -1,22 +1,22 @@
-#ifndef SOGE_TIME_STEP_HPP
-#define SOGE_TIME_STEP_HPP
+#ifndef SOGE_CORE_TIMESTEP_HPP
+#define SOGE_CORE_TIMESTEP_HPP
 
 
 namespace soge
 {
-    namespace _ChronoNSpace = eastl::chrono;
+    namespace chrono = eastl::chrono;
 
     class Timestep final
     {
         friend class Engine;
-        using _ClockEngine = _ChronoNSpace::high_resolution_clock;
+        using ClockEngine = chrono::high_resolution_clock;
 
     private:
-        static std::uint64_t mFrameTime;
-        static std::uint64_t mFrameTimeForRealDelta;
-        static float mDeltaTime;
-        static float mRealDeltaTime;
-        static float mGlobalTime;
+        static std::uint64_t s_frameTime;
+        static std::uint64_t s_frameTimeForRealDelta;
+        static float s_deltaTime;
+        static float s_realDeltaTime;
+        static float s_globalTime;
 
     private:
         static void StartFrame();
@@ -33,8 +33,7 @@ namespace soge
         static std::uint64_t GetMicroseconds();
         static std::uint64_t GetNanoseconds();
         static std::uint64_t GetSeconds();
-
     };
 }
 
-#endif // !SOGE_TIME_STEP_HPP
+#endif // SOGE_CORE_TIMESTEP_HPP
