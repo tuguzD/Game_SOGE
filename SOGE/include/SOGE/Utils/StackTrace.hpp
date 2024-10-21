@@ -20,8 +20,10 @@ namespace soge
         StackTrace(const StackTrace& aOther);
         ~StackTrace();
 
-        [[nodiscard]] std::wstring GetWide() const;
-        [[nodiscard]] std::string Get() const;
+        [[nodiscard]]
+        std::wstring GetWide() const;
+        [[nodiscard]]
+        std::string Get() const;
 
         StackTrace& operator=(const StackTrace& aOther);
     };

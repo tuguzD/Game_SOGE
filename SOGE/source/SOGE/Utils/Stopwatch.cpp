@@ -5,71 +5,71 @@
 
 namespace soge
 {
-    TimeUnit::TimeUnit() : mNanoCount(0)
+    TimeUnit::TimeUnit() : m_nanoCount(0)
     {
     }
 
     TimeUnit::TimeUnit(chrono::nanoseconds aDuration)
     {
-        mNanoCount = chrono::duration_cast<chrono::nanoseconds>(aDuration).count();
+        m_nanoCount = chrono::duration_cast<chrono::nanoseconds>(aDuration).count();
     }
 
     TimeUnit::~TimeUnit()
     {
     }
 
-    const TimeUnit::ReturnType TimeUnit::Milliseconds() const
+    TimeUnit::ReturnType TimeUnit::Milliseconds() const
     {
-        std::uint64_t up = ((mNanoCount / 100000) % 10 >= 5) ? 1 : 0;
-        return (mNanoCount / 1000000) + up;
+        std::uint64_t up = ((m_nanoCount / 100000) % 10 >= 5) ? 1 : 0;
+        return (m_nanoCount / 1000000) + up;
     }
 
-    const TimeUnit::ReturnType TimeUnit::Nanoseconds() const
+    TimeUnit::ReturnType TimeUnit::Nanoseconds() const
     {
-        return mNanoCount;
+        return m_nanoCount;
     }
 
-    const TimeUnit::ReturnType TimeUnit::Microseconds() const
+    TimeUnit::ReturnType TimeUnit::Microseconds() const
     {
-        std::uint64_t up = ((mNanoCount / 100) % 10 >= 5) ? 1 : 0;
-        return (mNanoCount / 1000) + up;
+        std::uint64_t up = ((m_nanoCount / 100) % 10 >= 5) ? 1 : 0;
+        return (m_nanoCount / 1000) + up;
     }
 
-    const TimeUnit::ReturnType TimeUnit::Seconds() const
+    TimeUnit::ReturnType TimeUnit::Seconds() const
     {
-        std::uint64_t up = ((mNanoCount / 100000000) % 10 >= 5) ? 1 : 0;
-        return (mNanoCount / 1000000000) + up;
+        std::uint64_t up = ((m_nanoCount / 100000000) % 10 >= 5) ? 1 : 0;
+        return (m_nanoCount / 1000000000) + up;
     }
 
     TimeUnit& TimeUnit::operator=(const TimeUnit& aOther)
     {
-        mNanoCount = aOther.mNanoCount;
+        m_nanoCount = aOther.m_nanoCount;
         return *this;
     }
 
     constexpr bool TimeUnit::operator==(const TimeUnit& aOther)
     {
-        return mNanoCount == aOther.mNanoCount;
+        return m_nanoCount == aOther.m_nanoCount;
     }
 
     TimeUnit& TimeUnit::operator=(const chrono::nanoseconds& aNano)
     {
-        mNanoCount = chrono::duration_cast<chrono::nanoseconds>(aNano).count();
+        m_nanoCount = chrono::duration_cast<chrono::nanoseconds>(aNano).count();
         return *this;
     }
 
     constexpr bool TimeUnit::operator==(const std::uint64_t& aValue)
     {
-        return mNanoCount == static_cast<std::uint64_t>(aValue);
+        return m_nanoCount == static_cast<std::uint64_t>(aValue);
     }
 
-    Stopwatch::Stopwatch() : mStartTimePoint(), mEndTimePoint(), mIsStopped(false), mUnits()
+    Stopwatch::Stopwatch() : m_startTimePoint(), m_endTimePoint(), m_isStopped(false), m_units()
     {
     }
 
     Stopwatch::~Stopwatch()
     {
-        if (!mIsStopped)
+        if (!m_isStopped)
         {
             Stop();
         }
@@ -77,27 +77,27 @@ namespace soge
 
     chrono::nanoseconds Stopwatch::Duration()
     {
-        return mEndTimePoint - mStartTimePoint;
+        return m_endTimePoint - m_startTimePoint;
     }
 
     void Stopwatch::Start() noexcept
     {
-        if (mIsStopped)
-            mIsStopped = false;
-        mStartTimePoint = _ClockEngine::now();
+        if (m_isStopped)
+            m_isStopped = false;
+        m_startTimePoint = ClockEngine::now();
     }
 
     void Stopwatch::Stop(bool aCalculateAtStop) noexcept
     {
-        if (!mIsStopped)
+        if (!m_isStopped)
         {
-            mEndTimePoint = _ClockEngine::now();
-            mIsStopped = true;
+            m_endTimePoint = ClockEngine::now();
+            m_isStopped = true;
         }
 
         if (aCalculateAtStop)
         {
-            mUnits = Duration();
+            m_units = Duration();
         }
     }
 
@@ -107,8 +107,8 @@ namespace soge
         Start();
     }
 
-    const TimeUnit Stopwatch::Elapsed()
+    TimeUnit Stopwatch::Elapsed()
     {
-        return mUnits;
+        return m_units;
     }
 }

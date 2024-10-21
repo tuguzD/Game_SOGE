@@ -16,7 +16,7 @@ namespace soge
         using ReturnType = unsigned long long;
 
     private:
-        std::uint64_t mNanoCount;
+        std::uint64_t m_nanoCount;
 
     public:
         /**
@@ -34,22 +34,26 @@ namespace soge
         /**
          * @returns uint64_t value converted to milliseconds.
          */
-        const ReturnType Milliseconds() const;
+        [[nodiscard]]
+        ReturnType Milliseconds() const;
 
         /**
          * @returns Non converted class value.
          */
-        const ReturnType Nanoseconds() const;
+        [[nodiscard]]
+        ReturnType Nanoseconds() const;
 
         /**
          * @returns uint64_t value converted to microseconds.
          */
-        const ReturnType Microseconds() const;
+        [[nodiscard]]
+        ReturnType Microseconds() const;
 
         /**
          * @returns uint64_t value converted to seconds.
          */
-        const ReturnType Seconds() const;
+        [[nodiscard]]
+        ReturnType Seconds() const;
 
         TimeUnit& operator=(const TimeUnit& aOther);
         constexpr bool operator==(const TimeUnit& aOther);
@@ -64,14 +68,14 @@ namespace soge
      */
     class Stopwatch
     {
-        using _ClockEngine = chrono::high_resolution_clock;
-        using _TimePoint = chrono::time_point<_ClockEngine>;
+        using ClockEngine = chrono::high_resolution_clock;
+        using TimePoint = chrono::time_point<ClockEngine>;
 
     private:
-        _TimePoint mStartTimePoint;
-        _TimePoint mEndTimePoint;
-        TimeUnit mUnits;
-        bool mIsStopped;
+        TimePoint m_startTimePoint;
+        TimePoint m_endTimePoint;
+        TimeUnit m_units;
+        bool m_isStopped;
 
     public:
         Stopwatch();
@@ -85,7 +89,7 @@ namespace soge
         /**
          * @brief Sets the end time point of stopwatch
          * @param[in] aCalculateAtStop - Flag to automatically calculate duration between points
-         * when stopwatch stops. By default has **true** value.
+         * when stopwatch stops. By default, has **true** value.
          */
         void Stop(bool aCalculateAtStop = true) noexcept;
 
@@ -96,14 +100,14 @@ namespace soge
 
         /**
          * @brief Calculates duration between start and end point of stopwatch.
-         * By default calls automaticaly when Stop() method called.
+         * By default, calls automatically when Stop() method called.
          */
         chrono::nanoseconds Duration();
 
         /**
          * @returns Returns TimeUnit value elapsed between points
          */
-        const TimeUnit Elapsed();
+        TimeUnit Elapsed();
     };
 }
 

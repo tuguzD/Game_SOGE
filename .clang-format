@@ -17,3 +17,6 @@ AlignConsecutiveMacros: Consecutive
 AlignTrailingComments: Always
 
 AlwaysBreakTemplateDeclarations: Yes
+
+BreakAfterAttributes: Always
+BreakBeforeConceptDeclarations: Always

@@ -19,7 +19,11 @@ CheckOptions:
     value: true
   # Parameters
   - key: readability-identifier-naming.ParameterCase
-    value: camelBack
+    value: CamelCase
+  - key: readability-identifier-naming.ParameterPrefix
+    value: a
+  - key: readability-identifier-naming.ParameterIgnoredRegexp
+    value: 'args.*|argc|argv|h.*Instance|lpCmdLine|nShowCmd'
   # Variables
   - key: readability-identifier-naming.VariableCase
     value: camelBack
