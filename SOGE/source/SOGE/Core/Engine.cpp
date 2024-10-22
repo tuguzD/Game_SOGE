@@ -7,7 +7,7 @@
 namespace soge
 {
     UniquePtr<Engine> Engine::s_instance(nullptr);
-    std::mutex Engine::s_init_mutex;
+    std::mutex Engine::s_initMutex;
 
     Engine* Engine::GetInstance()
     {
@@ -18,7 +18,7 @@ namespace soge
         }
 
         // Safe but slow path: initialize with default class if empty
-        std::lock_guard lock(s_init_mutex);
+        std::lock_guard lock(s_initMutex);
         // Additional check to ensure we are creating new instance exactly once
         if (s_instance == nullptr)
         {

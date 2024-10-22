@@ -15,7 +15,7 @@ namespace soge
     {
     private:
         static UniquePtr<Engine> s_instance;
-        static std::mutex s_init_mutex;
+        static std::mutex s_initMutex;
 
         bool m_isRunning;
 
@@ -54,7 +54,7 @@ namespace soge
 
         // Acquire lock just before moving the new instance
         // (this allows to allocate new instance in parallel compared to acquiring at the beginning of the function)
-        std::lock_guard lock(s_init_mutex);
+        std::lock_guard lock(s_initMutex);
         // Move new instance to the static instance
         s_instance = std::move(newInstance);
         // Return previously saved pointer
