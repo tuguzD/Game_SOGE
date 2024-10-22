@@ -6,6 +6,11 @@
 
 namespace soge
 {
+    class Engine;
+
+    template <typename T>
+    concept DerivedFromEngine = std::is_base_of_v<Engine, T>;
+
     class Engine
     {
     private:
@@ -20,14 +25,17 @@ namespace soge
         void Shutdown();
 
     public:
-        Engine(Engine&) = delete;
-        auto operator=(Engine&) = delete;
+        Engine(const Engine&) = delete;
+        auto operator=(const Engine&) = delete;
+
+        Engine(Engine&&) = delete;
+        auto operator=(Engine&&) = delete;
 
         virtual ~Engine();
 
         static Engine* GetInstance();
 
-        template <typename T = Engine, typename... Args>
+        template <DerivedFromEngine T = Engine, typename... Args>
         static T* Reset(Args&&... args);
 
         void Run();
@@ -36,7 +44,7 @@ namespace soge
         void RequestShutdown();
     };
 
-    template <typename T, typename... Args>
+    template <DerivedFromEngine T, typename... Args>
     T* Engine::Reset(Args&&... args)
     {
         // Replicating `make_unique` here because the constructor is protected
