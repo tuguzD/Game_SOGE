@@ -8,6 +8,17 @@ namespace soge
 {
     class Engine
     {
+    private:
+        static UniquePtr<Engine> s_instance;
+        static std::mutex s_init_mutex;
+
+        bool m_isRunning;
+
+    protected:
+        explicit Engine();
+
+        void Shutdown();
+
     public:
         Engine(Engine&) = delete;
         auto operator=(Engine&) = delete;
@@ -23,17 +34,6 @@ namespace soge
         void Update();
         void FixedUpdate();
         void RequestShutdown();
-
-    protected:
-        explicit Engine();
-
-        void Shutdown();
-
-    private:
-        static UniquePtr<Engine> s_instance;
-        static std::mutex s_init_mutex;
-
-        bool m_isRunning;
     };
 
     template <typename T, typename... Args>

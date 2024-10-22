@@ -12,7 +12,7 @@ namespace soge
     Engine* Engine::GetInstance()
     {
         // Fast path: return the instance if it is already initialized
-        if (s_instance != nullptr) [[likely]]
+        if (s_instance != nullptr)
         {
             return s_instance.get();
         }
@@ -23,7 +23,7 @@ namespace soge
         if (s_instance == nullptr)
         {
             // Replicating `make_unique` here because the constructor is protected
-            s_instance = eastl::unique_ptr<Engine>(new Engine());
+            s_instance = UniquePtr<Engine>(new Engine());
         }
         return s_instance.get();
     }
