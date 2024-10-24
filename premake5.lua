@@ -40,7 +40,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
             "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}"
         }
 
         defines
@@ -112,7 +113,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
             "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}"
         }
 
         links
