@@ -15,14 +15,13 @@ namespace soge
     {
     private:
         static UniquePtr<Engine> s_instance;
-        static std::mutex s_initMutex;
+        static std::mutex s_mutex;
 
         bool m_isRunning;
+        bool m_shutdownRequested;
 
     protected:
         explicit Engine();
-
-        void Shutdown();
 
     public:
         Engine(const Engine&) = delete;
@@ -38,9 +37,10 @@ namespace soge
         template <DerivedFromEngine T = Engine, typename... Args>
         static T* Reset(Args&&... args);
 
+        [[nodiscard]]
+        bool IsRunning() const;
+
         void Run();
-        void Update();
-        void FixedUpdate();
         void RequestShutdown();
     };
 
@@ -54,7 +54,7 @@ namespace soge
 
         // Acquire lock just before moving the new instance
         // (this allows to allocate new instance in parallel compared to acquiring at the beginning of the function)
-        std::lock_guard lock(s_initMutex);
+        std::lock_guard lock(s_mutex);
         // Move new instance to the static instance
         s_instance = std::move(newInstance);
         // Return previously saved pointer

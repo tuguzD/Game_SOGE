@@ -2,7 +2,6 @@
 #define GAME_APPENTRYPOINT_HPP
 
 #include <SOGE/SOGE.hpp>
-#include <SOGE/Core/EntryPoint.hpp>
 
 
 namespace game

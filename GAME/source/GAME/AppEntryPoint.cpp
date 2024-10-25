@@ -1,5 +1,7 @@
 #include "GAME/AppEntryPoint.hpp"
 
+#include <SOGE/Core/EntryPoint.hpp>
+
 
 namespace game
 {
