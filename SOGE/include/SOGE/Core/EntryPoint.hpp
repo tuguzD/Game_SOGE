@@ -43,7 +43,7 @@ inline bool soge::ConsoleInit(Span<char*> args)
     {
         // Prevent opened console from closing before the engine has finished shutting down
         // https://stackoverflow.com/questions/3640633/setconsolectrlhandler-routine-issue
-        static BOOL WINAPI Handle(DWORD aCtrlType)
+        static BOOL WINAPI Handle(const DWORD aCtrlType)
         {
             // Wait for the engine to gracefully shutdown
             if (const auto engine = Engine::GetInstance())
@@ -54,8 +54,15 @@ inline bool soge::ConsoleInit(Span<char*> args)
                 }
             }
 
-            // Maximum amount of time to wait until main thread exits
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            // Ctrl+C or Ctrl+Break events are not terminating the program, but close event does
+            // https://learn.microsoft.com/en-us/windows/console/handlerroutine
+            const bool shouldYield = aCtrlType == CTRL_CLOSE_EVENT;
+            while (shouldYield) // NOLINT(bugprone-infinite-loop)
+            {
+                // Allow for other threads (such as the main thread) to finish their work
+                // This should work because Windows calls this handler in a separate thread
+                std::this_thread::yield();
+            }
             return TRUE;
         }
     };
