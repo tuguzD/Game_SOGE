@@ -1,8 +1,9 @@
 #ifndef SOGE_CORE_ENTRYPOINT_HPP
 #define SOGE_CORE_ENTRYPOINT_HPP
 
-#include "SOGE/System/Memory.hpp"
 #include "SOGE/Utils/Logger.hpp"
+
+#include <span>
 
 
 namespace soge
@@ -10,10 +11,10 @@ namespace soge
     extern Engine* CreateApplication();
 
     [[nodiscard]]
-    bool ConsoleInit(Span<char*> args);
+    bool ConsoleInit(std::span<char*> args);
 
     [[nodiscard]]
-    inline int Launch(const Span<char*> args)
+    inline int Launch(const std::span<char*> args)
     {
         if (!ConsoleInit(args))
         {
@@ -33,7 +34,7 @@ namespace soge
 
 #include <Windows.h>
 
-inline bool soge::ConsoleInit(Span<char*> args)
+inline bool soge::ConsoleInit(std::span<char*> args)
 {
 #ifdef SOGE_DEBUG
     // By using console ctrl handler, we can gracefully shut down the engine
@@ -90,13 +91,13 @@ inline int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR l
 {
     using namespace soge;
 
-    const Span args{__argv, static_cast<USize>(__argc)};
+    const std::span args{__argv, static_cast<std::size_t>(__argc)};
     return Launch(args);
 }
 
 #else
 
-inline bool soge::ConsoleInit(Span<char*> args)
+inline bool soge::ConsoleInit(std::span<char*> args)
 {
     return true;
 }
@@ -105,7 +106,7 @@ inline int main(int argc, char** argv)
 {
     using namespace soge;
 
-    const Span args{argv, static_cast<USize>(argc)};
+    const std::span args{argv, static_cast<std::size_t>(argc)};
     return Launch(args);
 }
 
