@@ -7,42 +7,19 @@ namespace soge
 {
     StringId::Set StringId::s_set;
 
-    StringId::StringId(const View aView) : StringId(aView.data())
+    void StringId::InitializeAtRuntime(View aView)
     {
-    }
-
-    StringId::StringId(CStr aCStr)
-    {
-        m_hash = eastl::hash<CStr>{}(aCStr);
+        eastl::string_view view{aView.data(), aView.size()};
+        m_hash = eastl::hash<decltype(view)>{}(view);
 
         auto hash = [&](const auto&) { return m_hash; };
-        if (const auto iter = s_set.find_as(aCStr, hash, eastl::equal_to()); iter != s_set.end())
+        if (const auto iter = s_set.find_as(view, hash, eastl::equal_to()); iter != s_set.end())
         {
-            m_view = {iter->data(), iter->size()};
+            m_view = View{iter->data(), iter->size()};
             return;
         }
 
-        const auto iter = s_set.emplace(aCStr).first;
-        m_view = {iter->data(), iter->size()};
-    }
-
-    auto StringId::GetHash() const noexcept -> Hash
-    {
-        return m_hash;
-    }
-
-    auto StringId::GetView() const noexcept -> View
-    {
-        return m_view;
-    }
-
-    StringId::operator View() const noexcept
-    {
-        return m_view;
-    }
-
-    StringId::operator CStr() const noexcept
-    {
-        return m_view.data();
+        const auto iter = s_set.emplace(view).first;
+        m_view = View{iter->data(), iter->size()};
     }
 }
