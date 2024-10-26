@@ -57,7 +57,8 @@ inline bool soge::ConsoleInit(Span<char*> args)
             // Ctrl+C or Ctrl+Break events are not terminating the program, but close event does
             // https://learn.microsoft.com/en-us/windows/console/handlerroutine
             const bool shouldYield = aCtrlType == CTRL_CLOSE_EVENT;
-            while (shouldYield) // NOLINT(bugprone-infinite-loop)
+            // NOLINTNEXTLINE(bugprone-infinite-loop) reason: intended behaviour
+            while (shouldYield)
             {
                 // Allow for other threads (such as the main thread) to finish their work
                 // This should work because Windows calls this handler in a separate thread
