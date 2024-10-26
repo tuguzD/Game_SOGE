@@ -5,6 +5,8 @@
 
 namespace soge
 {
+    StringId::Set StringId::s_set;
+
     StringId::StringId(const View aView) : StringId(aView.data())
     {
     }
