@@ -19,13 +19,14 @@ namespace soge
         static_assert(eastl::is_same_v<CStr, String::const_pointer>,
                       "C-string and String must have the same base char type");
 
-        // Define separate hasher to use constexpr
         struct Hasher
         {
             constexpr Hash operator()(StrView aView) const noexcept;
+            constexpr Hash operator()(eastl::string_view aView) const noexcept;
+            Hash operator()(const String& aStr) const noexcept;
         };
 
-        using Set = eastl::hash_set<String, eastl::hash<String>, eastl::equal_to<String>, EASTLAllocatorType, true>;
+        using Set = eastl::hash_set<String, Hasher, eastl::equal_to<String>, EASTLAllocatorType, true>;
         static Set s_set;
 
         void InitializeAtRuntime(StrView aView);
@@ -76,6 +77,12 @@ namespace soge
         while (p != end)
             result = (result * 16777619) ^ (uint8_t)*p++;
         return (size_t)result;
+    }
+
+    constexpr auto StringId::Hasher::operator()(const eastl::string_view aView) const noexcept -> Hash
+    {
+        const StrView view{aView.data(), aView.size()};
+        return operator()(view);
     }
 
     constexpr StringId::StringId(const StrView aView)

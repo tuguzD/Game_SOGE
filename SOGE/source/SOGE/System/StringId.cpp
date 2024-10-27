@@ -7,10 +7,16 @@ namespace soge
 {
     StringId::Set StringId::s_set;
 
+    auto StringId::Hasher::operator()(const String& aStr) const noexcept -> Hash
+    {
+        const StrView view{aStr.data(), aStr.size()};
+        return operator()(view);
+    }
+
     void StringId::InitializeAtRuntime(StrView aView)
     {
         eastl::string_view view{aView.data(), aView.size()};
-        m_hash = eastl::hash<decltype(view)>{}(view);
+        m_hash = s_set.hash_function()(view);
 
         auto hash = [&](const auto&) { return m_hash; };
         if (const auto iter = s_set.find_as(view, hash, eastl::equal_to()); iter != s_set.end())
