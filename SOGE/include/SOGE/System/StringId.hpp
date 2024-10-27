@@ -11,30 +11,30 @@ namespace soge
     {
     public:
         using Hash = eastl_size_t;
-        using View = std::string_view;
-        using CStr = View::const_pointer;
+        using StrView = std::string_view;
+        using CStr = StrView::const_pointer;
 
     private:
         using String = eastl::string;
         static_assert(eastl::is_same_v<CStr, String::const_pointer>,
-                      "C-string and String must have the same char type");
+                      "C-string and String must have the same base char type");
 
         // Define separate hasher to use constexpr
         struct Hasher
         {
-            constexpr Hash operator()(View aView) const noexcept;
+            constexpr Hash operator()(StrView aView) const noexcept;
         };
 
         using Set = eastl::hash_set<String, eastl::hash<String>, eastl::equal_to<String>, EASTLAllocatorType, true>;
         static Set s_set;
 
-        void InitializeAtRuntime(View aView);
+        void InitializeAtRuntime(StrView aView);
 
         Hash m_hash;
-        View m_view;
+        StrView m_view;
 
     public:
-        explicit constexpr StringId(View aView);
+        explicit constexpr StringId(StrView aView);
         explicit constexpr StringId(CStr aCStr);
         explicit constexpr StringId(std::nullptr_t) = delete;
 
@@ -49,9 +49,9 @@ namespace soge
         [[nodiscard]]
         constexpr Hash GetHash() const noexcept;
         [[nodiscard]]
-        constexpr View GetView() const noexcept;
+        constexpr StrView GetString() const noexcept;
 
-        constexpr operator View() const noexcept;
+        constexpr operator StrView() const noexcept;
         constexpr operator CStr() const noexcept;
 
         constexpr auto operator<=>(const StringId&) const noexcept = default;
@@ -62,23 +62,23 @@ namespace soge
     {
         constexpr StringId operator""_sid(const StringId::CStr aCStr, const std::size_t aLength)
         {
-            const StringId::View view{aCStr, aLength};
+            const StringId::StrView view{aCStr, aLength};
             return StringId(view);
         }
     }
 
     // algorithm were taken from EASTL/string_view.h (at line 605)
-    constexpr auto StringId::Hasher::operator()(const View aView) const noexcept -> Hash
+    constexpr auto StringId::Hasher::operator()(const StrView aView) const noexcept -> Hash
     {
-        View::const_iterator p = aView.cbegin();
-        View::const_iterator end = aView.cend();
+        StrView::const_iterator p = aView.cbegin();
+        StrView::const_iterator end = aView.cend();
         uint32_t result = 2166136261U; // We implement an FNV-like string hash.
         while (p != end)
             result = (result * 16777619) ^ (uint8_t)*p++;
         return (size_t)result;
     }
 
-    constexpr StringId::StringId(const View aView)
+    constexpr StringId::StringId(const StrView aView)
     {
         if (std::is_constant_evaluated())
         {
@@ -92,7 +92,7 @@ namespace soge
         InitializeAtRuntime(aView);
     }
 
-    constexpr StringId::StringId(const CStr aCStr) : StringId(View{aCStr})
+    constexpr StringId::StringId(const CStr aCStr) : StringId(StrView{aCStr})
     {
     }
 
@@ -101,12 +101,12 @@ namespace soge
         return m_hash;
     }
 
-    constexpr auto StringId::GetView() const noexcept -> View
+    constexpr auto StringId::GetString() const noexcept -> StrView
     {
         return m_view;
     }
 
-    constexpr StringId::operator View() const noexcept
+    constexpr StringId::operator StrView() const noexcept
     {
         return m_view;
     }

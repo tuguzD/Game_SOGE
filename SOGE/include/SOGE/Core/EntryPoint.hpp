@@ -25,7 +25,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     using namespace soge::string_id_literals;
 
     auto logStringId = [](const soge::StringId& id) {
-        const auto cStr = id.GetView().data();
+        const auto cStr = id.GetString().data();
         SOGE_INFO_LOG("String identifier with value \"{}\" has hash {} and pointer {}", cStr, id.GetHash(),
                       static_cast<const void*>(cStr));
     };
@@ -36,7 +36,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     std::string string = "Hello, World";
     const auto allocatedId = soge::StringId(string);
     logStringId(allocatedId);
-    assert(allocatedId == constId && "StringId should be able to reuse existing strings");
+    assert(allocatedId == constId && "Compile-time and runtime StringIds should be equal");
+
+    const auto reusedId = soge::StringId("Hello, World");
+    logStringId(reusedId);
+    assert(allocatedId.GetString().data() == allocatedId.GetString().data() &&
+           "StringId should be able to reuse existing strings at runtime");
 
     string += "!";
     const auto newId = soge::StringId(string);
