@@ -73,7 +73,7 @@ namespace soge
     {
         if (!m_callbacks.ownsHandle(aHandleBefore))
         {
-            return CallbackHandle();
+            return m_callbacks.append(std::move(aCallback));
         }
         return m_callbacks.insert(std::move(aCallback), aHandleBefore);
     }
