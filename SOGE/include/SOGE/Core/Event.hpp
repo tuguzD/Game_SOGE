@@ -9,7 +9,7 @@ namespace soge
     class Event
     {
     public:
-        virtual ~Event() = default;
+        virtual constexpr ~Event() = default;
 
         [[nodiscard]]
         virtual constexpr EventType GetEventType() const = 0;

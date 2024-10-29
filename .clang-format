@@ -20,3 +20,4 @@ AlwaysBreakTemplateDeclarations: Yes
 
 BreakAfterAttributes: Always
 BreakBeforeConceptDeclarations: Always
+IndentRequiresClause: False
