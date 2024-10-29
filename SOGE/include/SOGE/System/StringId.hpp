@@ -4,6 +4,8 @@
 #include <EASTL/hash_set.h>
 #include <EASTL/string.h>
 
+#include <mutex>
+
 
 namespace soge
 {
@@ -28,6 +30,7 @@ namespace soge
 
         using Set = eastl::hash_set<String, Hasher, eastl::equal_to<String>, EASTLAllocatorType, true>;
         static Set s_set;
+        static std::mutex s_mutex;
 
         void InitializeAtRuntime(StrView aView);
 
