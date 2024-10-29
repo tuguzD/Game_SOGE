@@ -8,15 +8,18 @@
 
 namespace soge
 {
-    template <typename... Args>
-    class MulticastDelegate : public Delegate<void(Args...)>
+    template <typename Prototype>
+    class MulticastDelegate;
+
+    template <typename R, typename... Args>
+    class MulticastDelegate<R(Args...)> : public Delegate<void(Args...)>
     {
     private:
         using Parent = Delegate<void(Args...)>;
         using Prototype = typename Parent::Prototype;
         using ReturnType = typename Parent::ReturnType;
 
-        using Callbacks = eventpp::CallbackList<Prototype>;
+        using Callbacks = eventpp::CallbackList<R(Args...)>;
         Callbacks m_callbacks;
 
     public:
@@ -46,26 +49,27 @@ namespace soge
         void operator()(Args&&... args) const override;
     };
 
-    template <typename... Args>
-    bool MulticastDelegate<Args...>::IsEmpty() const
+    template <typename R, typename... Args>
+    bool MulticastDelegate<R(Args...)>::IsEmpty() const
     {
         return m_callbacks.empty();
     }
 
-    template <typename... Args>
-    auto MulticastDelegate<Args...>::Append(Callback&& aCallback) -> CallbackHandle
+    template <typename R, typename... Args>
+    auto MulticastDelegate<R(Args...)>::Append(Callback&& aCallback) -> CallbackHandle
     {
         return m_callbacks.append(std::move(aCallback));
     }
 
-    template <typename... Args>
-    auto MulticastDelegate<Args...>::Prepend(Callback&& aCallback) -> CallbackHandle
+    template <typename R, typename... Args>
+    auto MulticastDelegate<R(Args...)>::Prepend(Callback&& aCallback) -> CallbackHandle
     {
         return m_callbacks.prepend(std::move(aCallback));
     }
 
-    template <typename... Args>
-    auto MulticastDelegate<Args...>::Insert(Callback&& aCallback, const CallbackHandle& aHandleBefore) -> CallbackHandle
+    template <typename R, typename... Args>
+    auto MulticastDelegate<R(Args...)>::Insert(Callback&& aCallback, const CallbackHandle& aHandleBefore)
+        -> CallbackHandle
     {
         if (!m_callbacks.ownsHandle(aHandleBefore))
         {
@@ -74,8 +78,8 @@ namespace soge
         return m_callbacks.insert(std::move(aCallback), aHandleBefore);
     }
 
-    template <typename... Args>
-    bool MulticastDelegate<Args...>::Remove(const CallbackHandle& aHandle)
+    template <typename R, typename... Args>
+    bool MulticastDelegate<R(Args...)>::Remove(const CallbackHandle& aHandle)
     {
         if (!m_callbacks.ownsHandle(aHandle))
         {
@@ -84,14 +88,14 @@ namespace soge
         return m_callbacks.remove(aHandle);
     }
 
-    template <typename... Args>
-    bool MulticastDelegate<Args...>::Contains(const CallbackHandle& aHandle) const
+    template <typename R, typename... Args>
+    bool MulticastDelegate<R(Args...)>::Contains(const CallbackHandle& aHandle) const
     {
         return m_callbacks.ownsHandle(aHandle);
     }
 
-    template <typename... Args>
-    void MulticastDelegate<Args...>::operator()(Args&&... args) const
+    template <typename R, typename... Args>
+    void MulticastDelegate<R(Args...)>::operator()(Args&&... args) const
     {
         m_callbacks.operator()(std::forward<Args>(args)...);
     }
