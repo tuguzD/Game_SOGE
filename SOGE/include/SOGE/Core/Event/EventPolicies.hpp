@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_EVENTPOLICIES_HPP
-#define SOGE_CORE_EVENTPOLICIES_HPP
+#ifndef SOGE_CORE_EVENT_EVENTPOLICIES_HPP
+#define SOGE_CORE_EVENT_EVENTPOLICIES_HPP
 
-#include "SOGE/Core/Event.hpp"
+#include "SOGE/Core/Event/Event.hpp"
 
 #include <eventpp/eventpolicies.h>
 
@@ -35,4 +35,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_EVENTPOLICIES_HPP
+#endif // SOGE_CORE_EVENT_EVENTPOLICIES_HPP

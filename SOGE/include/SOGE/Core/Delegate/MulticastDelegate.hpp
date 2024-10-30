@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_MULTICASTDELEGATE_HPP
-#define SOGE_CORE_MULTICASTDELEGATE_HPP
+#ifndef SOGE_CORE_DELEGATE_MULTICASTDELEGATE_HPP
+#define SOGE_CORE_DELEGATE_MULTICASTDELEGATE_HPP
 
-#include "SOGE/Core/Delegate.hpp"
+#include "SOGE/Core/Delegate/Delegate.hpp"
 
 #include <eventpp/callbacklist.h>
 
@@ -101,4 +101,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_MULTICASTDELEGATE_HPP
+#endif // SOGE_CORE_DELEGATE_MULTICASTDELEGATE_HPP

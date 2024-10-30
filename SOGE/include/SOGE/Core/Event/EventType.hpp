@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_EVENTTYPE_HPP
-#define SOGE_CORE_EVENTTYPE_HPP
+#ifndef SOGE_CORE_EVENT_EVENTTYPE_HPP
+#define SOGE_CORE_EVENT_EVENTTYPE_HPP
 
-#include "SOGE/Core/EventCategory.hpp"
+#include "SOGE/Core/Event/EventCategory.hpp"
 #include "SOGE/System/StringId.hpp"
 
 
@@ -41,4 +41,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_EVENTTYPE_HPP
+#endif // SOGE_CORE_EVENT_EVENTTYPE_HPP

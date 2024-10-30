@@ -1,5 +1,5 @@
-#ifndef SOGE_CORE_DELEGATE_HPP
-#define SOGE_CORE_DELEGATE_HPP
+#ifndef SOGE_CORE_DELEGATE_DELEGATE_HPP
+#define SOGE_CORE_DELEGATE_DELEGATE_HPP
 
 
 namespace soge
@@ -41,4 +41,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_DELEGATE_HPP
+#endif // SOGE_CORE_DELEGATE_DELEGATE_HPP

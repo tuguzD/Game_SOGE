@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_EVENT_HPP
-#define SOGE_CORE_EVENT_HPP
+#ifndef SOGE_CORE_EVENT_EVENT_HPP
+#define SOGE_CORE_EVENT_EVENT_HPP
 
-#include "SOGE/Core/EventType.hpp"
+#include "SOGE/Core/Event/EventType.hpp"
 
 
 namespace soge
@@ -23,4 +23,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_EVENT_HPP
+#endif // SOGE_CORE_EVENT_EVENT_HPP
