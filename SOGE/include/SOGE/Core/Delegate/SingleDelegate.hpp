@@ -20,11 +20,11 @@ namespace soge
         using Prototype = typename Parent::Prototype;
         using ReturnType = typename Parent::ReturnType;
 
-        using CallbackInternal = std::function<Prototype>;
-        CallbackInternal m_callback;
+        using FunctionInternal = std::function<Prototype>;
+        FunctionInternal m_function;
 
     public:
-        using Callback = CallbackInternal;
+        using Function = FunctionInternal;
 
         explicit SingleDelegate() noexcept = default;
         ~SingleDelegate() noexcept override = default;
@@ -46,8 +46,11 @@ namespace soge
         [[nodiscard]]
         bool IsEmpty() const override;
 
-        Callback Bind(Callback&& aCallback);
-        Callback Clear();
+        template <typename F>
+        requires std::is_invocable_r_v<R, F, Args...>
+        Function Bind(F&& aFunction);
+
+        Function Clear();
 
         [[nodiscard]]
         std::optional<ReturnType> InvokeIfBound(Args&&... args) const
@@ -63,7 +66,7 @@ namespace soge
     template <typename R, typename... Args>
     template <typename F>
     requires std::is_invocable_r_v<R, F, Args...>
-    SingleDelegate<R(Args...)>::SingleDelegate(F&& aFunction) : m_callback{std::forward<F>(aFunction)}
+    SingleDelegate<R(Args...)>::SingleDelegate(F&& aFunction) : m_function{std::forward<F>(aFunction)}
     {
     }
 
@@ -72,58 +75,60 @@ namespace soge
     requires std::is_invocable_r_v<R, F, Args...>
     auto SingleDelegate<R(Args...)>::operator=(F&& aFunction) -> SingleDelegate&
     {
-        m_callback = std::forward<F>(aFunction);
+        m_function = std::forward<F>(aFunction);
         return *this;
     }
 
     template <typename R, typename... Args>
     bool SingleDelegate<R(Args...)>::IsEmpty() const
     {
-        return m_callback == nullptr;
+        return m_function == nullptr;
     }
 
     template <typename R, typename... Args>
-    auto SingleDelegate<R(Args...)>::Bind(Callback&& aCallback) -> Callback
+    template <typename F>
+    requires std::is_invocable_r_v<R, F, Args...>
+    auto SingleDelegate<R(Args...)>::Bind(F&& aFunction) -> Function
     {
-        Callback old = std::move(m_callback);
-        m_callback = std::move(aCallback);
-        return old;
+        Function function{std::forward<F>(aFunction)};
+        std::swap(m_function, function);
+        return function;
     }
 
     template <typename R, typename... Args>
-    auto SingleDelegate<R(Args...)>::Clear() -> Callback
+    auto SingleDelegate<R(Args...)>::Clear() -> Function
     {
-        return Bind(Callback{});
+        return Bind(Function{});
     }
 
     template <typename R, typename... Args>
     auto SingleDelegate<R(Args...)>::InvokeIfBound(Args&&... args) const -> std::optional<ReturnType>
     requires not std::same_as<ReturnType, void>
     {
-        if (m_callback == nullptr)
+        if (m_function == nullptr)
         {
             return std::nullopt;
         }
-        return m_callback.operator()(std::forward<Args>(args)...);
+        return m_function.operator()(std::forward<Args>(args)...);
     }
 
     template <typename R, typename... Args>
     bool SingleDelegate<R(Args...)>::InvokeIfBound(Args&&... args) const
     requires std::same_as<ReturnType, void>
     {
-        if (m_callback == nullptr)
+        if (m_function == nullptr)
         {
             return false;
         }
 
-        m_callback.operator()(std::forward<Args>(args)...);
+        m_function.operator()(std::forward<Args>(args)...);
         return true;
     }
 
     template <typename R, typename... Args>
     auto SingleDelegate<R(Args...)>::operator()(Args&&... args) const -> ReturnType
     {
-        return m_callback.operator()(std::forward<Args>(args)...);
+        return m_function.operator()(std::forward<Args>(args)...);
     }
 }
 

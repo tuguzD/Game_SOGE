@@ -30,9 +30,28 @@ namespace soge
         static constexpr std::size_t s_anyEventMaxSize = eventpp::maxSizeOf<Event, UpdateEvent>();
         using AnyEvent = eventpp::AnyData<s_anyEventMaxSize>;
 
-        eventpp::EventQueue<EventType, void(AnyEvent&), Policies> m_events;
+        using EventQueue = eventpp::EventQueue<EventType, void(AnyEvent&), Policies>;
+        EventQueue m_eventQueue;
 
     public:
+        using Function = EventQueue::Callback;
+        using FunctionHandle = EventQueue::Handle;
+
+        explicit EventManager() noexcept = default;
+        ~EventManager() = default;
+
+        explicit EventManager(const EventManager&) = default;
+        EventManager& operator=(const EventManager&) = default;
+
+        explicit EventManager(EventManager&&) noexcept = default;
+        EventManager& operator=(EventManager&&) noexcept = default;
+
+        // TODO push back, push front, insert, remove, etc.
+
+        [[nodiscard]]
+        bool IsEmpty() const;
+
+        void Clear();
     };
 
     constexpr EventType EventManager::Policies::getEvent(const Event& aEvent)

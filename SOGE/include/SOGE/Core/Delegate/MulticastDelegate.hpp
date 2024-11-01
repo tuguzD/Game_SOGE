@@ -16,18 +16,18 @@ namespace soge
     {
     private:
         using Parent = Delegate<void(Args...)>;
-        using Prototype = typename Parent::Prototype;
-        using ReturnType = typename Parent::ReturnType;
+        using Prototype = R(Args...);
+        using ReturnType = R;
 
-        using Callbacks = eventpp::CallbackList<R(Args...)>;
-        Callbacks m_callbacks;
+        using FunctionList = eventpp::CallbackList<R(Args...)>;
+        FunctionList m_functions;
 
     public:
-        using Callback = typename Callbacks::Callback;
-        using CallbackHandle = typename Callbacks::Handle;
+        using Function = typename FunctionList::Callback;
+        using FunctionHandle = typename FunctionList::Handle;
 
         explicit MulticastDelegate() noexcept = default;
-        ~MulticastDelegate() noexcept override = default;
+        ~MulticastDelegate() override = default;
 
         explicit MulticastDelegate(const MulticastDelegate&) = default;
         MulticastDelegate& operator=(const MulticastDelegate&) = default;
@@ -38,89 +38,108 @@ namespace soge
         [[nodiscard]]
         bool IsEmpty() const override;
 
-        CallbackHandle Append(Callback&& aCallback);
-        CallbackHandle Prepend(Callback&& aCallback);
-        CallbackHandle Insert(Callback&& aCallback, const CallbackHandle& aHandleBefore);
-        bool Remove(const CallbackHandle& aHandle);
+        template <typename F>
+        requires std::is_invocable_r_v<R, F, Args...>
+        FunctionHandle PushBack(F&& aFunction);
+
+        template <typename F>
+        requires std::is_invocable_r_v<R, F, Args...>
+        FunctionHandle PushFront(F&& aFunction);
+
+        template <typename F>
+        requires std::is_invocable_r_v<R, F, Args...>
+        FunctionHandle Insert(F&& aFunction, const FunctionHandle& aBefore);
+
+        bool Remove(const FunctionHandle& aHandle);
 
         [[nodiscard]]
-        bool Contains(const CallbackHandle& aHandle) const;
+        bool Contains(const FunctionHandle& aHandle) const;
 
         void Clear();
 
         void operator()(Args&&... args) const override;
 
-        MulticastDelegate& operator+=(Callback&& aCallback);
-        MulticastDelegate& operator-=(const CallbackHandle& aHandle);
+        template <typename F>
+        requires std::is_invocable_r_v<R, F, Args...>
+        MulticastDelegate& operator+=(F&& aFunction);
+
+        MulticastDelegate& operator-=(const FunctionHandle& aHandle);
     };
 
     template <typename R, typename... Args>
     bool MulticastDelegate<R(Args...)>::IsEmpty() const
     {
-        return m_callbacks.empty();
+        return m_functions.empty();
     }
 
     template <typename R, typename... Args>
-    auto MulticastDelegate<R(Args...)>::Append(Callback&& aCallback) -> CallbackHandle
+    template <typename F>
+    requires std::is_invocable_r_v<R, F, Args...>
+    auto MulticastDelegate<R(Args...)>::PushBack(F&& aFunction) -> FunctionHandle
     {
-        return m_callbacks.append(std::move(aCallback));
+        return m_functions.append(std::forward<F>(aFunction));
     }
 
     template <typename R, typename... Args>
-    auto MulticastDelegate<R(Args...)>::Prepend(Callback&& aCallback) -> CallbackHandle
+    template <typename F>
+    requires std::is_invocable_r_v<R, F, Args...>
+    auto MulticastDelegate<R(Args...)>::PushFront(F&& aFunction) -> FunctionHandle
     {
-        return m_callbacks.prepend(std::move(aCallback));
+        return m_functions.prepend(std::forward<F>(aFunction));
     }
 
     template <typename R, typename... Args>
-    auto MulticastDelegate<R(Args...)>::Insert(Callback&& aCallback, const CallbackHandle& aHandleBefore)
-        -> CallbackHandle
+    template <typename F>
+    requires std::is_invocable_r_v<R, F, Args...>
+    auto MulticastDelegate<R(Args...)>::Insert(F&& aFunction, const FunctionHandle& aBefore) -> FunctionHandle
     {
-        if (!m_callbacks.ownsHandle(aHandleBefore))
+        if (!m_functions.ownsHandle(aBefore))
         {
-            return m_callbacks.append(std::move(aCallback));
+            return m_functions.append(std::forward<F>(aFunction));
         }
-        return m_callbacks.insert(std::move(aCallback), aHandleBefore);
+        return m_functions.insert(std::forward<F>(aFunction), aBefore);
     }
 
     template <typename R, typename... Args>
-    bool MulticastDelegate<R(Args...)>::Remove(const CallbackHandle& aHandle)
+    bool MulticastDelegate<R(Args...)>::Remove(const FunctionHandle& aHandle)
     {
-        if (!m_callbacks.ownsHandle(aHandle))
+        if (!m_functions.ownsHandle(aHandle))
         {
             return false;
         }
-        return m_callbacks.remove(aHandle);
+        return m_functions.remove(aHandle);
     }
 
     template <typename R, typename... Args>
-    bool MulticastDelegate<R(Args...)>::Contains(const CallbackHandle& aHandle) const
+    bool MulticastDelegate<R(Args...)>::Contains(const FunctionHandle& aHandle) const
     {
-        return m_callbacks.ownsHandle(aHandle);
+        return m_functions.ownsHandle(aHandle);
     }
 
     template <typename R, typename... Args>
     void MulticastDelegate<R(Args...)>::Clear()
     {
-        Callbacks callbacks;
-        m_callbacks.swap(callbacks);
+        FunctionList functions;
+        m_functions.swap(functions);
     }
 
     template <typename R, typename... Args>
     void MulticastDelegate<R(Args...)>::operator()(Args&&... args) const
     {
-        m_callbacks.operator()(std::forward<Args>(args)...);
+        m_functions.operator()(std::forward<Args>(args)...);
     }
 
     template <typename R, typename... Args>
-    auto MulticastDelegate<R(Args...)>::operator+=(Callback&& aCallback) -> MulticastDelegate&
+    template <typename F>
+    requires std::is_invocable_r_v<R, F, Args...>
+    auto MulticastDelegate<R(Args...)>::operator+=(F&& aFunction) -> MulticastDelegate&
     {
-        Append(std::move(aCallback));
+        PushBack(std::forward<F>(aFunction));
         return *this;
     }
 
     template <typename R, typename... Args>
-    auto MulticastDelegate<R(Args...)>::operator-=(const CallbackHandle& aHandle) -> MulticastDelegate&
+    auto MulticastDelegate<R(Args...)>::operator-=(const FunctionHandle& aHandle) -> MulticastDelegate&
     {
         Remove(aHandle);
         return *this;
