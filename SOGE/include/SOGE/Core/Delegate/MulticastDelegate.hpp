@@ -46,7 +46,12 @@ namespace soge
         [[nodiscard]]
         bool Contains(const CallbackHandle& aHandle) const;
 
+        void Clear();
+
         void operator()(Args&&... args) const override;
+
+        MulticastDelegate& operator+=(Callback&& aCallback);
+        MulticastDelegate& operator-=(const CallbackHandle& aHandle);
     };
 
     template <typename R, typename... Args>
@@ -95,9 +100,30 @@ namespace soge
     }
 
     template <typename R, typename... Args>
+    void MulticastDelegate<R(Args...)>::Clear()
+    {
+        Callbacks callbacks;
+        m_callbacks.swap(callbacks);
+    }
+
+    template <typename R, typename... Args>
     void MulticastDelegate<R(Args...)>::operator()(Args&&... args) const
     {
         m_callbacks.operator()(std::forward<Args>(args)...);
+    }
+
+    template <typename R, typename... Args>
+    auto MulticastDelegate<R(Args...)>::operator+=(Callback&& aCallback) -> MulticastDelegate&
+    {
+        Append(std::move(aCallback));
+        return *this;
+    }
+
+    template <typename R, typename... Args>
+    auto MulticastDelegate<R(Args...)>::operator-=(const CallbackHandle& aHandle) -> MulticastDelegate&
+    {
+        Remove(aHandle);
+        return *this;
     }
 }
 
