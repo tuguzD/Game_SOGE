@@ -9,35 +9,36 @@ namespace soge
     class EventCategory
     {
     public:
-        struct Default
+        enum class Predefined : std::uint8_t
         {
-            constexpr auto operator<=>(const Default&) const noexcept = default;
-            constexpr bool operator==(const Default&) const noexcept = default;
+            Default,
+            Input,
         };
-
-        struct Input
-        {
-            constexpr auto operator<=>(const Input&) const noexcept = default;
-            constexpr bool operator==(const Input&) const noexcept = default;
-        };
+        using enum Predefined;
 
         class Custom
         {
-        private:
-            using Priority = std::uint32_t;
-            Priority m_priority;
-
         public:
-            explicit constexpr Custom(Priority aPriority) noexcept;
+            using Id = std::uint32_t;
 
-            explicit constexpr operator Priority() const noexcept;
+            explicit constexpr Custom(Id aId) noexcept;
+
+            [[nodiscard]]
+            constexpr Id GetId() const noexcept;
+
+            explicit constexpr operator Id() const noexcept;
 
             constexpr auto operator<=>(const Custom&) const noexcept = default;
             constexpr bool operator==(const Custom&) const noexcept = default;
+
+        private:
+            Id m_priority;
         };
 
     private:
-        using Variants = std::variant<Default, Input, Custom>;
+        friend std::hash<EventCategory>;
+
+        using Variants = std::variant<Predefined, Custom>;
         Variants m_variants;
 
     public:
@@ -71,14 +72,39 @@ namespace soge
     {
     }
 
-    constexpr EventCategory::Custom::Custom(const Priority aPriority) noexcept : m_priority(aPriority)
+    constexpr EventCategory::Custom::Custom(const Id aId) noexcept : m_priority(aId)
     {
     }
 
-    constexpr EventCategory::Custom::operator Priority() const noexcept
+    constexpr auto EventCategory::Custom::GetId() const noexcept -> Id
+    {
+        return m_priority;
+    }
+
+    constexpr EventCategory::Custom::operator Id() const noexcept
     {
         return m_priority;
     }
 }
+
+template <>
+struct std::hash<soge::EventCategory::Custom>
+{
+    std::size_t operator()(const soge::EventCategory::Custom& aCustom) const noexcept
+    {
+        constexpr std::hash<soge::EventCategory::Custom::Id> hasher{};
+        return hasher(aCustom.GetId());
+    }
+};
+
+template <>
+struct std::hash<soge::EventCategory>
+{
+    std::size_t operator()(const soge::EventCategory& aCategory) const noexcept
+    {
+        constexpr std::hash<soge::EventCategory::Variants> hasher{};
+        return hasher(aCategory.m_variants);
+    }
+};
 
 #endif // SOGE_CORE_EVENT_EVENTCATEGORY_HPP
