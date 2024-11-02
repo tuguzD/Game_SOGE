@@ -27,15 +27,56 @@ namespace soge
             static constexpr bool canContinueInvoking(const Event& aEvent);
         };
 
-        static constexpr std::size_t s_anyEventMaxSize = eventpp::maxSizeOf<Event, UpdateEvent>();
-        using AnyEvent = eventpp::AnyData<s_anyEventMaxSize>;
+        class AnyEvent final : public Event
+        {
+        private:
+            static constexpr std::size_t s_anyEventMaxSize = eventpp::maxSizeOf<Event, UpdateEvent>();
+            eventpp::AnyData<s_anyEventMaxSize> m_data;
+
+        public:
+            template <DerivedFromEvent E>
+            explicit AnyEvent(E&& aEvent);
+
+            explicit AnyEvent(const AnyEvent&) = delete;
+            AnyEvent& operator=(const AnyEvent&) = delete;
+
+            explicit AnyEvent(AnyEvent&&) = default;
+            AnyEvent& operator=(AnyEvent&&) noexcept = delete;
+
+            ~AnyEvent() override = default;
+
+            [[nodiscard]]
+            EventType GetEventType() const override;
+
+            [[nodiscard]]
+            bool IsHandled() const override;
+
+            template <DerivedFromEvent E = Event>
+            operator E&() const;
+        };
 
         using EventQueue = eventpp::EventQueue<EventType, void(AnyEvent&), Policies>;
+
+        class FunctionHandleInternal final : public EventQueue::Handle
+        {
+        private:
+            using Parent = EventQueue::Handle;
+            friend EventManager;
+
+            explicit FunctionHandleInternal(Parent&& aHandle, const EventType& aEventType) noexcept;
+
+            EventType m_eventType;
+
+        public:
+            [[nodiscard]]
+            const EventType& GetEventType() const noexcept;
+        };
+
         EventQueue m_eventQueue;
 
     public:
         using Function = EventQueue::Callback;
-        using FunctionHandle = EventQueue::Handle;
+        using FunctionHandle = FunctionHandleInternal;
 
         explicit EventManager() noexcept = default;
         ~EventManager() = default;
@@ -46,8 +87,6 @@ namespace soge
         explicit EventManager(EventManager&&) noexcept = default;
         EventManager& operator=(EventManager&&) noexcept = default;
 
-        // TODO push front, insert, remove, etc.
-
         template <DerivedFromStaticEvent E, typename F>
         requires std::is_invocable_v<F, E&>
         FunctionHandle PushBack(F&& aFunction);
@@ -56,10 +95,33 @@ namespace soge
         requires std::is_invocable_v<F, Event&>
         FunctionHandle PushBack(const EventType& aEventType, F&& aFunction);
 
+        template <DerivedFromStaticEvent E, typename F>
+        requires std::is_invocable_v<F, E&>
+        FunctionHandle PushFront(F&& aFunction);
+
+        template <typename F>
+        requires std::is_invocable_v<F, Event&>
+        FunctionHandle PushFront(const EventType& aEventType, F&& aFunction);
+
+        template <DerivedFromStaticEvent E, typename F>
+        requires std::is_invocable_v<F, E&>
+        FunctionHandle Insert(F&& aFunction, const FunctionHandle& aBefore);
+
+        template <typename F>
+        requires std::is_invocable_v<F, Event&>
+        FunctionHandle Insert(const EventType& aEventType, F&& aFunction, const FunctionHandle& aBefore);
+
+        bool Remove(const FunctionHandle& aHandle);
+
+        [[nodiscard]]
+        bool Contains(const FunctionHandle& aHandle) const;
+
         [[nodiscard]]
         bool IsEmpty() const;
 
         void Clear();
+
+        // TODO dispatch, enqueue, etc.
     };
 
     constexpr EventType EventManager::Policies::getEvent(const Event& aEvent)
@@ -72,19 +134,76 @@ namespace soge
         return !aEvent.IsHandled();
     }
 
+    template <DerivedFromEvent E>
+    EventManager::AnyEvent::AnyEvent(E&& aEvent) : m_data(std::forward<E>(aEvent))
+    {
+    }
+
+    template <DerivedFromEvent E>
+    EventManager::AnyEvent::operator E&() const
+    {
+        return m_data.get<E>();
+    }
+
     template <DerivedFromStaticEvent E, typename F>
     requires std::is_invocable_v<F, E&>
     auto EventManager::PushBack(F&& aFunction) -> FunctionHandle
     {
         const EventType eventType = E::GetStaticEventType();
-        return m_eventQueue.appendListener(eventType, std::forward<F>(aFunction));
+
+        FunctionHandle::Parent handle = m_eventQueue.appendListener(eventType, std::forward<F>(aFunction));
+        return FunctionHandle{std::move(handle), eventType};
     }
 
     template <typename F>
     requires std::is_invocable_v<F, Event&>
     auto EventManager::PushBack(const EventType& aEventType, F&& aFunction) -> FunctionHandle
     {
-        return m_eventQueue.appendListener(aEventType, std::forward<F>(aFunction));
+        FunctionHandle::Parent handle = m_eventQueue.appendListener(aEventType, std::forward<F>(aFunction));
+        return FunctionHandle{std::move(handle), aEventType};
+    }
+
+    template <DerivedFromStaticEvent E, typename F>
+    requires std::is_invocable_v<F, E&>
+    auto EventManager::PushFront(F&& aFunction) -> FunctionHandle
+    {
+        const EventType eventType = E::GetStaticEventType();
+
+        FunctionHandle::Parent handle = m_eventQueue.prependListener(eventType, std::forward<F>(aFunction));
+        return FunctionHandle{std::move(handle), eventType};
+    }
+
+    template <typename F>
+    requires std::is_invocable_v<F, Event&>
+    auto EventManager::PushFront(const EventType& aEventType, F&& aFunction) -> FunctionHandle
+    {
+        FunctionHandle::Parent handle = m_eventQueue.prependListener(aEventType, std::forward<F>(aFunction));
+        return FunctionHandle{std::move(handle), aEventType};
+    }
+
+    template <DerivedFromStaticEvent E, typename F>
+    requires std::is_invocable_v<F, E&>
+    auto EventManager::Insert(F&& aFunction, const FunctionHandle& aBefore) -> FunctionHandle
+    {
+        const EventType eventType = E::GetStaticEventType();
+
+        FunctionHandle::Parent handle =
+            m_eventQueue.ownsHandle(eventType, aBefore)
+                ? m_eventQueue.insertListener(eventType, std::forward<F>(aFunction), aBefore)
+                : m_eventQueue.appendListener(eventType, std::forward<F>(aFunction));
+        return FunctionHandle{std::move(handle), eventType};
+    }
+
+    template <typename F>
+    requires std::is_invocable_v<F, Event&>
+    auto EventManager::Insert(const EventType& aEventType, F&& aFunction, const FunctionHandle& aBefore)
+        -> FunctionHandle
+    {
+        FunctionHandle::Parent handle =
+            m_eventQueue.ownsHandle(aEventType, aBefore)
+                ? m_eventQueue.insertListener(aEventType, std::forward<F>(aFunction), aBefore)
+                : m_eventQueue.appendListener(aEventType, std::forward<F>(aFunction));
+        return FunctionHandle{std::move(handle), aEventType};
     }
 }
 
