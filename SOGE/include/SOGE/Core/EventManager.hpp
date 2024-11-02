@@ -46,7 +46,15 @@ namespace soge
         explicit EventManager(EventManager&&) noexcept = default;
         EventManager& operator=(EventManager&&) noexcept = default;
 
-        // TODO push back, push front, insert, remove, etc.
+        // TODO push front, insert, remove, etc.
+
+        template <DerivedFromStaticEvent E, typename F>
+        requires std::is_invocable_v<F, E&>
+        FunctionHandle PushBack(F&& aFunction);
+
+        template <typename F>
+        requires std::is_invocable_v<F, Event&>
+        FunctionHandle PushBack(const EventType& aEventType, F&& aFunction);
 
         [[nodiscard]]
         bool IsEmpty() const;
@@ -62,6 +70,21 @@ namespace soge
     constexpr bool EventManager::Policies::canContinueInvoking(const Event& aEvent)
     {
         return !aEvent.IsHandled();
+    }
+
+    template <DerivedFromStaticEvent E, typename F>
+    requires std::is_invocable_v<F, E&>
+    auto EventManager::PushBack(F&& aFunction) -> FunctionHandle
+    {
+        const EventType eventType = E::GetStaticEventType();
+        return m_eventQueue.appendListener(eventType, std::forward<F>(aFunction));
+    }
+
+    template <typename F>
+    requires std::is_invocable_v<F, Event&>
+    auto EventManager::PushBack(const EventType& aEventType, F&& aFunction) -> FunctionHandle
+    {
+        return m_eventQueue.appendListener(aEventType, std::forward<F>(aFunction));
     }
 }
 
