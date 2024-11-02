@@ -12,6 +12,7 @@ namespace soge
         enum class Predefined : std::uint8_t
         {
             Default,
+            Core,
             Input,
         };
         using enum Predefined;
