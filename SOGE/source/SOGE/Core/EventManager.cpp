@@ -43,11 +43,28 @@ namespace soge
 
     bool EventManager::IsEmpty() const
     {
-        return m_eventQueue.emptyQueue();
+        return m_eventQueue.waitFor(std::chrono::nanoseconds(0));
+    }
+
+    void EventManager::ClearQueued()
+    {
+        m_eventQueue.clearEvents();
     }
 
     void EventManager::Clear()
     {
-        m_eventQueue.clearEvents();
+        EventQueue eventQueue;
+        m_eventQueue.swap(eventQueue);
+    }
+
+    void EventManager::DispatchQueued(const EventType& aEventType)
+    {
+        auto predictor = [&](const Event& aEvent) { return aEventType == aEvent.GetEventType(); };
+        m_eventQueue.processIf(predictor);
+    }
+
+    void EventManager::DispatchAllQueued()
+    {
+        m_eventQueue.process();
     }
 }

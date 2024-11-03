@@ -119,9 +119,22 @@ namespace soge
         [[nodiscard]]
         bool IsEmpty() const;
 
+        void ClearQueued();
         void Clear();
 
-        // TODO dispatch, enqueue, etc.
+        template <DerivedFromEvent E, typename... Args>
+        requires std::is_constructible_v<E, Args...>
+        void Dispatch(Args&&... args);
+
+        template <DerivedFromEvent E, typename... Args>
+        requires std::is_constructible_v<E, Args...>
+        void Enqueue(Args&&... args);
+
+        template <DerivedFromStaticEvent E>
+        void DispatchQueued();
+
+        void DispatchQueued(const EventType& aEventType);
+        void DispatchAllQueued();
     };
 
     constexpr EventType EventManager::Policies::getEvent(const Event& aEvent)
@@ -204,6 +217,29 @@ namespace soge
                 ? m_eventQueue.insertListener(aEventType, std::forward<F>(aFunction), aBefore)
                 : m_eventQueue.appendListener(aEventType, std::forward<F>(aFunction));
         return FunctionHandle{std::move(handle), aEventType};
+    }
+
+    template <DerivedFromEvent E, typename... Args>
+    requires std::is_constructible_v<E, Args...>
+    void EventManager::Dispatch(Args&&... args)
+    {
+        AnyEvent event{E{std::forward<Args>(args)...}};
+        m_eventQueue.dispatch(event);
+    }
+
+    template <DerivedFromEvent E, typename... Args>
+    requires std::is_constructible_v<E, Args...>
+    void EventManager::Enqueue(Args&&... args)
+    {
+        AnyEvent event{E{std::forward<Args>(args)...}};
+        m_eventQueue.enqueue(std::move(event));
+    }
+
+    template <DerivedFromStaticEvent E>
+    void EventManager::DispatchQueued()
+    {
+        const EventType eventType = E::GetStaticEventType();
+        DispatchQueued(eventType);
     }
 }
 
