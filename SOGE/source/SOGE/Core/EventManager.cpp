@@ -41,12 +41,17 @@ namespace soge
         return m_eventQueue.ownsHandle(eventType, aHandle);
     }
 
-    bool EventManager::IsEmpty() const
+    bool EventManager::IsQueueEmpty() const
     {
         return m_eventQueue.waitFor(std::chrono::nanoseconds(0));
     }
 
-    void EventManager::ClearQueued()
+    bool EventManager::IsEmpty(const EventType& aEventType) const
+    {
+        return m_eventQueue.hasAnyListener(aEventType);
+    }
+
+    void EventManager::ClearQueue()
     {
         m_eventQueue.clearEvents();
     }
@@ -57,13 +62,13 @@ namespace soge
         m_eventQueue.swap(eventQueue);
     }
 
-    void EventManager::DispatchQueued(const EventType& aEventType)
+    void EventManager::DispatchQueue(const EventType& aEventType)
     {
         auto predictor = [&](const Event& aEvent) { return aEventType == aEvent.GetEventType(); };
         m_eventQueue.processIf(predictor);
     }
 
-    void EventManager::DispatchAllQueued()
+    void EventManager::DispatchQueue()
     {
         m_eventQueue.process();
     }

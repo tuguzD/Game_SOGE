@@ -117,9 +117,16 @@ namespace soge
         bool Contains(const FunctionHandle& aHandle) const;
 
         [[nodiscard]]
+        bool IsQueueEmpty() const;
+
+        template <DerivedFromStaticEvent E>
+        [[nodiscard]]
         bool IsEmpty() const;
 
-        void ClearQueued();
+        [[nodiscard]]
+        bool IsEmpty(const EventType& aEventType) const;
+
+        void ClearQueue();
         void Clear();
 
         template <DerivedFromEvent E, typename... Args>
@@ -131,10 +138,10 @@ namespace soge
         void Enqueue(Args&&... args);
 
         template <DerivedFromStaticEvent E>
-        void DispatchQueued();
+        void DispatchQueue();
 
-        void DispatchQueued(const EventType& aEventType);
-        void DispatchAllQueued();
+        void DispatchQueue(const EventType& aEventType);
+        void DispatchQueue();
     };
 
     constexpr EventType EventManager::Policies::getEvent(const Event& aEvent)
@@ -219,6 +226,13 @@ namespace soge
         return FunctionHandle{std::move(handle), aEventType};
     }
 
+    template <DerivedFromStaticEvent E>
+    bool EventManager::IsEmpty() const
+    {
+        const EventType eventType = E::GetStaticEventType();
+        return IsEmpty(eventType);
+    }
+
     template <DerivedFromEvent E, typename... Args>
     requires std::is_constructible_v<E, Args...>
     void EventManager::Dispatch(Args&&... args)
@@ -236,10 +250,10 @@ namespace soge
     }
 
     template <DerivedFromStaticEvent E>
-    void EventManager::DispatchQueued()
+    void EventManager::DispatchQueue()
     {
         const EventType eventType = E::GetStaticEventType();
-        DispatchQueued(eventType);
+        DispatchQueue(eventType);
     }
 }
 
