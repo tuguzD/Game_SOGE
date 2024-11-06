@@ -36,16 +36,6 @@ namespace soge
     Engine::~Engine()
     {
         SOGE_INFO_LOG("Destroy engine...");
-
-#ifdef SOGE_DEBUG
-
-#ifdef SOGE_WINDOWS
-        Beep(500, 1000);
-#else
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-#endif // SOGE_WINDOWS
-
-#endif // SOGE_DEBUG
     }
 
     void Engine::Run()
