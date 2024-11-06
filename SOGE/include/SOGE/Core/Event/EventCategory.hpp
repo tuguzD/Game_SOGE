@@ -38,6 +38,7 @@ namespace soge
 
     private:
         friend std::hash<EventCategory>;
+        friend eastl::hash<EventCategory>;
 
         using Variants = std::variant<Predefined, Custom>;
         Variants m_variants;
@@ -91,10 +92,18 @@ namespace soge
 template <>
 struct std::hash<soge::EventCategory::Custom>
 {
-    std::size_t operator()(const soge::EventCategory::Custom& aCustom) const noexcept
+    constexpr std::size_t operator()(const soge::EventCategory::Custom& aCustom) const noexcept
     {
-        constexpr std::hash<soge::EventCategory::Custom::Id> hasher{};
-        return hasher(aCustom.GetId());
+        return aCustom.GetId();
+    }
+};
+
+template <>
+struct eastl::hash<soge::EventCategory::Custom>
+{
+    constexpr eastl_size_t operator()(const soge::EventCategory::Custom& aCustom) const noexcept
+    {
+        return aCustom.GetId();
     }
 };
 
@@ -102,6 +111,16 @@ template <>
 struct std::hash<soge::EventCategory>
 {
     std::size_t operator()(const soge::EventCategory& aCategory) const noexcept
+    {
+        constexpr std::hash<soge::EventCategory::Variants> hasher{};
+        return hasher(aCategory.m_variants);
+    }
+};
+
+template <>
+struct eastl::hash<soge::EventCategory>
+{
+    eastl_size_t operator()(const soge::EventCategory& aCategory) const noexcept
     {
         constexpr std::hash<soge::EventCategory::Variants> hasher{};
         return hasher(aCategory.m_variants);
