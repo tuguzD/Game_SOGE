@@ -12,7 +12,7 @@ namespace soge
 {
     class Logger final
     {
-        using LoggerPtr = eastl::shared_ptr<spdlog::logger>;
+        using LoggerPtr = std::shared_ptr<spdlog::logger>;
         using LoggerRef = LoggerPtr&;
 
     private:
@@ -45,6 +45,11 @@ namespace soge
     template <typename... Args>
     inline void Logger::EngineLogErrorMessage(Args&&... args)
     {
+        if (s_engineSideLogger == nullptr)
+        {
+            return;
+        }
+
         s_engineSideLogger->error(std::forward<Args>(args)...);
         if (s_isStackTraceOnErrorEnabled)
         {
@@ -55,6 +60,11 @@ namespace soge
     template <typename... Args>
     inline void Logger::EngineLogWarnMessage(Args&&... args)
     {
+        if (s_engineSideLogger == nullptr)
+        {
+            return;
+        }
+
         s_engineSideLogger->warn(std::forward<Args>(args)...);
         if (s_isStackTraceOnWarnEnabled)
         {
@@ -65,6 +75,11 @@ namespace soge
     template <typename... Args>
     inline void Logger::AppLogErrorMessage(Args&&... args)
     {
+        if (s_applicationSideLogger == nullptr)
+        {
+            return;
+        }
+
         s_applicationSideLogger->error(std::forward<Args>(args)...);
         if (s_isStackTraceOnErrorEnabled)
         {
@@ -75,6 +90,11 @@ namespace soge
     template <typename... Args>
     inline void Logger::AppLogWarnMessage(Args&&... args)
     {
+        if (s_applicationSideLogger == nullptr)
+        {
+            return;
+        }
+
         s_applicationSideLogger->warn(std::forward<Args>(args)...);
         if (s_isStackTraceOnWarnEnabled)
         {

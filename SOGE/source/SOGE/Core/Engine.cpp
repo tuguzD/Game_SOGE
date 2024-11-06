@@ -7,7 +7,7 @@
 namespace soge
 {
     UniquePtr<Engine> Engine::s_instance(nullptr);
-    std::mutex Engine::s_initMutex;
+    std::mutex Engine::s_mutex;
 
     Engine* Engine::GetInstance()
     {
@@ -18,7 +18,7 @@ namespace soge
         }
 
         // Safe but slow path: initialize with default class if empty
-        std::lock_guard lock(s_initMutex);
+        std::lock_guard lock(s_mutex);
         // Additional check to ensure we are creating new instance exactly once
         if (s_instance == nullptr)
         {
@@ -28,7 +28,7 @@ namespace soge
         return s_instance.get();
     }
 
-    Engine::Engine() : m_isRunning(false)
+    Engine::Engine() : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
     }
@@ -40,32 +40,32 @@ namespace soge
 
     void Engine::Run()
     {
+        if (m_isRunning)
+        {
+            return;
+        }
+
+        // Prevent users from resetting engine while it is running
+        std::lock_guard lock(s_mutex);
         m_isRunning = true;
-        while (m_isRunning)
+
+        m_shutdownRequested = false;
+        while (!m_shutdownRequested)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
-
         }
 
-        Shutdown();
+        m_isRunning = false;
     }
 
-    void Engine::Update()
+    bool Engine::IsRunning() const
     {
-        FixedUpdate();
-    }
-
-    void Engine::FixedUpdate()
-    {
+        return m_isRunning;
     }
 
     void Engine::RequestShutdown()
     {
-        m_isRunning = false;
-    }
-
-    void Engine::Shutdown()
-    {
+        m_shutdownRequested = true;
     }
 }

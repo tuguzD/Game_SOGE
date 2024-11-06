@@ -8,9 +8,8 @@
  * located in global space. Note that pch header may be probably not
  * a very good place to store it.
  **/
-// NOLINTBEGIN(readability-identifier-naming)
+// NOLINTNEXTLINE(readability-identifier-naming) reason: names were taken from declaration
 void* __cdecl operator new[](size_t size, const char* pName, int flags, unsigned debugFlags, const char* file, int line)
-// NOLINTEND(readability-identifier-naming)
 {
     return new uint8_t[size];
 }
@@ -23,10 +22,9 @@ void* __cdecl operator new[](size_t size, const char* pName, int flags, unsigned
  * located in global space. Note that pch header may be probably not
  * a very good place to store it.
  **/
-// NOLINTBEGIN(readability-identifier-naming)
+// NOLINTNEXTLINE(readability-identifier-naming) reason: names were taken from declaration
 void* __cdecl operator new[](size_t size, size_t alignment, size_t alignmentOffset, const char* pName, int flags,
                              unsigned debugFlags, const char* file, int line)
-// NOLINTEND(readability-identifier-naming)
 {
     return new uint8_t[size];
 }

@@ -13,13 +13,12 @@ namespace soge
 
     void Logger::Init()
     {
-
         spdlog::set_pattern("%^[%T] %! [%n %l]: %v%$");
 
-        s_engineSideLogger = LoggerPtr(spdlog::stdout_color_mt("ENGINE").get());
+        s_engineSideLogger = spdlog::stdout_color_mt("ENGINE");
         s_engineSideLogger->set_level(spdlog::level::trace);
 
-        s_applicationSideLogger = LoggerPtr(spdlog::stdout_color_mt("APP").get());
+        s_applicationSideLogger = spdlog::stdout_color_mt("APP");
         s_applicationSideLogger->set_level(spdlog::level::trace);
     }
 
@@ -37,7 +36,7 @@ namespace soge
     {
         if (s_isStackTraceOnErrorEnabled)
         {
-            StackTrace stackTraceInfo;
+            const StackTrace stackTraceInfo;
             s_engineSideLogger->debug(stackTraceInfo.Get());
         }
     }
