@@ -4,6 +4,8 @@
 #include <EASTL/hash_set.h>
 #include <EASTL/string.h>
 
+#include <mutex>
+
 
 namespace soge
 {
@@ -28,6 +30,7 @@ namespace soge
 
         using Set = eastl::hash_set<String, Hasher, eastl::equal_to<String>, EASTLAllocatorType, true>;
         static Set s_set;
+        static std::mutex s_mutex;
 
         void InitializeAtRuntime(StrView aView);
 
@@ -54,6 +57,8 @@ namespace soge
 
         constexpr operator StrView() const noexcept;
         constexpr operator CStr() const noexcept;
+
+        constexpr void Swap(StringId& aOther) noexcept;
 
         constexpr auto operator<=>(const StringId&) const noexcept = default;
         constexpr bool operator==(const StringId&) const noexcept = default;
@@ -122,6 +127,30 @@ namespace soge
     {
         return m_view.data();
     }
+
+    constexpr void StringId::Swap(StringId& aOther) noexcept
+    {
+        std::swap(m_hash, aOther.m_hash);
+        std::swap(m_view, aOther.m_view);
+    }
 }
+
+template <>
+struct std::hash<soge::StringId>
+{
+    constexpr std::size_t operator()(const soge::StringId& aStringId) const noexcept
+    {
+        return aStringId.GetHash();
+    }
+};
+
+template <>
+struct eastl::hash<soge::StringId>
+{
+    constexpr eastl_size_t operator()(const soge::StringId& aStringId) const noexcept
+    {
+        return aStringId.GetHash();
+    }
+};
 
 #endif // SOGE_SYSTEM_STRINGID_HPP
