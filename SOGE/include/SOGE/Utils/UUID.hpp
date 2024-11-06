@@ -13,8 +13,7 @@ namespace soge
 
     public:
         static UUIDv4::UUID Generate();
-
     };
 }
 
-#endif // !SOGE_UTILS_UUID_HPP
+#endif // SOGE_UTILS_UUID_HPP

@@ -41,7 +41,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}"
         }
 
         defines
@@ -114,7 +115,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}"
         }
 
         links
