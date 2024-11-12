@@ -6,14 +6,34 @@
 
 namespace soge
 {
+    namespace EventTypes
+    {
+        namespace CoreEvents
+        {
+            constexpr EventType g_updateEvent{StringId("UpdateEvent"), EventCategory::Core};
+        }
+
+        namespace InputEvents
+        {
+            constexpr EventType g_keyPressedEvent{StringId("KeyPressedEvent"), EventCategory::Input};
+            constexpr EventType g_keyReleasedEvent{StringId("KeyReleasedEvent"), EventCategory::Input};
+            constexpr EventType g_keyTypingEvent{StringId("KeyTypingEvent"), EventCategory::Input};
+
+            constexpr EventType g_mouseMotionEvent{StringId("MouseMotionEvent"), EventCategory::Input};
+            constexpr EventType g_mouseButtonPressedEvent{StringId("MouseButtonPressedEvent"), EventCategory::Input};
+            constexpr EventType g_mouseButtonReleasedEvent{StringId("MouseButtonReleasedEvent"), EventCategory::Input};
+            constexpr EventType g_mouseWheelEvent{StringId("MouseWheelEvent"), EventCategory::Input};
+
+            // TODO: Add DeviceAdded and DeviceRemoved event for each device in the future
+        }
+    }
+
     class UpdateEvent : public StaticEvent<UpdateEvent>
     {
     private:
         float m_deltaTime;
 
     public:
-        static constexpr EventType s_eventType{StringId("Update"), EventCategory::Core};
-
         [[nodiscard]]
         static constexpr EventType GetStaticEventType() noexcept;
 
@@ -23,11 +43,27 @@ namespace soge
         constexpr float GetDeltaTime() const noexcept;
     };
 
-    static_assert(DerivedFromStaticEvent<UpdateEvent>, "Update core event should be static event");
+    class KeyboardEventBase : public StaticEvent<KeyboardEventBase>
+    {
+    private:
+
+    public:
+
+
+    public:
+        static constexpr EventType GetStaticEventType() noexcept;
+    };
+
+    static_assert(DerivedFromStaticEvent<UpdateEvent>, "Update core event should be static event!");
+    static_assert(DerivedFromStaticEvent<KeyboardEventBase>, "Keyboard event should be static event!");
+
+    ////////////////////////////
+    // Update Event Templates
+    ///////////////////////////
 
     constexpr EventType UpdateEvent::GetStaticEventType() noexcept
     {
-        return s_eventType;
+        return EventTypes::CoreEvents::g_updateEvent;
     }
 
     constexpr UpdateEvent::UpdateEvent(const float aDeltaTime) noexcept : m_deltaTime(aDeltaTime)

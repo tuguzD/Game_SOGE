@@ -42,7 +42,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
             "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
         }
 
         defines
@@ -73,7 +74,12 @@ workspace "SOGE"
                 "SOGE_ENABLE_ASSERT"
             }
 
-            links {}
+            links 
+            {
+                "%{wks.location}/%{Libraries.SDL_UCLIB_D}",
+                "%{wks.location}/%{Libraries.SDL3_DLL_D}",
+                "%{wks.location}/%{Libraries.SDL3_LIB_D}"
+            }
 
         filter "configurations:Release"
             optimize "on"
@@ -83,7 +89,12 @@ workspace "SOGE"
                 "SOGE_RELEASE"
             }
 
-            links {}
+            links
+            {
+                "%{wks.location}/%{Libraries.SDL_UCLIB_R}",
+                "%{wks.location}/%{Libraries.SDL3_DLL_R}",
+                "%{wks.location}/%{Libraries.SDL3_LIB_R}"
+            }
 
 -----------------------
 --- Engine application
@@ -116,7 +127,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
             "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
         }
 
         links

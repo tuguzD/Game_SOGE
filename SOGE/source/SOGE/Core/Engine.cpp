@@ -31,6 +31,8 @@ namespace soge
     Engine::Engine() : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
+
+        m_eventManager = CreateUnique<EventManager>();
     }
 
     Engine::~Engine()
@@ -49,11 +51,18 @@ namespace soge
         std::lock_guard lock(s_mutex);
         m_isRunning = true;
 
+        m_eventManager->PushFront<UpdateEvent>([](const UpdateEvent& aEvent) {
+            //SOGE_INFO_LOG("Delta time is: {0}", aEvent.GetDeltaTime());
+        });
+
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
+
+            m_eventManager->Enqueue<UpdateEvent>(Timestep::RealDeltaTime());
+            m_eventManager->DispatchQueue<UpdateEvent>();
         }
 
         m_isRunning = false;

@@ -13,3 +13,6 @@
 [submodule "3rdparty/eventpp/eventpp"]
 	path = 3rdparty/eventpp/eventpp
 	url = https://github.com/wqking/eventpp.git
+[submodule "3rdparty/SDL/SDL"]
+	path = 3rdparty/SDL/SDL
+	url = https://github.com/libsdl-org/SDL.git

@@ -2,6 +2,7 @@
 #define SOGE_CORE_ENGINE_HPP
 
 #include "SOGE/System/Memory.hpp"
+#include "SOGE/Core/EventManager.hpp"
 
 
 namespace soge
@@ -16,6 +17,8 @@ namespace soge
     private:
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
+
+        eastl::unique_ptr<EventManager> m_eventManager;
 
         bool m_isRunning;
         bool m_shutdownRequested;
