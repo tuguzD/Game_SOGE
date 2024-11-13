@@ -74,6 +74,9 @@ namespace soge::di
 
     template <Dependency T>
     using Lazy = kgr::lazy<DependencyDefinition<T>>;
+
+    template <PolymorphicDependency T>
+    using PolymorphicRange = kgr::override_range<kgr::detail::override_iterator<DependencyDefinition<T>>>;
 }
 
 // Registers a class as a dependency with the given definition globally

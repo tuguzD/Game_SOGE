@@ -34,7 +34,7 @@ namespace soge::di
 
         template <Dependency T>
         [[nodiscard]]
-        auto ProvideLazy() -> Lazy<T>
+        Lazy<T> ProvideLazy()
         {
             using Service = kgr::lazy_service<DependencyDefinition<T>>;
 
@@ -43,7 +43,7 @@ namespace soge::di
 
         template <PolymorphicDependency T>
         [[nodiscard]]
-        std::ranges::input_range auto ProvideRange() -> decltype(auto)
+        PolymorphicRange<T> ProvideRange()
         {
             using Service = kgr::override_range_service<DependencyDefinition<T>>;
 
