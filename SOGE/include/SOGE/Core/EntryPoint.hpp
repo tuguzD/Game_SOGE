@@ -25,6 +25,15 @@ public:
 
 class E
 {
+public:
+    explicit E() = default;
+    ~E() = default;
+
+    explicit E(const E&) = delete;
+    E& operator=(const E&) = delete;
+
+    explicit E(E&&) = default;
+    E& operator=(E&&) = default;
 };
 
 class B
@@ -66,7 +75,7 @@ namespace soge
         E external;
         container.Create<E>(external);
 
-        auto& e = container.Provide<E>();
+        const auto& e = container.Provide<E>();
         assert(&external == &e);
 
         const auto b = container.Provide<B>(); // prints "Hello from A"
