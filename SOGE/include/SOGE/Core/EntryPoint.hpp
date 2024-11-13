@@ -1,10 +1,41 @@
 #ifndef SOGE_CORE_ENTRYPOINT_HPP
 #define SOGE_CORE_ENTRYPOINT_HPP
 
+#include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/Utils/Logger.hpp"
 
 #include <span>
 
+
+class IA
+{
+public:
+    virtual ~IA() = default;
+
+    virtual void Log() = 0;
+};
+
+class A : public IA
+{
+public:
+    void Log() override
+    {
+        SOGE_INFO_LOG("Hello from A");
+    }
+};
+
+class B
+{
+public:
+    explicit B(IA& a)
+    {
+        a.Log();
+    }
+};
+
+SOGE_DI_REGISTER(IA, df::Abstract<IA>)
+SOGE_DI_REGISTER(A, df::Single<A>, tag::Overrides<A, IA>, tag::Final<A>)
+SOGE_DI_REGISTER(B, df::Factory<B>)
 
 namespace soge
 {
@@ -22,6 +53,12 @@ namespace soge
         }
 
         Logger::Init();
+
+        di::Container container;
+        container.Create<A>();
+
+        const auto service = container.Resolve<B>();
+        (void)service; // prints "Hello from A"
 
         const auto app = CreateApplication();
         app->Run();
