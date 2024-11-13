@@ -30,6 +30,15 @@ namespace soge::di
 
             return m_container.service<Service>();
         }
+
+        template <PolymorphicDependency T>
+        [[nodiscard]]
+        std::ranges::input_range auto ProvideRange() -> decltype(auto)
+        {
+            using Service = kgr::override_range_service<DependencyDefinition<T>>;
+
+            return m_container.service<Service>();
+        }
     };
 }
 

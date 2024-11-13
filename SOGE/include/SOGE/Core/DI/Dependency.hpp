@@ -47,6 +47,9 @@ namespace soge::di
 
     namespace df = definition;
 
+    template <typename T>
+    concept PolymorphicDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::polymorphic>;
+
     namespace tag
     {
         template <typename T>

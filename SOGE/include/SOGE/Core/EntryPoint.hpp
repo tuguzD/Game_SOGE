@@ -81,6 +81,11 @@ namespace soge
         const auto b = container.Provide<B>(); // prints "Hello from A"
         (void)b;
 
+        for (auto& a : container.ProvideRange<IA>())
+        {
+            a.Log();
+        }
+
         app->Run();
 
         return EXIT_SUCCESS;
