@@ -1,6 +1,7 @@
 #ifndef SOGE_CORE_ENGINE_HPP
 #define SOGE_CORE_ENGINE_HPP
 
+#include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/System/Memory.hpp"
 
 
@@ -19,6 +20,8 @@ namespace soge
 
         bool m_isRunning;
         bool m_shutdownRequested;
+
+        di::Container m_container;
 
     protected:
         explicit Engine();
@@ -42,6 +45,8 @@ namespace soge
 
         void Run();
         void RequestShutdown();
+
+        di::Container& GetContainer();
     };
 
     template <DerivedFromEngine T, typename... Args>

@@ -1,7 +1,6 @@
 #ifndef SOGE_CORE_ENTRYPOINT_HPP
 #define SOGE_CORE_ENTRYPOINT_HPP
 
-#include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/Utils/Logger.hpp"
 
 #include <span>
@@ -24,10 +23,14 @@ public:
     }
 };
 
+class E
+{
+};
+
 class B
 {
 public:
-    explicit B(IA& a)
+    explicit B(IA& a, E& e)
     {
         a.Log();
     }
@@ -35,6 +38,7 @@ public:
 
 SOGE_DI_REGISTER(IA, df::Abstract<IA>)
 SOGE_DI_REGISTER(A, df::Single<A>, tag::Overrides<A, IA>, tag::Final<A>)
+SOGE_DI_REGISTER(E, df::External<E>)
 SOGE_DI_REGISTER(B, df::Factory<B>)
 
 namespace soge
@@ -54,13 +58,20 @@ namespace soge
 
         Logger::Init();
 
-        di::Container container;
+        const auto app = CreateApplication();
+
+        auto& container = app->GetContainer();
         container.Create<A>();
 
-        const auto service = container.Resolve<B>();
-        (void)service; // prints "Hello from A"
+        E external;
+        container.Create<E>(external);
 
-        const auto app = CreateApplication();
+        auto& e = container.Provide<E>();
+        assert(&external == &e);
+
+        const auto b = container.Provide<B>(); // prints "Hello from A"
+        (void)b;
+
         app->Run();
 
         return EXIT_SUCCESS;

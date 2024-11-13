@@ -24,7 +24,7 @@ namespace soge::di
 
         template <Dependency T>
         [[nodiscard]]
-        auto Resolve() -> decltype(auto)
+        auto Provide() -> decltype(auto)
         {
             using Service = DependencyDefinition<T>;
 

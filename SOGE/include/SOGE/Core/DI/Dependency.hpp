@@ -38,7 +38,7 @@ namespace soge::di
         using Single = kgr::single_service<T, detail::Dependencies<Deps...>>;
 
         template <typename T>
-        using External = kgr::extern_shared_service<T>;
+        using External = kgr::extern_service<T>;
 
         template <typename T>
         requires std::is_abstract_v<T>
@@ -69,6 +69,8 @@ namespace soge::di
     }
 }
 
+// Registers a class as a dependency with the given definition globally
+// Should be called in global namespace
 #define SOGE_DI_REGISTER(T, ...)                                                                                       \
     namespace soge::di::detail                                                                                         \
     {                                                                                                                  \
@@ -80,6 +82,12 @@ namespace soge::di
         struct Definition##T : __VA_ARGS__                                                                             \
         {                                                                                                              \
         };                                                                                                             \
-    }
+    }                                                                                                                  \
+    template <>                                                                                                        \
+    requires std::derived_from<soge::di::detail::Definition##T, soge::di::df::External<T>>                             \
+    struct kgr::detail::map_entry<kgr::map<>, T, void>                                                                 \
+    {                                                                                                                  \
+        using mapped_service = soge::di::detail::Definition##T;                                                        \
+    };
 
 #endif // SOGE_CORE_DI_DEPENDENCY_HPP
