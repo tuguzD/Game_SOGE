@@ -81,9 +81,12 @@ namespace soge
         const auto b = container.Provide<B>(); // prints "Hello from A"
         (void)b;
 
+        const auto bLazy = container.ProvideLazy<B>(); // will not print anything
+        (void)bLazy;
+
         for (auto& a : container.ProvideRange<IA>())
         {
-            a.Log();
+            a.Log(); // prints "Hello from A"
         }
 
         app->Run();

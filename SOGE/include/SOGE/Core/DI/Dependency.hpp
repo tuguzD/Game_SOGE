@@ -3,6 +3,7 @@
 
 #include <kangaru/autowire.hpp>
 #include <kangaru/debug.hpp>
+#include <kangaru/operator.hpp>
 #include <kangaru/service.hpp>
 
 
@@ -70,6 +71,9 @@ namespace soge::di
         // requires std::derived_from<Child, T>
         // using DefaultsTo = kgr::defaults_to<kgr::mapped_service_t<Child>>;
     }
+
+    template <Dependency T>
+    using Lazy = kgr::lazy<DependencyDefinition<T>>;
 }
 
 // Registers a class as a dependency with the given definition globally
