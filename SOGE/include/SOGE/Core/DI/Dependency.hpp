@@ -2,7 +2,6 @@
 #define SOGE_CORE_DI_DEPENDENCY_HPP
 
 #include <kangaru/autowire.hpp>
-#include <kangaru/debug.hpp>
 #include <kangaru/operator.hpp>
 #include <kangaru/service.hpp>
 
@@ -14,14 +13,6 @@ namespace soge::di
 
     template <typename T>
     concept Dependency = requires { typename DependencyDefinition<T>; };
-
-    template <Dependency T>
-    void Debug()
-    {
-        using Service = DependencyDefinition<T>;
-
-        kgr::debug::service<Service>();
-    }
 
     namespace detail
     {
@@ -48,9 +39,6 @@ namespace soge::di
 
     namespace df = definition;
 
-    template <typename T>
-    concept PolymorphicDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::polymorphic>;
-
     namespace tag
     {
         template <typename T>
@@ -71,6 +59,9 @@ namespace soge::di
         // requires std::derived_from<Child, T>
         // using DefaultsTo = kgr::defaults_to<kgr::mapped_service_t<Child>>;
     }
+
+    template <typename T>
+    concept PolymorphicDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::polymorphic>;
 
     template <Dependency T>
     using Lazy = kgr::lazy<DependencyDefinition<T>>;

@@ -1,6 +1,7 @@
 #ifndef SOGE_CORE_ENTRYPOINT_HPP
 #define SOGE_CORE_ENTRYPOINT_HPP
 
+#include "SOGE/Core/DI/Debug.hpp"
 #include "SOGE/Utils/Logger.hpp"
 
 #include <span>
@@ -68,6 +69,11 @@ namespace soge
         Logger::Init();
 
         const auto app = CreateApplication();
+
+        di::debug::Provide<IA>();
+        di::debug::Provide<A>();
+        di::debug::Provide<E>();
+        di::debug::Provide<B>();
 
         auto& container = app->GetContainer();
         container.Create<A>();
