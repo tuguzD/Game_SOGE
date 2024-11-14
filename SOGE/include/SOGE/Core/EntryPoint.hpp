@@ -26,7 +26,7 @@ namespace test
         }
     };
 
-    class E
+    class E : public IA
     {
     public:
         explicit E() = default;
@@ -37,6 +37,11 @@ namespace test
 
         explicit E(E&&) = default;
         E& operator=(E&&) = default;
+
+        void Log() override
+        {
+            SOGE_INFO_LOG("Hello from E");
+        }
     };
 
     class B
@@ -51,7 +56,7 @@ namespace test
 
 SOGE_DI_REGISTER_NS(test, IA, df::Abstract<test::IA>)
 SOGE_DI_REGISTER_NS(test, A, df::Single<test::A>, tag::Overrides<test::A, test::IA>, tag::Final<test::A>)
-SOGE_DI_REGISTER_NS(test, E, df::External<test::E>)
+SOGE_DI_REGISTER_NS(test, E, df::External<test::E>, tag::Overrides<test::E, test::IA>)
 SOGE_DI_REGISTER_NS(test, B, df::Factory<test::B, test::IA, test::E>)
 
 namespace soge
@@ -87,15 +92,18 @@ namespace soge
         const auto& e = container.Provide<test::E>();
         assert(&external == &e);
 
-        const auto b = container.Provide<test::B>(); // prints "Hello from A"
+        const auto b = container.Provide<test::B>(); // prints "Hello from E", because E was registered after A
         (void)b;
 
         const auto bLazy = container.ProvideLazy<test::B>(); // will not print anything
         (void)bLazy;
 
+        SOGE_INFO_LOG("Prepare for range loop...");
+
+        // prints "Hello from A", then "Hello from E" (in order of registration)
         for (auto& a : container.ProvideRange<test::IA>())
         {
-            a.Log(); // prints "Hello from A"
+            a.Log();
         }
 
         app->Run();
