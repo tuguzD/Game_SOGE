@@ -2,8 +2,8 @@
 #define SOGE_CORE_ENTRYPOINT_HPP
 
 #include "SOGE/Utils/Logger.hpp"
+#include "SOGE/Input/InputTypes.hpp"
 
-#include <SDL3/SDL.h>
 #include <span>
 
 
@@ -25,21 +25,7 @@ namespace soge
         Logger::Init();
 
         SOGE_INFO_LOG("Initializing SDL...");
-        if (SDL_Init(SDL_INIT_EVENTS) < 0) {
-            SOGE_ERROR_LOG("Failed to initialize SDL");
-            return EXIT_FAILURE;
-        }
-
-        SDL_CreateWindow("SOGE", 800, 600, SDL_WINDOW_ALWAYS_ON_TOP);
-
-        if (!SDL_HasKeyboard()) {
-            SOGE_WARN_LOG("SDL keyboard device missing");
-        }
-
-        if (!SDL_HasMouse()) {
-            SOGE_WARN_LOG("SDL mouse device missing");
-        }
-
+        SOGE_INFO_LOG("This is key: {0}", Keys::CapsLock.ToCString());
 
         const auto app = CreateApplication();
         app->Run();
