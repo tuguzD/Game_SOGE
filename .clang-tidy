@@ -23,7 +23,7 @@ CheckOptions:
   - key: readability-identifier-naming.ParameterPrefix
     value: a
   - key: readability-identifier-naming.ParameterIgnoredRegexp
-    value: 'args.*|argc|argv|h.*Instance|lpCmdLine|nShowCmd'
+    value: 'arg|args|argc|argv|h.*Instance|lpCmdLine|nShowCmd'
   # Variables
   - key: readability-identifier-naming.VariableCase
     value: camelBack

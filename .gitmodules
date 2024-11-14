@@ -13,3 +13,6 @@
 [submodule "3rdparty/eventpp/eventpp"]
 	path = 3rdparty/eventpp/eventpp
 	url = https://github.com/wqking/eventpp.git
+[submodule "3rdparty/kangaru/kangaru"]
+	path = 3rdparty/kangaru/kangaru
+	url = https://github.com/gracicot/kangaru.git
