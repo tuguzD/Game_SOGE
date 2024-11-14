@@ -1,63 +1,10 @@
 #ifndef SOGE_CORE_ENTRYPOINT_HPP
 #define SOGE_CORE_ENTRYPOINT_HPP
 
-#include "SOGE/Core/DI/Debug.hpp"
 #include "SOGE/Utils/Logger.hpp"
 
 #include <span>
 
-
-namespace test
-{
-    class IA
-    {
-    public:
-        virtual ~IA() = default;
-
-        virtual void Log() = 0;
-    };
-
-    class A : public IA
-    {
-    public:
-        void Log() override
-        {
-            SOGE_INFO_LOG("Hello from A");
-        }
-    };
-
-    class E : public IA
-    {
-    public:
-        explicit E() = default;
-        ~E() = default;
-
-        explicit E(const E&) = delete;
-        E& operator=(const E&) = delete;
-
-        explicit E(E&&) = default;
-        E& operator=(E&&) = default;
-
-        void Log() override
-        {
-            SOGE_INFO_LOG("Hello from E");
-        }
-    };
-
-    class B
-    {
-    public:
-        explicit B(IA& a, E& e)
-        {
-            a.Log();
-        }
-    };
-}
-
-SOGE_DI_REGISTER_NS(test, IA, df::Abstract<test::IA>)
-SOGE_DI_REGISTER_NS(test, A, df::Single<test::A>, tag::Overrides<test::A, test::IA>, tag::Final<test::A>)
-SOGE_DI_REGISTER_NS(test, E, df::External<test::E>, tag::Overrides<test::E, test::IA>)
-SOGE_DI_REGISTER_NS(test, B, df::Factory<test::B, test::IA, test::E>)
 
 namespace soge
 {
@@ -77,35 +24,6 @@ namespace soge
         Logger::Init();
 
         const auto app = CreateApplication();
-
-        di::debug::Provide<test::IA>();
-        di::debug::Provide<test::A>();
-        di::debug::Provide<test::E>();
-        di::debug::Provide<test::B>();
-
-        auto& container = app->GetContainer();
-        container.Create<test::A>();
-
-        test::E external;
-        container.Create<test::E>(external);
-
-        const auto& e = container.Provide<test::E>();
-        assert(&external == &e);
-
-        const auto b = container.Provide<test::B>(); // prints "Hello from E", because E was registered after A
-        (void)b;
-
-        const auto bLazy = container.ProvideLazy<test::B>(); // will not print anything
-        (void)bLazy;
-
-        SOGE_INFO_LOG("Prepare for range loop...");
-
-        // prints "Hello from A", then "Hello from E" (in order of registration)
-        for (auto& a : container.ProvideRange<test::IA>())
-        {
-            a.Log();
-        }
-
         app->Run();
 
         return EXIT_SUCCESS;
