@@ -7,49 +7,52 @@
 #include <span>
 
 
-class IA
+namespace test
 {
-public:
-    virtual ~IA() = default;
-
-    virtual void Log() = 0;
-};
-
-class A : public IA
-{
-public:
-    void Log() override
+    class IA
     {
-        SOGE_INFO_LOG("Hello from A");
-    }
-};
+    public:
+        virtual ~IA() = default;
 
-class E
-{
-public:
-    explicit E() = default;
-    ~E() = default;
+        virtual void Log() = 0;
+    };
 
-    explicit E(const E&) = delete;
-    E& operator=(const E&) = delete;
-
-    explicit E(E&&) = default;
-    E& operator=(E&&) = default;
-};
-
-class B
-{
-public:
-    explicit B(IA& a, E& e)
+    class A : public IA
     {
-        a.Log();
-    }
-};
+    public:
+        void Log() override
+        {
+            SOGE_INFO_LOG("Hello from A");
+        }
+    };
 
-SOGE_DI_REGISTER(IA, df::Abstract<IA>)
-SOGE_DI_REGISTER(A, df::Single<A>, tag::Overrides<A, IA>, tag::Final<A>)
-SOGE_DI_REGISTER(E, df::External<E>)
-SOGE_DI_REGISTER(B, df::Factory<B>)
+    class E
+    {
+    public:
+        explicit E() = default;
+        ~E() = default;
+
+        explicit E(const E&) = delete;
+        E& operator=(const E&) = delete;
+
+        explicit E(E&&) = default;
+        E& operator=(E&&) = default;
+    };
+
+    class B
+    {
+    public:
+        explicit B(IA& a, E& e)
+        {
+            a.Log();
+        }
+    };
+}
+
+SOGE_DI_REGISTER_NS(test, IA, df::Abstract<test::IA>)
+SOGE_DI_REGISTER_NS(test, A, df::Single<test::A>, tag::Overrides<test::A, test::IA>, tag::Final<test::A>)
+SOGE_DI_REGISTER_NS(test, E, df::External<test::E>)
+SOGE_DI_REGISTER_NS(test, B, df::Factory<test::B, test::IA, test::E>)
 
 namespace soge
 {
@@ -70,27 +73,27 @@ namespace soge
 
         const auto app = CreateApplication();
 
-        di::debug::Provide<IA>();
-        di::debug::Provide<A>();
-        di::debug::Provide<E>();
-        di::debug::Provide<B>();
+        di::debug::Provide<test::IA>();
+        di::debug::Provide<test::A>();
+        di::debug::Provide<test::E>();
+        di::debug::Provide<test::B>();
 
         auto& container = app->GetContainer();
-        container.Create<A>();
+        container.Create<test::A>();
 
-        E external;
-        container.Create<E>(external);
+        test::E external;
+        container.Create<test::E>(external);
 
-        const auto& e = container.Provide<E>();
+        const auto& e = container.Provide<test::E>();
         assert(&external == &e);
 
-        const auto b = container.Provide<B>(); // prints "Hello from A"
+        const auto b = container.Provide<test::B>(); // prints "Hello from A"
         (void)b;
 
-        const auto bLazy = container.ProvideLazy<B>(); // will not print anything
+        const auto bLazy = container.ProvideLazy<test::B>(); // will not print anything
         (void)bLazy;
 
-        for (auto& a : container.ProvideRange<IA>())
+        for (auto& a : container.ProvideRange<test::IA>())
         {
             a.Log(); // prints "Hello from A"
         }

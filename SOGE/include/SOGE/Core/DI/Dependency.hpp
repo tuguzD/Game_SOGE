@@ -70,25 +70,25 @@ namespace soge::di
     using PolymorphicRange = kgr::override_range<kgr::detail::override_iterator<DependencyDefinition<T>>>;
 }
 
-// Registers a class as a dependency with the given definition globally
+// Registers a class of given namespace as a dependency with the given definition globally
 // Should be called in global namespace
-#define SOGE_DI_REGISTER(T, ...)                                                                                       \
+#define SOGE_DI_REGISTER_NS(ns, T, ...)                                                                                \
     namespace soge::di::detail                                                                                         \
     {                                                                                                                  \
-        struct Definition##T;                                                                                          \
-    }                                                                                                                  \
-    auto service_map(const T&) -> soge::di::detail::Definition##T;                                                     \
-    namespace soge::di::detail                                                                                         \
-    {                                                                                                                  \
-        struct Definition##T : __VA_ARGS__                                                                             \
+        struct Definition_##ns##T : __VA_ARGS__                                                                        \
         {                                                                                                              \
         };                                                                                                             \
     }                                                                                                                  \
+    auto service_map(const ns::T&) -> soge::di::detail::Definition_##ns##T;                                            \
     template <>                                                                                                        \
-    requires std::derived_from<soge::di::detail::Definition##T, soge::di::df::External<T>>                             \
-    struct kgr::detail::map_entry<kgr::map<>, T, void>                                                                 \
+    requires std::derived_from<soge::di::detail::Definition_##ns##T, soge::di::df::External<ns::T>>                    \
+    struct kgr::detail::map_entry<kgr::map<>, ns::T, void>                                                             \
     {                                                                                                                  \
-        using mapped_service = soge::di::detail::Definition##T;                                                        \
+        using mapped_service = soge::di::detail::Definition_##ns##T;                                                   \
     };
+
+// Registers a class as a dependency with the given definition globally
+// Should be called in global namespace
+#define SOGE_DI_REGISTER(T, ...) SOGE_DI_REGISTER_NS(, T, __VA_ARGS__)
 
 #endif // SOGE_CORE_DI_DEPENDENCY_HPP
