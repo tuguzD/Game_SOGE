@@ -63,6 +63,9 @@ namespace soge::di
     template <typename T>
     concept PolymorphicDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::polymorphic>;
 
+    template <typename T>
+    concept AbstractDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::abstract>;
+
     template <Dependency T>
     using Lazy = kgr::lazy<DependencyDefinition<T>>;
 

@@ -9,7 +9,7 @@ namespace soge
     class Event;
 
     template <typename T>
-    concept DerivedFromEvent = std::is_base_of_v<Event, T>;
+    concept DerivedFromEvent = std::derived_from<T, Event>;
 
     class Event
     {
@@ -31,7 +31,7 @@ namespace soge
     class StaticEvent;
 
     template <typename T>
-    concept DerivedFromStaticEvent = std::is_base_of_v<StaticEvent<T>, T> && requires {
+    concept DerivedFromStaticEvent = std::derived_from<T, StaticEvent<T>> && requires {
         // clang-format off
         { T::GetStaticEventType() } -> std::same_as<EventType>;
         // clang-format on

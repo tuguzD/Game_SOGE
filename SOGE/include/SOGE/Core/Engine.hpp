@@ -10,7 +10,7 @@ namespace soge
     class Engine;
 
     template <typename T>
-    concept DerivedFromEngine = std::is_base_of_v<Engine, T>;
+    concept DerivedFromEngine = std::derived_from<T, Engine>;
 
     class Engine
     {
