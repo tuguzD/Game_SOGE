@@ -6,6 +6,7 @@
 #include "SOGE/Utils/Lazy.hpp"
 
 #include <EASTL/hash_map.h>
+#include <EASTL/optional.h>
 
 
 namespace soge
@@ -26,11 +27,28 @@ namespace soge
         T& CreateModule(Args&&... args)
         {
             const auto key = TypeKey<T>;
-            LazyConvertInvoke lazyValue(
+            LazyConvertInvoke lazyModule(
                 [&args...]() -> UniquePtr<Module> { return CreateUnique<T>(std::forward<Args>(args)...); });
 
-            auto& value = m_modules.try_emplace(key, lazyValue).first->second;
-            return dynamic_cast<T&>(*value);
+            auto& module = m_modules.try_emplace(key, lazyModule).first->second;
+            return dynamic_cast<T&>(*module);
+        }
+
+        template <DerivedFromModule T>
+        eastl::optional<T> RemoveModule()
+        {
+            const auto key = TypeKey<T>;
+            auto iter = m_modules.find(key);
+            if (iter == m_modules.end())
+            {
+                return eastl::nullopt;
+            }
+
+            auto module = std::move(iter->second);
+            m_modules.erase(iter);
+
+            T* value = dynamic_cast<T*>(module.get());
+            return {std::move(*value)};
         }
 
         template <DerivedFromModule T>
@@ -43,8 +61,8 @@ namespace soge
                 return nullptr;
             }
 
-            auto& value = iter->second;
-            return dynamic_cast<T*>(value.get());
+            auto& module = iter->second;
+            return dynamic_cast<T*>(module.get());
         }
     };
 }

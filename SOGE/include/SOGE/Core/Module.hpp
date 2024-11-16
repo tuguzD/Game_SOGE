@@ -24,7 +24,7 @@ namespace soge
         Module& operator=(Module&&) = default;
 
         constexpr virtual void Load(di::Container& aContainer) = 0;
-        constexpr virtual void UnLoad(di::Container& aContainer) = 0;
+        constexpr virtual void Unload(di::Container& aContainer) = 0;
     };
 
     namespace di
