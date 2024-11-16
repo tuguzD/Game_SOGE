@@ -31,6 +31,9 @@ namespace soge
         template <DerivedFromModule T, typename... Args>
         T& CreateModule(Args&&... args);
 
+        template <DerivedFromModule T, typename... Args>
+        T& RecreateModule(Args&&... args);
+
         template <DerivedFromModule T>
         eastl::optional<T> RemoveModule();
 
@@ -55,6 +58,15 @@ namespace soge
             [&args...]() -> UniqueModule { return CreateUnique<T>(std::forward<Args>(args)...); });
 
         auto& module = m_modules.try_emplace(key, lazyModule).first->second;
+        return dynamic_cast<T&>(*module);
+    }
+
+    template <DerivedFromModule T, typename... Args>
+    T& ModuleManager::RecreateModule(Args&&... args)
+    {
+        const auto key = TypeKey<T>;
+
+        auto& module = (m_modules[key] = CreateUnique<T>(std::forward<Args>(args)...));
         return dynamic_cast<T&>(*module);
     }
 
