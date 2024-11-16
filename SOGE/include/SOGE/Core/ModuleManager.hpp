@@ -19,7 +19,7 @@ namespace soge
         }
         using TypeKeyPtr = std::add_pointer_t<constexpr void() noexcept>;
 
-        eastl::hash_map<TypeKeyPtr, SharedPtr<Module>> m_modules;
+        eastl::hash_map<TypeKeyPtr, UniquePtr<Module>> m_modules;
 
     public:
         template <DerivedFromModule T, typename... Args>
@@ -27,10 +27,24 @@ namespace soge
         {
             const auto key = TypeKey<T>;
             LazyConvertInvoke lazyValue(
-                [&]() -> SharedPtr<Module> { return CreateShared<T>(std::forward<Args>(args)...); });
+                [&args...]() -> UniquePtr<Module> { return CreateUnique<T>(std::forward<Args>(args)...); });
 
-            auto [_, value] = *m_modules.try_emplace(key, lazyValue).first;
+            auto& value = m_modules.try_emplace(key, lazyValue).first->second;
             return dynamic_cast<T&>(*value);
+        }
+
+        template <DerivedFromModule T>
+        T* GetModule() const
+        {
+            const auto key = TypeKey<T>;
+            auto iter = m_modules.find(key);
+            if (iter == m_modules.end())
+            {
+                return nullptr;
+            }
+
+            auto& value = iter->second;
+            return dynamic_cast<T*>(value.get());
         }
     };
 }
