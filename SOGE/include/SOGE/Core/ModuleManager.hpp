@@ -6,7 +6,6 @@
 #include "SOGE/Utils/Lazy.hpp"
 
 #include <EASTL/hash_map.h>
-#include <EASTL/optional.h>
 
 
 namespace soge
@@ -32,10 +31,10 @@ namespace soge
         T& CreateModule(Args&&... args);
 
         template <DerivedFromModule T, typename... Args>
-        T& RecreateModule(Args&&... args);
+        std::pair<UniquePtr<T>, T&> RecreateModule(Args&&... args);
 
         template <DerivedFromModule T>
-        eastl::optional<T> RemoveModule();
+        UniquePtr<T> RemoveModule();
 
         template <DerivedFromModule T>
         [[nodiscard]]
@@ -62,29 +61,42 @@ namespace soge
     }
 
     template <DerivedFromModule T, typename... Args>
-    T& ModuleManager::RecreateModule(Args&&... args)
+    std::pair<UniquePtr<T>, T&> ModuleManager::RecreateModule(Args&&... args)
     {
         const auto key = TypeKey<T>;
 
-        auto& module = (m_modules[key] = CreateUnique<T>(std::forward<Args>(args)...));
-        return dynamic_cast<T&>(*module);
+        UniquePtr<T> oldModule;
+        UniquePtr<T> newModule = CreateUnique<T>(std::forward<Args>(args)...);
+        T* newModulePtr = newModule.get();
+
+        if (auto iter = m_modules.find(key); iter != m_modules.end())
+        {
+            oldModule.reset(dynamic_cast<T*>(iter->second.release()));
+            iter->second = std::move(newModule);
+        }
+        else
+        {
+            m_modules[key] = std::move(newModule);
+        }
+
+        return {std::move(oldModule), *newModulePtr};
     }
 
     template <DerivedFromModule T>
-    eastl::optional<T> ModuleManager::RemoveModule()
+    UniquePtr<T> ModuleManager::RemoveModule()
     {
         const auto key = TypeKey<T>;
         auto iter = m_modules.find(key);
         if (iter == m_modules.end())
         {
-            return eastl::nullopt;
+            return UniquePtr<T>{};
         }
 
         auto module = std::move(iter->second);
         m_modules.erase(iter);
 
-        T* value = dynamic_cast<T*>(module.get());
-        return {std::move(*value)};
+        T* valuePtr = dynamic_cast<T*>(module.release());
+        return UniquePtr<T>{valuePtr};
     }
 
     template <DerivedFromModule T>
