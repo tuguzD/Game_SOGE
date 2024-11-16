@@ -1,55 +1,36 @@
 #ifndef SOGE_CORE_DI_CONTAINER_HPP
 #define SOGE_CORE_DI_CONTAINER_HPP
 
-#include "SOGE/Core/DI/Dependency.hpp"
-
-#include <kangaru/container.hpp>
-#include <kangaru/operator_service.hpp>
+#include "SOGE/Core/DI/Provider.hpp"
 
 
 namespace soge::di
 {
-    class Container
+    class Container : public Provider
     {
-    private:
-        kgr::container m_container;
-
     public:
         template <Dependency T, typename... Args>
-        bool Create(Args&&... args)
-        {
-            using Service = DependencyDefinition<T>;
+        bool Create(Args&&... args);
 
-            return m_container.emplace<Service>(std::forward<Args>(args)...);
-        }
-
-        template <Dependency T>
-        [[nodiscard]]
-        auto Provide() -> decltype(auto)
-        {
-            using Service = DependencyDefinition<T>;
-
-            return m_container.service<Service>();
-        }
-
-        template <Dependency T>
-        [[nodiscard]]
-        Lazy<T> ProvideLazy()
-        {
-            using Service = kgr::lazy_service<DependencyDefinition<T>>;
-
-            return m_container.service<Service>();
-        }
-
-        template <PolymorphicDependency T>
-        [[nodiscard]]
-        PolymorphicRange<T> ProvideRange()
-        {
-            using Service = kgr::override_range_service<DependencyDefinition<T>>;
-
-            return m_container.service<Service>();
-        }
+        template <Dependency T, typename... Args>
+        void Recreate(Args&&... args);
     };
+
+    template <Dependency T, typename... Args>
+    bool Container::Create(Args&&... args)
+    {
+        using Service = DependencyDefinition<T>;
+
+        return m_container.emplace<Service>(std::forward<Args>(args)...);
+    }
+
+    template <Dependency T, typename... Args>
+    void Container::Recreate(Args&&... args)
+    {
+        using Service = DependencyDefinition<T>;
+
+        m_container.replace<Service>(std::forward<Args>(args)...);
+    }
 }
 
 #endif // SOGE_CORE_DI_CONTAINER_HPP
