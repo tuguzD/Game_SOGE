@@ -25,6 +25,11 @@ namespace soge
         di::Container m_container;
         ModuleManager m_moduleManager;
 
+        // do not destroy modules immediately after removing them, they might be still in use
+        // (because they could have been provided by dependency container)
+        using RemovedModules = eastl::vector<UniquePtr<Module>>;
+        RemovedModules m_removedModules;
+
     protected:
         explicit Engine();
 
@@ -54,6 +59,12 @@ namespace soge
 
         template <DerivedFromModule T, typename... Args>
         T& CreateModule(Args&&... args);
+
+        template <DerivedFromModule T, typename... Args>
+        T& RecreateModule(Args&&... args);
+
+        template <DerivedFromModule T>
+        void RemoveModule();
 
         template <DerivedFromModule T>
         [[nodiscard]]
@@ -85,12 +96,45 @@ namespace soge
         {
             m_container.Create<T>(module);
         }
+
         if (created && m_isRunning)
         {
             module.Load(m_container);
         }
 
         return module;
+    }
+
+    template <DerivedFromModule T, typename... Args>
+    T& Engine::RecreateModule(Args&&... args)
+    {
+        auto [module, oldModule] = m_moduleManager.RecreateModule<T>(std::forward<Args>(args)...);
+        if constexpr (di::ModuleDependency<T>)
+        {
+            m_container.Recreate<T>(module);
+        }
+
+        if (oldModule != nullptr && m_isRunning)
+        {
+            oldModule->Unload(m_container);
+            m_removedModules.push_back(std::move(oldModule));
+
+            module.Load(m_container);
+        }
+
+        return module;
+    }
+
+    template <DerivedFromModule T>
+    void Engine::RemoveModule()
+    {
+        auto oldModule = m_moduleManager.RemoveModule<T>();
+
+        if (oldModule != nullptr && m_isRunning)
+        {
+            oldModule->Unload(m_container);
+            m_removedModules.push_back(std::move(oldModule));
+        }
     }
 
     template <DerivedFromModule T>

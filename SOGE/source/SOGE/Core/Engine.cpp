@@ -66,6 +66,7 @@ namespace soge
         {
             module.Unload(m_container);
         }
+        m_removedModules.clear();
     }
 
     bool Engine::IsRunning() const
