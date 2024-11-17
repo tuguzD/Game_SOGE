@@ -114,10 +114,13 @@ namespace soge
             m_container.Recreate<T>(module);
         }
 
-        if (oldModule != nullptr && m_isRunning)
+        if (m_isRunning)
         {
-            oldModule->Unload(m_container);
-            m_removedModules.push_back(std::move(oldModule));
+            if (oldModule != nullptr)
+            {
+                oldModule->Unload(m_container);
+                m_removedModules.push_back(std::move(oldModule));
+            }
 
             module.Load(m_container);
         }
