@@ -48,11 +48,11 @@ namespace soge
         // Prevent users from resetting engine while it is running
         std::lock_guard lock(s_mutex);
 
+        m_isRunning = true;
         for (Module& module : m_moduleManager)
         {
             module.Load(m_container);
         }
-        m_isRunning = true;
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
@@ -61,11 +61,11 @@ namespace soge
             Timestep::CalculateDelta();
         }
 
-        m_isRunning = false;
         for (Module& module : m_moduleManager)
         {
             module.Unload(m_container);
         }
+        m_isRunning = false;
         m_removedModules.clear();
     }
 
