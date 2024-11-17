@@ -2,6 +2,7 @@
 #define SOGE_CORE_ENGINE_HPP
 
 #include "SOGE/Core/DI/Container.hpp"
+#include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/System/Memory.hpp"
 
 
@@ -22,9 +23,12 @@ namespace soge
         bool m_shutdownRequested;
 
         di::Container m_container;
+        ModuleManager m_moduleManager;
 
     protected:
         explicit Engine();
+
+        di::Container& GetDependencyContainer();
 
     public:
         Engine(const Engine&) = delete;
@@ -46,7 +50,14 @@ namespace soge
         void Run();
         void RequestShutdown();
 
-        di::Container& GetContainer();
+        di::Provider& GetDependencyProvider();
+
+        template <DerivedFromModule T, typename... Args>
+        T& CreateModule(Args&&... args);
+
+        template <DerivedFromModule T>
+        [[nodiscard]]
+        T* GetModule() const;
     };
 
     template <DerivedFromEngine T, typename... Args>
@@ -64,6 +75,28 @@ namespace soge
         s_instance = std::move(newInstance);
         // Return previously saved pointer
         return pNewInstance;
+    }
+
+    template <DerivedFromModule T, typename... Args>
+    T& Engine::CreateModule(Args&&... args)
+    {
+        auto [module, created] = m_moduleManager.CreateModule<T>(std::forward<Args>(args)...);
+        if constexpr (di::ModuleDependency<T>)
+        {
+            m_container.Create<T>(module);
+        }
+        if (created && m_isRunning)
+        {
+            module.Load(m_container);
+        }
+
+        return module;
+    }
+
+    template <DerivedFromModule T>
+    T* Engine::GetModule() const
+    {
+        return m_moduleManager.GetModule<T>();
     }
 
     Engine* CreateApplication();

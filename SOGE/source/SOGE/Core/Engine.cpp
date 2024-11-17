@@ -47,6 +47,11 @@ namespace soge
 
         // Prevent users from resetting engine while it is running
         std::lock_guard lock(s_mutex);
+
+        for (Module& module : m_moduleManager)
+        {
+            module.Load(m_container);
+        }
         m_isRunning = true;
 
         m_shutdownRequested = false;
@@ -57,6 +62,10 @@ namespace soge
         }
 
         m_isRunning = false;
+        for (Module& module : m_moduleManager)
+        {
+            module.Unload(m_container);
+        }
     }
 
     bool Engine::IsRunning() const
@@ -69,7 +78,12 @@ namespace soge
         m_shutdownRequested = true;
     }
 
-    di::Container& Engine::GetContainer()
+    di::Container& Engine::GetDependencyContainer()
+    {
+        return m_container;
+    }
+
+    di::Provider& Engine::GetDependencyProvider()
     {
         return m_container;
     }

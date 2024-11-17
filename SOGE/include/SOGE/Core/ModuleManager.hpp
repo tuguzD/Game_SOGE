@@ -28,10 +28,10 @@ namespace soge
         class ConstIterator;
 
         template <DerivedFromModule T, typename... Args>
-        T& CreateModule(Args&&... args);
+        std::pair<T&, bool> CreateModule(Args&&... args);
 
         template <DerivedFromModule T, typename... Args>
-        std::pair<UniquePtr<T>, T&> RecreateModule(Args&&... args);
+        std::pair<T&, UniquePtr<T>> RecreateModule(Args&&... args);
 
         template <DerivedFromModule T>
         UniquePtr<T> RemoveModule();
@@ -50,18 +50,18 @@ namespace soge
     };
 
     template <DerivedFromModule T, typename... Args>
-    T& ModuleManager::CreateModule(Args&&... args)
+    std::pair<T&, bool> ModuleManager::CreateModule(Args&&... args)
     {
         const auto key = TypeKey<T>;
         LazyConvertInvoke lazyModule(
             [&args...]() -> UniqueModule { return CreateUnique<T>(std::forward<Args>(args)...); });
 
-        auto& module = m_modules.try_emplace(key, lazyModule).first->second;
-        return dynamic_cast<T&>(*module);
+        auto [iter, created] = m_modules.try_emplace(key, lazyModule);
+        return {dynamic_cast<T&>(*iter->second), created};
     }
 
     template <DerivedFromModule T, typename... Args>
-    std::pair<UniquePtr<T>, T&> ModuleManager::RecreateModule(Args&&... args)
+    std::pair<T&, UniquePtr<T>> ModuleManager::RecreateModule(Args&&... args)
     {
         const auto key = TypeKey<T>;
 
@@ -79,7 +79,7 @@ namespace soge
             m_modules[key] = std::move(newModule);
         }
 
-        return {std::move(oldModule), *newModulePtr};
+        return {*newModulePtr, std::move(oldModule)};
     }
 
     template <DerivedFromModule T>
