@@ -128,6 +128,7 @@ namespace soge
         using iterator_category = std::forward_iterator_tag;
         // NOLINTEND(readability-identifier-naming)
 
+        explicit Iterator() noexcept = default;
         explicit Iterator(Base aIter) noexcept;
 
         reference operator*() const noexcept;
@@ -154,6 +155,7 @@ namespace soge
         using iterator_category = std::forward_iterator_tag;
         // NOLINTEND(readability-identifier-naming)
 
+        explicit ConstIterator() noexcept = default;
         explicit ConstIterator(Base aIter) noexcept;
 
         reference operator*() const noexcept;
@@ -164,6 +166,12 @@ namespace soge
 
         friend bool operator==(const ConstIterator&, const ConstIterator&) noexcept = default;
     };
+
+
+    static_assert(std::forward_iterator<ModuleManager::Iterator>);
+    static_assert(std::forward_iterator<ModuleManager::ConstIterator>);
+
+    static_assert(std::ranges::forward_range<ModuleManager>);
 }
 
 #endif // SOGE_CORE_MODULEMANAGER_HPP
