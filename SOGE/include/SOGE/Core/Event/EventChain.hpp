@@ -88,6 +88,7 @@ namespace soge
     };
 
     template <DerivedFromEvent T>
+    // NOLINTNEXTLINE(readability-identifier-naming) reason: required by `eventpp` library
     constexpr bool EventChain<T>::Policies::canContinueInvoking(const T& aEvent)
     {
         return !aEvent.IsHandled();
@@ -159,7 +160,7 @@ namespace soge
     {
         return m_functions.forEachIf([&aEvent](Function& aFunction) {
             bool result = aFunction(aEvent);
-            return result && !aEvent.IsHandled();
+            return result && Policies::canContinueInvoking(aEvent);
         });
     }
 
