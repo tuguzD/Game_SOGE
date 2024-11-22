@@ -6,7 +6,7 @@ namespace soge
 {
     LWString::LWString()
     {
-        m_stringBuffer = new char('\0');
+        m_stringBuffer = new char();
     }
 
     LWString::LWString(const char* aCString) : LWString()
@@ -95,9 +95,27 @@ namespace soge
         m_stringBuffer = new char('\0');
     }
 
-    int LWString::length()
+    int LWString::length() const
     {
         return static_cast<int>(strlen(m_stringBuffer));
+    }
+
+    bool LWString::LexicalLess(const char* aCString) const
+    {
+        // True if *this less than aCString
+        int bufferLength = static_cast<int>(strlen(aCString));
+        return eastl::lexicographical_compare(m_stringBuffer, m_stringBuffer + length(), aCString,
+                                              aCString + bufferLength);
+    }
+
+    bool LWString::LexicalGreater(const char* aCString) const
+    {
+        return !LexicalLess(aCString);
+    }
+
+    bool LWString::isEmpty() const
+    {
+        return length() == 0;
     }
 
     char& LWString::operator[](sizeType aIndex)
@@ -109,6 +127,8 @@ namespace soge
     {
         return m_stringBuffer[aIndex];
     }
+
+    //----------------------------------------------------------
 
     LWString& LWString::operator=(const char* aCString)
     {
@@ -134,6 +154,8 @@ namespace soge
         return *this;
     }
 
+    //----------------------------------------------------------
+
     bool LWString::operator==(const char* aCString) const
     {
         return strcmp(c_str(), aCString) == 0;
@@ -154,5 +176,25 @@ namespace soge
         return strcmp(c_str(), aEASTLString.c_str()) == 0;
     }
 
+    //----------------------------------------------------------
 
+    bool LWString::operator!=(const char* aCString) const
+    {
+        return strcmp(c_str(), aCString) != 0;
+    }
+
+    bool LWString::operator!=(const LWString& aLWString) const
+    {
+        return strcmp(c_str(), aLWString.c_str()) != 0;
+    }
+
+    bool LWString::operator!=(const std::string& aSTDString) const
+    {
+        return strcmp(c_str(), aSTDString.c_str()) != 0;
+    }
+
+    bool LWString::operator!=(const eastl::string& aEASTLString) const
+    {
+        return strcmp(c_str(), aEASTLString.c_str()) != 0;
+    }
 }

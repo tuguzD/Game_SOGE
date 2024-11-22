@@ -34,7 +34,11 @@ namespace soge
         eastl::string eastl_str() const;
 
         void clear();
-        int length();
+        int length() const;
+
+        bool LexicalLess(const char* aCString) const;
+        bool LexicalGreater(const char* aCString) const;
+        bool isEmpty() const;
 
     public:
         char& operator[](sizeType aIndex);
@@ -50,6 +54,10 @@ namespace soge
         bool operator==(const std::string& aSTDString) const;
         bool operator==(const eastl::string& aEASTLString) const;
 
+        bool operator!=(const char* aCString) const;
+        bool operator!=(const LWString& aLWString) const;
+        bool operator!=(const std::string& aSTDString) const;
+        bool operator!=(const eastl::string& aEASTLString) const;
     };
 }
 

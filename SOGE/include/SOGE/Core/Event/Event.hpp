@@ -53,6 +53,14 @@ namespace soge
     {
         return Derived::GetStaticEventType();
     }
+
+    namespace EventTypes
+    {
+        namespace Dummy
+        {
+            constexpr EventType g_dummyEvent{StringId("DummyEvent"), EventCategory::Default};
+        }
+    }
 }
 
 #endif // SOGE_CORE_EVENT_EVENT_HPP

@@ -37,6 +37,7 @@
 #include <EASTL/algorithm.h>
 #include <EASTL/utility.h>
 #include <EASTL/functional.h>
+#include <EASTL/list.h>
 
 // Engine
 

@@ -2,7 +2,7 @@
 
 #include "SOGE/Core/Engine.hpp"
 #include "SOGE/Core/Timestep.hpp"
-
+#include "SOGE/Input/InputTypes.hpp"
 
 namespace soge
 {
@@ -32,6 +32,7 @@ namespace soge
     {
         SOGE_INFO_LOG("Initialize engine...");
 
+        Keys::Initialize();
         m_eventManager = CreateUnique<EventManager>();
     }
 
@@ -51,18 +52,14 @@ namespace soge
         std::lock_guard lock(s_mutex);
         m_isRunning = true;
 
-        m_eventManager->PushFront<UpdateEvent>([](const UpdateEvent& aEvent) {
-            //SOGE_INFO_LOG("Delta time is: {0}", aEvent.GetDeltaTime());
-        });
+        //SOGE_INFO_LOG("Caps Lock says: {0}", Keys::CapsLock.IsMouseButton());
+        SOGE_INFO_LOG("RMB is mouse button? {0}", Keys::RightMouseButton.GetAlternateName().c_str());
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
-
-            m_eventManager->Enqueue<UpdateEvent>(Timestep::RealDeltaTime());
-            m_eventManager->DispatchQueue<UpdateEvent>();
         }
 
         m_isRunning = false;

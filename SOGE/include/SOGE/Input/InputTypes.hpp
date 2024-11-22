@@ -2,28 +2,100 @@
 #define SOGE_INPUT_INPUTTYPES_HPP
 
 #include "SOGE/Containers/LWString.hpp"
+#include "SOGE/System/Memory.hpp"
 
 
 namespace soge
 {
-    class Key
+    class Key final
     {
+        friend struct Keys;
+
     private:
+        mutable class eastl::shared_ptr<struct KeyDetails> m_keyDetails;
         LWString m_keyName;
 
+    private:
+        void LookupForDetails() const;
+
     public:
+        Key() = default;
         Key(const char* aKeyName);
         ~Key() = default;
 
         bool IsValid() const;
+        bool IsModifierKey() const;
+        bool IsGamepadKey() const;
+        bool IsMouseButton() const;
+
+        KeyDetails* GetDetails() const;
+        const LWString& GetAlternateName() const;
 
         const char* ToCString() const;
         eastl::string ToString() const;
+
+    public:
+        friend bool operator==(const Key& aKeyA, const Key& aKeyB);
+        friend bool operator!=(const Key& aKeyA, const Key& aKeyB);
+        friend bool operator<(const Key& aKeyA, const Key& aKeyB);
+
+    };
+
+    struct KeyDetails
+    {
+        enum KeyFlags : std::uint8_t
+        {
+            keyFlag_NoFlag      = 0,
+            keyFlag_GamepadKey  = 1 << 0,
+            keyFlag_MouseButton = 1 << 1,
+            keyFlag_ModifierKey = 1 << 2,
+            keyFlag_Axis1D      = 1 << 3,
+            keyFlag_Axis3D      = 1 << 4,
+            keyFlag_ButtonAxis  = 1 << 5,
+            keyFlag_NoBindable  = 1 << 6
+        };
+
+        KeyDetails(const Key aKey, const LWString aAlternateName, const std::uint32_t aKeyFlags);
+        ~KeyDetails() = default;
+
+        bool IsModifierKey() const;
+        bool IsGamepadKey() const;
+        bool IsMouseButton() const;
+
+        const Key& GetKey() const;
+        const LWString& GetAlternateName() const;
+
+    private:
+        friend struct Keys;
+
+        Key m_keyObj;
+        LWString m_alternateName;
+
+        std::uint8_t m_isModifierKey = 1;
+        std::uint8_t m_isGamepadKey = 1;
+        std::uint8_t m_isMouseButton = 1;
+
+        void CommonInit(const std::uint32_t aKeyFlags);
     };
 
     struct Keys
     {
+        // NOLINTNEXTLINE(readability-identifier-naming) reason: Ease of use for working with key names
+
         static const Key AnyKey;
+
+        static const Key MouseX;
+        static const Key MouseY;
+        static const Key Mouse2D;
+        static const Key MouseScrollUp;
+        static const Key MouseScrollDown;
+        static const Key MouseWheelAxis;
+
+        static const Key LeftMouseButton;
+        static const Key RightMouseButton;
+        static const Key MiddleMouseButton;
+        static const Key ThumbMouseButton;
+        static const Key ThumbMouseButton2;
 
         static const Key BackSpace;
         static const Key Tab;
@@ -133,7 +205,7 @@ namespace soge
         static const Key Hyphen;
         static const Key Period;
         static const Key Slash;
-        static const Key Tiled;
+        static const Key Tilde;
         static const Key LeftBracket;
         static const Key Backslash;
         static const Key RightBracket;
@@ -148,7 +220,22 @@ namespace soge
         static const Key LeftParantheses;
         static const Key RightParantheses;
         static const Key Quote;
+
+        // Methods
+
+        static void Initialize();
+        static void AddKey(const KeyDetails& aKeyDetails);
+        static SharedPtr<KeyDetails> GetKeyDetails(const Key aKey);
+
+        static bool IsModifierKey(Key aKey);
+        static bool IsGamepadKey(Key aKey);
+        static bool IsMouseButton(Key aKey);
+
+    private:
+        static eastl::map<Key, SharedPtr<KeyDetails>> m_inputKeys;
+        static bool m_isInitialized;
+
     };
 }
 
-#endif // !SOGE_INPUT_INPUTTYPES_HPP
+#endif // SOGE_INPUT_INPUTTYPES_HPP

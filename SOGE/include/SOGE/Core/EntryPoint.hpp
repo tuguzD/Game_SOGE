@@ -2,7 +2,6 @@
 #define SOGE_CORE_ENTRYPOINT_HPP
 
 #include "SOGE/Utils/Logger.hpp"
-#include "SOGE/Input/InputTypes.hpp"
 
 #include <span>
 
@@ -23,9 +22,6 @@ namespace soge
         }
 
         Logger::Init();
-
-        SOGE_INFO_LOG("Initializing SDL...");
-        SOGE_INFO_LOG("This is key: {0}", Keys::CapsLock.ToCString());
 
         const auto app = CreateApplication();
         app->Run();
