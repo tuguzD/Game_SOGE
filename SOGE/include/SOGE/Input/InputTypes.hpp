@@ -7,6 +7,10 @@
 
 namespace soge
 {
+    //////////////////////////
+    // Key
+    //////////////////////////
+
     class Key final
     {
         friend struct Keys;
@@ -30,6 +34,7 @@ namespace soge
 
         KeyDetails* GetDetails() const;
         const LWString& GetAlternateName() const;
+        std::uint32_t GetScanCode() const;
 
         const char* ToCString() const;
         eastl::string ToString() const;
@@ -40,6 +45,10 @@ namespace soge
         friend bool operator<(const Key& aKeyA, const Key& aKeyB);
 
     };
+
+    //////////////////////////
+    // Key Details
+    //////////////////////////
 
     struct KeyDetails
     {
@@ -64,12 +73,14 @@ namespace soge
 
         const Key& GetKey() const;
         const LWString& GetAlternateName() const;
+        std::uint32_t GetScanCode() const;
 
     private:
         friend struct Keys;
 
         Key m_keyObj;
         LWString m_alternateName;
+        std::uint32_t m_scanCode;
 
         std::uint8_t m_isModifierKey = 1;
         std::uint8_t m_isGamepadKey = 1;
@@ -77,6 +88,10 @@ namespace soge
 
         void CommonInit(const std::uint32_t aKeyFlags);
     };
+
+    //////////////////////////
+    // Keys
+    //////////////////////////
 
     struct Keys
     {
@@ -225,6 +240,7 @@ namespace soge
 
         static void Initialize();
         static void AddKey(const KeyDetails& aKeyDetails);
+        static void SetScanCode(const Key aKey, std::uint32_t aScanCode);
         static SharedPtr<KeyDetails> GetKeyDetails(const Key aKey);
 
         static bool IsModifierKey(Key aKey);
@@ -236,6 +252,7 @@ namespace soge
         static bool m_isInitialized;
 
     };
+
 }
 
 #endif // SOGE_INPUT_INPUTTYPES_HPP

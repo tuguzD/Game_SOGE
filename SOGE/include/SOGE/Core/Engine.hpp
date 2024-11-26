@@ -3,6 +3,7 @@
 
 #include "SOGE/System/Memory.hpp"
 #include "SOGE/Core/EventManager.hpp"
+#include "SOGE/Input/InputManager.hpp"
 
 
 namespace soge
@@ -19,6 +20,7 @@ namespace soge
         static std::mutex s_mutex;
 
         eastl::unique_ptr<EventManager> m_eventManager;
+        SharedPtr<InputManager> m_inputManager;
 
         bool m_isRunning;
         bool m_shutdownRequested;
@@ -35,16 +37,19 @@ namespace soge
 
         virtual ~Engine();
 
-        static Engine* GetInstance();
-
-        template <DerivedFromEngine T = Engine, typename... Args>
-        static T* Reset(Args&&... args);
+        void Run();
+        void RequestShutdown();
 
         [[nodiscard]]
         bool IsRunning() const;
 
-        void Run();
-        void RequestShutdown();
+        EventManager* GetEventManager() const;
+
+    public:
+        static Engine* GetInstance();
+        template <DerivedFromEngine T = Engine, typename... Args>
+        static T* Reset(Args&&... args);
+
     };
 
     template <DerivedFromEngine T, typename... Args>

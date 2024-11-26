@@ -14,6 +14,7 @@ namespace soge
     class Event
     {
     public:
+        constexpr Event() = default;
         virtual constexpr ~Event() = default;
 
         [[nodiscard]]
@@ -61,6 +62,8 @@ namespace soge
             constexpr EventType g_dummyEvent{StringId("DummyEvent"), EventCategory::Default};
         }
     }
+
+    typedef std::function<void(Event&)> DefaultEventCallback;
 }
 
 #endif // SOGE_CORE_EVENT_EVENT_HPP

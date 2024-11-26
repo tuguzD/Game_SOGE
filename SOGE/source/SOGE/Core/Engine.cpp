@@ -4,6 +4,9 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
+#include <SDL3/SDL.h>
+
+
 namespace soge
 {
     UniquePtr<Engine> Engine::s_instance(nullptr);
@@ -33,7 +36,9 @@ namespace soge
         SOGE_INFO_LOG("Initialize engine...");
 
         Keys::Initialize();
+
         m_eventManager = CreateUnique<EventManager>();
+        m_inputManager = CreateShared<InputManager>();
     }
 
     Engine::~Engine()
@@ -52,14 +57,15 @@ namespace soge
         std::lock_guard lock(s_mutex);
         m_isRunning = true;
 
-        //SOGE_INFO_LOG("Caps Lock says: {0}", Keys::CapsLock.IsMouseButton());
-        SOGE_INFO_LOG("RMB is mouse button? {0}", Keys::RightMouseButton.GetAlternateName().c_str());
+        SDL_CreateWindow("SOGEEngine", 800, 600, SDL_WINDOW_BORDERLESS);
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
+
+            m_inputManager->Update();
         }
 
         m_isRunning = false;
@@ -68,6 +74,11 @@ namespace soge
     bool Engine::IsRunning() const
     {
         return m_isRunning;
+    }
+
+    EventManager* Engine::GetEventManager() const
+    {
+        return m_eventManager.get();
     }
 
     void Engine::RequestShutdown()

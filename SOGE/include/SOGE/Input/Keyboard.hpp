@@ -13,6 +13,8 @@ namespace soge
         Keyboard(eastl::string_view aKeyboardName);
         virtual ~Keyboard() = default;
 
+        virtual void Update() = 0;
+
         virtual bool IsKeyPressed(Key aKeyName)     = 0;
         virtual bool IsKeyReleased(Key aKeyName)    = 0;
 

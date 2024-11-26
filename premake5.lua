@@ -49,7 +49,8 @@ workspace "SOGE"
         defines
         {
             "_CRT_SECURE_NO_WARNINGS",
-            "SPDLOG_WCHAR_TO_UTF8_SUPPORT"
+            "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
+            "USE_SDL"
         }
 
         links

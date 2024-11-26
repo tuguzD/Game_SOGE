@@ -1,28 +1,32 @@
 #ifndef SOGE_INPUT_INPUTMANAGER_HPP
 #define SOGE_INPUT_INPUTMANAGER_HPP
 
+#include "SOGE/System/Memory.hpp"
+
 
 namespace soge
 {
+    class Mouse;
     class Keyboard;
-    //class Mouse;
-    //class Gamepad;
+    class Gamepad;
+    class InputDevice;
+    class InputCore;
 
     class InputManager
     {
+    private:
+        SharedPtr<Keyboard> m_keyboard;
+        SharedPtr<Mouse> m_mouse;
+
+        eastl::list<SharedPtr<Gamepad>> m_gamepadList;
+        eastl::list<SharedPtr<InputDevice>> m_deviceList;
+        SharedPtr<InputCore> m_inputCore;
+
     public:
-        InputManager()          = default;
-        virtual ~InputManager() = default;
+        InputManager();
+        ~InputManager() = default;
 
-        virtual void LockInput(bool aLockInput)             = 0;
-        virtual void UseRelativeMouseMode(bool aRelMouse)   = 0;
-        virtual void BeginUpdateInput()                     = 0;
-        virtual void EndUpdateInput()                       = 0;
-
-
-        virtual Keyboard* CreateKeyboard()  = 0;
-        //virtual Mouse* CreateMouse()        = 0;
-        //virtual Gamepad* CreateGamepad()    = 0;
+        void Update();
     };
 }
 

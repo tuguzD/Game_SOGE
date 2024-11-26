@@ -1,6 +1,8 @@
 #include "sogepch.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
+#include <SDL3/SDL_keycode.h>
+
 
 namespace soge
 {
@@ -193,6 +195,7 @@ namespace soge
 
     KeyDetails* Key::GetDetails() const
     {
+        LookupForDetails();
         return m_keyDetails.get();
     }
 
@@ -200,6 +203,12 @@ namespace soge
     {
         LookupForDetails();
         return (m_keyDetails.get() != nullptr ? m_keyDetails->GetAlternateName() : m_keyName);
+    }
+
+    std::uint32_t Key::GetScanCode() const
+    {
+        LookupForDetails();
+        return (m_keyDetails.get() != nullptr ? m_keyDetails->GetScanCode() : 0);
     }
 
     const char* Key::ToCString() const
@@ -239,6 +248,8 @@ namespace soge
 
     void KeyDetails::CommonInit(const std::uint32_t aKeyFlags)
     {
+        m_scanCode = 0x000;
+
         m_isModifierKey = ((aKeyFlags & KeyFlags::keyFlag_ModifierKey) != 0);
         m_isGamepadKey  = ((aKeyFlags & KeyFlags::keyFlag_GamepadKey) != 0);
         m_isMouseButton = ((aKeyFlags & KeyFlags::keyFlag_MouseButton) != 0);
@@ -269,6 +280,11 @@ namespace soge
         return m_alternateName;
     }
 
+    std::uint32_t KeyDetails::GetScanCode() const
+    {
+        return m_scanCode;
+    }
+
     ////////////////////////
     // Keys class
     ////////////////////////
@@ -295,36 +311,96 @@ namespace soge
         AddKey(KeyDetails(Keys::ThumbMouseButton, "Thumb Mouse Button", KeyDetails::keyFlag_MouseButton));
         AddKey(KeyDetails(Keys::ThumbMouseButton2, "Thumb Mouse Button 2", KeyDetails::keyFlag_MouseButton));
 
+        // -------------------------------------
+
         AddKey(KeyDetails(Keys::Tab, "Tab"));
+        SetScanCode(Keys::Tab, SDLK_TAB);
+
         AddKey(KeyDetails(Keys::Enter, "Enter"));
+        SetScanCode(Keys::Enter, SDLK_RETURN);
+
         AddKey(KeyDetails(Keys::Pause, "Pause"));
+        SetScanCode(Keys::Pause, SDLK_PAUSE);
 
         AddKey(KeyDetails(Keys::CapsLock, "Caps Lock"));
+        SetScanCode(Keys::CapsLock, SDLK_CAPSLOCK);
+
         AddKey(KeyDetails(Keys::Escape, "Escape"));
+        SetScanCode(Keys::Escape, SDLK_ESCAPE);
+
         AddKey(KeyDetails(Keys::SpaceBar, "Space Bar"));
+        SetScanCode(Keys::SpaceBar, SDLK_SPACE);
+
         AddKey(KeyDetails(Keys::PageUp, "Page Up"));
+        SetScanCode(Keys::PageUp, SDLK_PAGEUP);
+
         AddKey(KeyDetails(Keys::PageDown, "Page Down"));
+        SetScanCode(Keys::PageDown, SDLK_PAGEDOWN);
+
         AddKey(KeyDetails(Keys::End, "End"));
+        SetScanCode(Keys::End, SDLK_END);
+
         AddKey(KeyDetails(Keys::Home, "Home"));
+        SetScanCode(Keys::Home, SDLK_HOME);
+
+        // -------------------------------------
 
         AddKey(KeyDetails(Keys::Left, "Left"));
+        SetScanCode(Keys::Left, SDLK_LEFT);
+
         AddKey(KeyDetails(Keys::Right, "Right"));
+        SetScanCode(Keys::Right, SDLK_RIGHT);
+
         AddKey(KeyDetails(Keys::Up, "Up"));
+        SetScanCode(Keys::Up, SDLK_UP);
+
         AddKey(KeyDetails(Keys::Down, "Down"));
+        SetScanCode(Keys::Down, SDLK_DOWN);
+
+        // --------------------------------------
 
         AddKey(KeyDetails(Keys::Insert, "Insert"));
+        SetScanCode(Keys::Insert, SDLK_INSERT);
+
         AddKey(KeyDetails(Keys::BackSpace, "Back Space"));
+        SetScanCode(Keys::BackSpace, SDLK_BACKSPACE);
+
         AddKey(KeyDetails(Keys::Delete, "Delete"));
+        SetScanCode(Keys::Delete, SDLK_DELETE);
+
+        // ----------------------------------------
 
         AddKey(KeyDetails(Keys::Zero, "0"));
+        SetScanCode(Keys::Zero, SDLK_0);
+
         AddKey(KeyDetails(Keys::One, "1"));
+        SetScanCode(Keys::One, SDLK_1);
+
         AddKey(KeyDetails(Keys::Two, "2"));
+        SetScanCode(Keys::Two, SDLK_2);
+
         AddKey(KeyDetails(Keys::Three, "3"));
+        SetScanCode(Keys::Three, SDLK_3);
+
+        AddKey(KeyDetails(Keys::Four, "4"));
+        SetScanCode(Keys::Four, SDLK_4);
+
         AddKey(KeyDetails(Keys::Five, "5"));
+        SetScanCode(Keys::Five, SDLK_5);
+
         AddKey(KeyDetails(Keys::Six, "6"));
+        SetScanCode(Keys::Six, SDLK_6);
+
         AddKey(KeyDetails(Keys::Seven, "7"));
+        SetScanCode(Keys::Seven, SDLK_7);
+
         AddKey(KeyDetails(Keys::Eight, "8"));
+        SetScanCode(Keys::Eight, SDLK_8);
+
         AddKey(KeyDetails(Keys::Nine, "9"));
+        SetScanCode(Keys::Nine, SDLK_9);
+
+        // ---------------------------------------
 
         AddKey(KeyDetails(Keys::A, "A"));
         AddKey(KeyDetails(Keys::B, "B"));
@@ -430,10 +506,15 @@ namespace soge
         m_inputKeys.insert(eastl::pair<const Key, SharedPtr<KeyDetails>>(key, key.m_keyDetails));
     }
 
+    void Keys::SetScanCode(const Key aKey, std::uint32_t aScanCode)
+    {
+        auto keyDetails = aKey.GetDetails();
+        keyDetails->m_scanCode = aScanCode;
+    }
+
     SharedPtr<KeyDetails> Keys::GetKeyDetails(const Key aKey)
     {
         // TODO: Get rid of this assert
-        auto it = m_inputKeys.find(aKey);
         SharedPtr<KeyDetails> keyDetails = m_inputKeys[aKey];
         return keyDetails;
     }
