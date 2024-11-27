@@ -30,17 +30,26 @@ namespace soge
     template <typename Derived>
     class StaticEvent;
 
+    namespace detail
+    {
+        template <typename T>
+        constexpr void StaticEventConceptHelper(StaticEvent<T>&) noexcept
+        {
+        }
+    }
+
     template <typename T>
-    concept DerivedFromStaticEvent = std::is_base_of_v<StaticEvent<T>, T> && requires {
-        // clang-format off
+    concept DerivedFromStaticEvent = DerivedFromEvent<T> && requires(T&& aT) {
+        { detail::StaticEventConceptHelper(aT) };
         { T::GetStaticEventType() } -> std::same_as<EventType>;
-        // clang-format on
     };
 
     template <typename Derived>
     class StaticEvent : public Event
     {
-    protected:
+    private:
+        friend Derived;
+
         explicit constexpr StaticEvent() noexcept = default;
 
     public:
