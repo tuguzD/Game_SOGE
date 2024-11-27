@@ -20,27 +20,35 @@ namespace soge
 
     void KeyboardSDL::Update()
     {
+        auto eventManager = Engine::GetInstance()->GetEventManager();
+        if (!eventManager)
+        {
+            return;
+        }
+
         for (auto it : m_inputCoreSDL->m_sdlEventList)
         {
             SDL_Event* sdlEvent = &it;
 
             switch (sdlEvent->type)
             {
-                case SDL_EVENT_KEY_DOWN:
-                {
-                    auto eventManager = Engine::GetInstance()->GetEventManager();
-                    SOGE_INFO_LOG("Put KeyPressedEvent HERE");
-                    break;
-                }
-
-                case SDL_EVENT_KEY_UP:
-                {
-                    SOGE_INFO_LOG("Some key up");
-                    break;
-                }
-
+            case SDL_EVENT_KEY_DOWN: {
+                // TODO convert from SDL key to our key
+                eventManager->Enqueue<KeyPressedEvent>(Keys::A, 1);
+                break;
+            }
+            case SDL_EVENT_KEY_UP: {
+                // TODO convert from SDL key to our key
+                eventManager->Enqueue<KeyReleasedEvent>(Keys::A);
+                break;
+            }
+            default:
+                break;
             }
         }
+
+        eventManager->DispatchQueue<KeyPressedEvent>();
+        eventManager->DispatchQueue<KeyReleasedEvent>();
     }
 
     bool KeyboardSDL::IsKeyPressed(Key aKeyName)

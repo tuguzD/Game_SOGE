@@ -43,6 +43,12 @@ namespace soge
     public:
         static constexpr EventType GetStaticEventType() noexcept;
 
+        // this is needed because static event class overrides this method only from the first derived class, not the last one
+        // how to reimplement this? for now, idk
+        constexpr EventType GetEventType() const override
+        {
+            return GetStaticEventType();
+        }
     };
 
     class KeyReleasedEvent : public KeyboardEventBase
@@ -54,6 +60,12 @@ namespace soge
     public:
         static constexpr EventType GetStaticEventType() noexcept;
 
+        // this is needed because static event class overrides this method only from the first derived class, not the last one
+        // how to reimplement this? for now, idk
+        constexpr EventType GetEventType() const override
+        {
+            return GetStaticEventType();
+        }
     };
 
     static_assert(DerivedFromStaticEvent<KeyboardEventBase>, "KeyboardEventBase should be static event!");
