@@ -12,7 +12,7 @@ namespace soge
         SharedPtr<InputCoreSDL> m_inputCoreSDL;
 
     public:
-        KeyboardSDL(InputCoreSDL* aInputCore);
+        KeyboardSDL(SharedPtr<InputCoreSDL> aInputCore);
         ~KeyboardSDL() = default;
 
         void Update() override;

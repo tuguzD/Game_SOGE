@@ -13,9 +13,9 @@
 
 namespace soge
 {
-    KeyboardSDL::KeyboardSDL(InputCoreSDL* aInputCore) : Keyboard("SDL Portable Keyboard")
+    KeyboardSDL::KeyboardSDL(SharedPtr<InputCoreSDL> aInputCore) : Keyboard("SDL Portable Keyboard")
     {
-        m_inputCoreSDL = SharedPtr<InputCoreSDL>(aInputCore);
+        m_inputCoreSDL = aInputCore;
     }
 
     void KeyboardSDL::Update()

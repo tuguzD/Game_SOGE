@@ -1,6 +1,7 @@
 #include "sogepch.hpp"
 #include "SOGE/Input/Impl/SDL/InputCoreSDL.hpp"
 #include "SOGE/Input/Impl/SDL/KeyboardSDL.hpp"
+#include "SOGE/Input/Impl/SDL/MouseSDL.hpp"
 
 #include <SDL3/SDL_init.h>
 
@@ -52,7 +53,7 @@ namespace soge
 
     Mouse* InputCoreSDL::CreateMouse()
     {
-        return nullptr;
+        return new MouseSDL(shared_from_this());
     }
 
     Gamepad* InputCoreSDL::CreateGamepad()
@@ -62,6 +63,6 @@ namespace soge
 
     Keyboard* InputCoreSDL::CreateKeyboard()
     {
-        return new KeyboardSDL(this);
+        return new KeyboardSDL(shared_from_this());
     }
 }

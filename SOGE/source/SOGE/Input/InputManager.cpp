@@ -3,6 +3,7 @@
 
 #include "SOGE/Input/Impl/SDL/InputCoreSDL.hpp"
 #include "SOGE/Input/Impl/SDL/KeyboardSDL.hpp"
+#include "SOGE/Input/Impl/SDL/MouseSDL.hpp"
 
 #include <SDL3/SDL.h>
 
@@ -18,6 +19,7 @@ namespace soge
 
         m_inputCore.reset(new InputCoreSDL());
         m_keyboard.reset(m_inputCore->CreateKeyboard());
+        m_mouse.reset(m_inputCore->CreateMouse());
     }
 
     void InputManager::Update()
