@@ -15,7 +15,7 @@ namespace soge
 {
     KeyboardSDL::KeyboardSDL(InputCoreSDL* aInputCore) : Keyboard("SDL Portable Keyboard")
     {
-        m_inputCoreSDL.reset(aInputCore);
+        m_inputCoreSDL = SharedPtr<InputCoreSDL>(aInputCore);
     }
 
     void KeyboardSDL::Update()
@@ -28,6 +28,7 @@ namespace soge
 
         for (auto it : m_inputCoreSDL->m_sdlEventList)
         {
+
             SDL_Event* sdlEvent = &it;
 
             switch (sdlEvent->type)

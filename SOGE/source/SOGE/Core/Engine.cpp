@@ -4,6 +4,8 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
+#include "SOGE/System/Impl/SDL/WindowSDL.hpp"
+
 #include <SDL3/SDL.h>
 
 
@@ -38,6 +40,8 @@ namespace soge
         Keys::Initialize();
 
         m_eventManager = CreateUnique<EventManager>();
+        m_systemWindow = UniquePtr<Window>(Window::Create());
+
         m_inputManager = CreateShared<InputManager>();
     }
 
@@ -56,8 +60,6 @@ namespace soge
         // Prevent users from resetting engine while it is running
         std::lock_guard lock(s_mutex);
         m_isRunning = true;
-
-        SDL_CreateWindow("SOGEEngine", 800, 600, SDL_WINDOW_BORDERLESS);
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)

@@ -2,12 +2,13 @@
 #define SOGE_INPUT_IMPL_SDL_INPUTCORESDL_HPP
 
 #include "SOGE/Input/InputCore.hpp"
+#include "SOGE/Event/SDL/SDLEventWrapper.hpp"
 #include <SDL3/SDL_events.h>
 
 
 namespace soge
 {
-    class InputCoreSDL : public InputCore
+    class InputCoreSDL final : public InputCore
     {
         friend class KeyboardSDL;
         friend class GamepadSDL;

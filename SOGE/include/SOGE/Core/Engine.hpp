@@ -4,6 +4,7 @@
 #include "SOGE/System/Memory.hpp"
 #include "SOGE/Core/EventManager.hpp"
 #include "SOGE/Input/InputManager.hpp"
+#include "SOGE/System/Window.hpp"
 
 
 namespace soge
@@ -19,7 +20,9 @@ namespace soge
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
 
-        eastl::unique_ptr<EventManager> m_eventManager;
+        UniquePtr<EventManager> m_eventManager;
+        UniquePtr<Window> m_systemWindow;
+
         SharedPtr<InputManager> m_inputManager;
 
         bool m_isRunning;

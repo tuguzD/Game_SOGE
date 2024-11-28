@@ -14,15 +14,17 @@ namespace soge
 
     InputCoreSDL::~InputCoreSDL()
     {
-        SDL_Quit();
+
     }
 
     void InputCoreSDL::LockInput(bool aLockInput)
     {
+
     }
 
     void InputCoreSDL::UseRelativeMouseMode(bool aRelMouse)
     {
+
     }
 
     void InputCoreSDL::BeginUpdateInput()
@@ -32,7 +34,6 @@ namespace soge
 
         SDL_Event sdlEvent;
         m_sdlEventList.clear();
-
         while (SDL_PollEvent(&sdlEvent) != 0)
         {
             m_sdlEventList.push_back(sdlEvent);
