@@ -1,5 +1,5 @@
 #include "sogepch.hpp"
-#include "SOGE/Input/Keyboard.hpp"
+#include "SOGE/Input/Device/Keyboard.hpp"
 
 
 namespace soge

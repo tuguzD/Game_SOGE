@@ -1,5 +1,5 @@
-#ifndef SOGE_INPUT_IMPL_SDL_INPUTCORESDL_HPP
-#define SOGE_INPUT_IMPL_SDL_INPUTCORESDL_HPP
+#ifndef SOGE_INPUT_IMPL_SDL_SDLINPUTCORE_HPP
+#define SOGE_INPUT_IMPL_SDL_SDLINPUTCORE_HPP
 
 #include "SOGE/Input/InputCore.hpp"
 #include <SDL3/SDL_events.h>
@@ -7,12 +7,12 @@
 
 namespace soge
 {
-    class InputCoreSDL final : public InputCore,
-        public eastl::enable_shared_from_this<InputCoreSDL>
+    class SDLInputCore final : public InputCore,
+        public eastl::enable_shared_from_this<SDLInputCore>
     {
-        friend class KeyboardSDL;
-        friend class GamepadSDL;
-        friend class MouseSDL;
+        friend class SDLKeyboard;
+        friend class SDLGamepad;
+        friend class SDLMouse;
 
     private:
         bool m_isPauseUpdateRequested;
@@ -22,8 +22,8 @@ namespace soge
         eastl::list<SDL_Event> m_sdlEventList;
 
     public:
-        InputCoreSDL();
-        ~InputCoreSDL();
+        SDLInputCore();
+        ~SDLInputCore();
 
         void LockInput(bool aLockInput) override;
         void UseRelativeMouseMode(bool aRelMouse) override;
@@ -37,6 +37,9 @@ namespace soge
         Keyboard* CreateKeyboard() override;
 
     };
+
+    typedef SDLInputCore ImplInputCore;
+
 }
 
-#endif // SOGE_INPUT_IMPL_SDL_INPUTCORESDL_HPP
+#endif // SOGE_INPUT_IMPL_SDL_SDLINPUTCORE_HPP

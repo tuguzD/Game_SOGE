@@ -1,7 +1,7 @@
 #ifndef SOGE_INPUT_KEYBOARD_HPP
 #define SOGE_INPUT_KEYBOARD_HPP
 
-#include "SOGE/Input/InputDevice.hpp"
+#include "SOGE/Input/Device/InputDevice.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
 

@@ -6,8 +6,6 @@
 
 #include "SOGE/System/Impl/SDL/WindowSDL.hpp"
 
-#include <SDL3/SDL.h>
-
 
 namespace soge
 {
@@ -36,8 +34,6 @@ namespace soge
     Engine::Engine() : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
-
-        Keys::Initialize();
 
         m_eventManager = CreateUnique<EventManager>();
         m_systemWindow = UniquePtr<Window>(Window::Create());

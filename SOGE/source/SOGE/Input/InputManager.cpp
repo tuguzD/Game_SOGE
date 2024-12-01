@@ -1,23 +1,19 @@
 #include "sogepch.hpp"
 #include "SOGE/Input/InputManager.hpp"
+#include "SOGE/Utils/PreprocessorHelpers.hpp"
 
-#include "SOGE/Input/Impl/SDL/InputCoreSDL.hpp"
-#include "SOGE/Input/Impl/SDL/KeyboardSDL.hpp"
-#include "SOGE/Input/Impl/SDL/MouseSDL.hpp"
-
-#include <SDL3/SDL.h>
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,InputCore.hpp)
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,Keyboard.hpp)
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,Mouse.hpp)
 
 
 namespace soge
 {
     InputManager::InputManager()
     {
-        if (!SDL_Init(SDL_INIT_EVENTS))
-        {
-            SOGE_ERROR_LOG("Failed to initialize SDL events subsystem...");
-        }
+        Keys::Initialize();
 
-        m_inputCore.reset(new InputCoreSDL());
+        m_inputCore.reset(new ImplInputCore());
         m_keyboard.reset(m_inputCore->CreateKeyboard());
         m_mouse.reset(m_inputCore->CreateMouse());
     }

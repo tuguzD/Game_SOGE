@@ -1,5 +1,5 @@
 #include "sogepch.hpp"
-#include "SOGE/Input/InputDevice.hpp"
+#include "SOGE/Input/Device/InputDevice.hpp"
 
 
 namespace soge

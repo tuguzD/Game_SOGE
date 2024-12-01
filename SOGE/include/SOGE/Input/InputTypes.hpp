@@ -7,6 +7,8 @@
 
 namespace soge
 {
+    typedef std::uint32_t SGScanCode;
+
     //////////////////////////
     // Key
     //////////////////////////
@@ -16,6 +18,7 @@ namespace soge
         friend struct Keys;
 
     private:
+        // Can't use SharedPtr name here
         mutable class eastl::shared_ptr<struct KeyDetails> m_keyDetails;
         LWString m_keyName;
 
@@ -25,6 +28,7 @@ namespace soge
     public:
         Key() = default;
         Key(const char* aKeyName);
+        Key(const LWString& aKeyName);
         ~Key() = default;
 
         bool IsValid() const;
@@ -34,10 +38,12 @@ namespace soge
 
         KeyDetails* GetDetails() const;
         const LWString& GetAlternateName() const;
-        std::uint32_t GetScanCode() const;
+        SGScanCode GetScanCode() const;
 
         const char* ToCString() const;
         eastl::string ToString() const;
+
+
 
     public:
         friend bool operator==(const Key& aKeyA, const Key& aKeyB);
@@ -73,14 +79,15 @@ namespace soge
 
         const Key& GetKey() const;
         const LWString& GetAlternateName() const;
-        std::uint32_t GetScanCode() const;
+        SGScanCode GetScanCode() const;
 
     private:
         friend struct Keys;
+        friend class InputMap;
 
         Key m_keyObj;
         LWString m_alternateName;
-        std::uint32_t m_scanCode;
+        SGScanCode m_scanCode;
 
         std::uint8_t m_isModifierKey = 1;
         std::uint8_t m_isGamepadKey = 1;
@@ -97,6 +104,7 @@ namespace soge
     {
         // NOLINTNEXTLINE(readability-identifier-naming) reason: Ease of use for working with key names
 
+        static const Key UndefinedKey;
         static const Key AnyKey;
 
         static const Key MouseX;
@@ -240,7 +248,6 @@ namespace soge
 
         static void Initialize();
         static void AddKey(const KeyDetails& aKeyDetails);
-        static void SetScanCode(const Key aKey, std::uint32_t aScanCode);
         static SharedPtr<KeyDetails> GetKeyDetails(const Key aKey);
 
         static bool IsModifierKey(Key aKey);

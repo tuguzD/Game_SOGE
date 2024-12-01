@@ -50,7 +50,9 @@ workspace "SOGE"
         {
             "_CRT_SECURE_NO_WARNINGS",
             "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
-            "USE_SDL"
+
+            "SOGE_INPUT_IMPL=SDL",
+            "SOGE_SYSTEM_IMPL=SDL"
         }
 
         links
@@ -63,7 +65,8 @@ workspace "SOGE"
 
             defines
             {
-                "SOGE_WINDOWS"
+                "SOGE_WINDOWS",
+                "SOGE_COMPILED_PLATFORM=Windows"
             }
 
         filter "configurations:Debug"
