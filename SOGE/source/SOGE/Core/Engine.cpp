@@ -4,7 +4,7 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
-#include "SOGE/System/Impl/SDL/WindowSDL.hpp"
+#include "SOGE/System/Impl/SDL/SDLWindow.hpp"
 
 
 namespace soge

@@ -35,7 +35,7 @@ namespace soge
                 SOGE_APP_INFO_LOG("Key '{}' released", aEvent.GetKey().ToCString());
             });
             eventManager->PushBack<MouseButtonPressedEvent>([](const MouseButtonPressedEvent& aEvent) {
-                SOGE_APP_INFO_LOG("{} pressed", aEvent.GetKey().ToCString());
+                SOGE_APP_INFO_LOG("{} pressed with repeat count of {}", aEvent.GetKey().ToCString(), aEvent.GetRepeatCount());
             });
             eventManager->PushBack<MouseButtonReleasedEvent>([](const MouseButtonReleasedEvent& aEvent) {
                 SOGE_APP_INFO_LOG("{} released", aEvent.GetKey().ToCString());

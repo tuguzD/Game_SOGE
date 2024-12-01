@@ -1,23 +1,23 @@
-#ifndef SOGE_SYSTEM_IMPL_SDL_WINDOWSDL_HPP
-#define SOGE_SYSTEM_IMPL_SDL_WINDOWSDL_HPP
+#ifndef SOGE_SYSTEM_IMPL_SDL_SDLWINDOW_HPP
+#define SOGE_SYSTEM_IMPL_SDL_SDLWINDOW_HPP
 
 #include "SOGE/System/Window.hpp"
 #include "SOGE/System/Memory.hpp"
 
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_video.h>
 
 
 namespace soge
 {
-    class WindowSDL final : public Window
+    class SDLWindow final : public Window
     {
     private:
         SDL_Window* m_sdlWindow;
         WindowDesc m_windowDescriptor;
 
     public:
-        WindowSDL(WindowDesc& aWindowDescriptor);
-        ~WindowSDL();
+        SDLWindow(WindowDesc& aWindowDescriptor);
+        ~SDLWindow();
 
         void* GetNativeHandler() const override;
         eastl::wstring GetTitle() const override;
@@ -26,4 +26,4 @@ namespace soge
     };
 }
 
-#endif // !SOGE_SYSTEM_IMPL_SDL_WINDOWSDL_HPP
+#endif // SOGE_SYSTEM_IMPL_SDL_SDLWINDOW_HPP

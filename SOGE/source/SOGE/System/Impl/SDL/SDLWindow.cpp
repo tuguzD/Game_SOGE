@@ -1,5 +1,5 @@
 #include "sogepch.hpp"
-#include "SOGE/System/Impl/SDL/WindowSDL.hpp"
+#include "SOGE/System/Impl/SDL/SDLWindow.hpp"
 #include "SOGE/Utils/StringHelpers.hpp"
 
 
@@ -7,10 +7,10 @@ namespace soge
 {
     Window* Window::Create(WindowDesc aWindowDescriptor)
     {
-        return new WindowSDL(aWindowDescriptor);
+        return new SDLWindow(aWindowDescriptor);
     }
 
-    WindowSDL::WindowSDL(WindowDesc& aWindowDescriptor)
+    SDLWindow::SDLWindow(WindowDesc& aWindowDescriptor)
     {
         m_windowDescriptor = aWindowDescriptor;
 
@@ -24,28 +24,28 @@ namespace soge
         //SDL_SetWindowRelativeMouseMode(m_sdlWindow, true);
     }
 
-    WindowSDL::~WindowSDL()
+    SDLWindow::~SDLWindow()
     {
         SDL_DestroyWindow(m_sdlWindow);
     }
 
-    void* WindowSDL::GetNativeHandler() const
+    void* SDLWindow::GetNativeHandler() const
     {
         SDL_PropertiesID properties = SDL_GetWindowProperties(m_sdlWindow);
         return (void*)SDL_PROP_WINDOW_WIN32_HWND_POINTER;
     }
 
-    eastl::wstring WindowSDL::GetTitle() const
+    eastl::wstring SDLWindow::GetTitle() const
     {
         return EAToWide(SDL_GetWindowTitle(m_sdlWindow));
     }
 
-    std::uint32_t WindowSDL::GetWidth() const
+    std::uint32_t SDLWindow::GetWidth() const
     {
         return std::uint32_t();
     }
 
-    std::uint32_t WindowSDL::GetHeight() const
+    std::uint32_t SDLWindow::GetHeight() const
     {
         return std::uint32_t();
     }

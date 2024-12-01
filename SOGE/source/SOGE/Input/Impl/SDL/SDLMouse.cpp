@@ -5,7 +5,6 @@
 #include "SOGE/Input/KeyMapManager.hpp"
 #include "SOGE/Core/Engine.hpp"
 
-#include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL.h>
 
 
