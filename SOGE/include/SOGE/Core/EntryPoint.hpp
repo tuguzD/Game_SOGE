@@ -34,6 +34,9 @@ namespace soge
             eventManager->PushBack<KeyReleasedEvent>([](const KeyReleasedEvent& aEvent) {
                 SOGE_APP_INFO_LOG("Key '{}' released", aEvent.GetKey().ToCString());
             });
+            eventManager->PushBack<MouseWheelEvent>([](const MouseWheelEvent& aEvent) {
+                SOGE_APP_INFO_LOG("Mouse scrolled by x: {}", aEvent.GetXOffset());
+            });
         }
         app->Run();
 

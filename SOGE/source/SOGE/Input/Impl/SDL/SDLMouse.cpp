@@ -1,11 +1,17 @@
 #include "sogepch.hpp"
 #include "SOGE/Input/Impl/SDL/SDLMouse.hpp"
+#include "SOGE/Event/InputEvents.hpp"
+#include "SOGE/Input/InputTypes.hpp"
+#include "SOGE/Input/KeyMapManager.hpp"
 #include "SOGE/Core/Engine.hpp"
+
+#include <SDL3/SDL.h>
 
 
 namespace soge
 {
-    SDLMouse::SDLMouse(SharedPtr<SDLInputCore> aInputCore) : Mouse("SDL Portable Mouse"), m_inputCoreSDL(aInputCore)
+    SDLMouse::SDLMouse(SharedPtr<SDLInputCore> aInputCore)
+        : Mouse("SDL Portable Mouse"), m_inputCoreSDL(aInputCore), m_repeatCounter(0), m_coords(0, 0)
     {
     }
 
@@ -26,28 +32,50 @@ namespace soge
             {
 
             case SDL_EVENT_MOUSE_MOTION: {
-                SOGE_INFO_LOG("Mouse motion event");
+                //SDL_GetGlobalMouseState(m_coords.first, m_coords.second);
+                //eventManager->Enqueue<MouseMovedEvent>(*m_coords.first, *m_coords.second);
+
                 break;
             }
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-                SOGE_INFO_LOG("Button down event");
+                SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
+                const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+
+                if (sdlEvent->key.repeat)
+                    m_repeatCounter++;
+                else
+                    m_repeatCounter = 0;
+
+                eventManager->Enqueue<MouseButtonPressedEvent>(sogeKey, m_repeatCounter);
                 break;
             }
 
             case SDL_EVENT_MOUSE_BUTTON_UP: {
-                SOGE_INFO_LOG("Button up event");
+                SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
+                const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+                eventManager->Enqueue<MouseButtonReleasedEvent>(sogeKey);
+
                 break;
             }
 
             case SDL_EVENT_MOUSE_WHEEL: {
-                SOGE_INFO_LOG("Wheel event");
+                float xOffset = sdlEvent->motion.x;
+                float yOffset = sdlEvent->motion.y;
+                eventManager->Enqueue<MouseWheelEvent>(xOffset, yOffset);
+
                 break;
             }
 
             default:
                 break;
             }
+
+            eventManager->DispatchQueue<MouseMovedEvent>();
+            eventManager->DispatchQueue<MouseButtonPressedEvent>();
+            eventManager->DispatchQueue<MouseButtonReleasedEvent>();
+            eventManager->DispatchQueue<MouseWheelEvent>();
+
         }
     }
 

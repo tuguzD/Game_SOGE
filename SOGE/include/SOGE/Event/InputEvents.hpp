@@ -154,12 +154,15 @@ namespace soge
     class MouseWheelEvent : public StaticEvent<MouseWheelEvent>
     {
     private:
-        float m_offset;
+        float m_xOffset;
+        float m_yOffset;
 
     public:
-        explicit MouseWheelEvent(float aOffset) noexcept;
+        explicit MouseWheelEvent(float aXOffset, float aYOffset) noexcept;
         ~MouseWheelEvent() = default;
-        float GetOffset() const;
+
+        float GetXOffset() const;
+        float GetYOffset() const;
 
     public:
         static constexpr EventType GetStaticEventType() noexcept;

@@ -12,6 +12,9 @@ namespace soge
     {
     private:
         SharedPtr<SDLInputCore> m_inputCoreSDL;
+        eastl::pair<float*, float*> m_coords;
+        int m_repeatCounter;
+
 
     public:
         SDLMouse(SharedPtr<SDLInputCore> aInputCore);

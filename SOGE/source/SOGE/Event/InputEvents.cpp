@@ -62,13 +62,18 @@ namespace soge
         return m_coords;
     }
 
-    MouseWheelEvent::MouseWheelEvent(float aOffset) noexcept : m_offset(aOffset)
+    MouseWheelEvent::MouseWheelEvent(float aXOffset, float aYOffset) noexcept : m_xOffset(aXOffset), m_yOffset(aYOffset)
     {
     }
 
-    float MouseWheelEvent::GetOffset() const
+    float MouseWheelEvent::GetXOffset() const
     {
-        return m_offset;
+        return m_xOffset;
+    }
+
+    float MouseWheelEvent::GetYOffset() const
+    {
+        return m_yOffset;
     }
 
 }
