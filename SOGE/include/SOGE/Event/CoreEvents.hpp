@@ -2,6 +2,7 @@
 #define SOGE_EVENT_COREEVENTS_HPP
 
 #include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Event/EventHelpers.hpp"
 
 
 namespace soge
@@ -29,7 +30,11 @@ namespace soge
         constexpr float GetDeltaTime() const noexcept;
     };
 
-    static_assert(DerivedFromStaticEvent<UpdateEvent>, "Update core event should be static event!");
+    ////////////////////////////
+    // Assertions
+    ///////////////////////////
+
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(UpdateEvent);
 
     ////////////////////////////
     // Event declarations

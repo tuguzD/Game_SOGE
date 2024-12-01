@@ -27,10 +27,11 @@ namespace soge
             return;
         }
 
-        for (auto it : m_inputCoreSDL->m_sdlEventList)
+        eastl::list<SDL_Event>::iterator it = m_inputCoreSDL->m_sdlEventList.begin();
+        for (; it != m_inputCoreSDL->m_sdlEventList.end(); ++it)
         {
 
-            SDL_Event* sdlEvent = &it;
+            SDL_Event* sdlEvent = &(*it);
 
             switch (sdlEvent->type)
             {

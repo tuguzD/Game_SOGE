@@ -22,5 +22,6 @@ namespace soge
     {
         m_inputCore->BeginUpdateInput();
         m_keyboard->Update();
+        m_mouse->Update();
     }
 }

@@ -2,7 +2,10 @@
 #define SOGE_EVENT_INPUTEVENTS_HPP
 
 #include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Core/EngineTypes.hpp"
 #include "SOGE/Input/InputTypes.hpp"
+#include "SOGE/Event/EventHelpers.hpp"
+
 
 namespace soge
 {
@@ -12,17 +15,22 @@ namespace soge
         {
             constexpr EventType g_keyPressedEvent{StringId("KeyPressedEvent"), EventCategory::Input};
             constexpr EventType g_keyReleasedEvent{StringId("KeyReleasedEvent"), EventCategory::Input};
+
+            constexpr EventType g_mouseButtonPressedEvent{StringId("MouseButtonPressedEvent"), EventCategory::Input};
+            constexpr EventType g_mouseButtonReleasedEvent{StringId("MouseButtonReleasedEvent"), EventCategory::Input};
+            constexpr EventType g_mouseMovedEvent{StringId("MouseMovedEvent"), EventCategory::Input};
+            constexpr EventType g_mouseWheelEvent{StringId("MouseWheelEvent"), EventCategory::Input};
         }
     }
 
-    class KeyboardEventBase : public StaticEvent<KeyboardEventBase>
+    class KeyEventBase : public StaticEvent<KeyEventBase>
     {
     private:
         Key m_keyObj;
 
     public:
-        explicit KeyboardEventBase(Key aKeyObj) noexcept;
-        virtual ~KeyboardEventBase() = default;
+        explicit KeyEventBase(const Key aKeyObj) noexcept;
+        virtual ~KeyEventBase() = default;
         virtual Key GetKey() const;
 
     public:
@@ -30,13 +38,17 @@ namespace soge
 
     };
 
-    class KeyPressedEvent : public KeyboardEventBase
+    //////////////////////
+    // Keyboard Event
+    /////////////////////
+
+    class KeyPressedEvent : public KeyEventBase
     {
     private:
         int m_repeatCount;
 
     public:
-        explicit KeyPressedEvent(Key aPressedKey, int aRepeatCount) noexcept;
+        explicit KeyPressedEvent(const Key aPressedKey, int aRepeatCount) noexcept;
         ~KeyPressedEvent() = default;
         int GetRepeatCount() const;
 
@@ -45,16 +57,16 @@ namespace soge
 
         // this is needed because static event class overrides this method only from the first derived class, not the last one
         // how to reimplement this? for now, idk
-        constexpr EventType GetEventType() const override
+        inline constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
     };
 
-    class KeyReleasedEvent : public KeyboardEventBase
+    class KeyReleasedEvent : public KeyEventBase
     {
     public:
-        explicit KeyReleasedEvent(Key aReleasedKey) noexcept;
+        explicit KeyReleasedEvent(const Key aReleasedKey) noexcept;
         ~KeyReleasedEvent() = default;
 
     public:
@@ -62,19 +74,120 @@ namespace soge
 
         // this is needed because static event class overrides this method only from the first derived class, not the last one
         // how to reimplement this? for now, idk
-        constexpr EventType GetEventType() const override
+        inline constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
     };
 
-    static_assert(DerivedFromStaticEvent<KeyboardEventBase>, "KeyboardEventBase should be static event!");
+    //////////////////////
+    // Mouse Event
+    /////////////////////
+
+    // Pretty much similar to keyboard key pressed event.
+    // But we need set exactly g_mouseButtonKeyPressedEvent.
+    // So here'll be some code duplication. Probably can be
+    // Moved to some kind of multifunction for all button events.
+    //
+    // TODO: Figure out this garbage in the future
+
+    class MouseButtonPressedEvent : public KeyEventBase
+    {
+    private:
+        int m_repeatCount;
+
+    public:
+        explicit MouseButtonPressedEvent(const Key aPressedButton, int aRepeatCount) noexcept;
+        ~MouseButtonPressedEvent() = default;
+        int GetRepeatCount() const;
+
+    public:
+        static constexpr EventType GetStaticEventType() noexcept;
+
+        inline constexpr EventType GetEventType() const override
+        {
+            return GetStaticEventType();
+        }
+
+    };
+
+    class MouseButtonReleasedEvent : public KeyEventBase
+    {
+    public:
+        explicit MouseButtonReleasedEvent(const Key aReleasedButton) noexcept;
+        ~MouseButtonReleasedEvent() = default;
+
+    public:
+        static constexpr EventType GetStaticEventType() noexcept;
+
+        inline constexpr EventType GetEventType() const override
+        {
+            return GetStaticEventType();
+        }
+
+    };
+
+    class MouseMovedEvent : public StaticEvent<MouseMovedEvent>
+    {
+        using FloatPair = eastl::pair<float, float>;
+
+    private:
+        FloatPair m_coords;
+
+
+    public:
+        explicit MouseMovedEvent(const FloatPair aCoords) noexcept;
+        explicit MouseMovedEvent(float aX, float aY) noexcept;
+        ~MouseMovedEvent() = default;
+        FloatPair GetCoords() const;
+
+    public:
+        static constexpr EventType GetStaticEventType() noexcept;
+
+        inline constexpr EventType GetEventType() const override
+        {
+            return GetStaticEventType();
+        }
+
+    };
+
+    class MouseWheelEvent : public StaticEvent<MouseWheelEvent>
+    {
+    private:
+        float m_offset;
+
+    public:
+        explicit MouseWheelEvent(float aOffset) noexcept;
+        ~MouseWheelEvent() = default;
+        float GetOffset() const;
+
+    public:
+        static constexpr EventType GetStaticEventType() noexcept;
+
+        inline constexpr EventType GetEventType() const override
+        {
+            return GetStaticEventType();
+        }
+
+    };
+
+    //////////////////////
+    // Assertions
+    /////////////////////
+
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(KeyEventBase);
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(KeyPressedEvent);
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(KeyReleasedEvent);
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(MouseButtonPressedEvent);
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(MouseButtonReleasedEvent);
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(MouseMovedEvent);
+    SG_DERIVED_FROM_STATIC_EVENT_ASSERT(MouseWheelEvent);
 
     ////////////////////////////
     // Event declarations
     ///////////////////////////
 
-    constexpr EventType KeyboardEventBase::GetStaticEventType() noexcept
+    constexpr EventType KeyEventBase::GetStaticEventType() noexcept
     {
         return EventTypes::Dummy::g_dummyEvent;
     }
@@ -87,6 +200,26 @@ namespace soge
     constexpr EventType KeyReleasedEvent::GetStaticEventType() noexcept
     {
         return EventTypes::InputEvents::g_keyReleasedEvent;
+    }
+
+    constexpr EventType MouseButtonPressedEvent::GetStaticEventType() noexcept
+    {
+        return EventTypes::InputEvents::g_mouseButtonPressedEvent;
+    }
+
+    constexpr EventType MouseButtonReleasedEvent::GetStaticEventType() noexcept
+    {
+        return EventTypes::InputEvents::g_mouseButtonReleasedEvent;
+    }
+
+    constexpr EventType MouseMovedEvent::GetStaticEventType() noexcept
+    {
+        return EventTypes::InputEvents::g_mouseMovedEvent;
+    }
+
+    constexpr EventType MouseWheelEvent::GetStaticEventType() noexcept
+    {
+        return EventTypes::InputEvents::g_mouseWheelEvent;
     }
 
 }
