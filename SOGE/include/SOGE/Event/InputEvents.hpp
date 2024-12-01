@@ -132,14 +132,16 @@ namespace soge
         using FloatPair = eastl::pair<float, float>;
 
     private:
-        FloatPair m_coords;
+        float m_relX;
+        float m_relY;
 
 
     public:
-        explicit MouseMovedEvent(const FloatPair aCoords) noexcept;
-        explicit MouseMovedEvent(float aX, float aY) noexcept;
+        explicit MouseMovedEvent(float aRelX, float aRelY) noexcept;
         ~MouseMovedEvent() = default;
-        FloatPair GetCoords() const;
+
+        float GetRelativeX() const;
+        float GetRelativeY() const;
 
     public:
         static constexpr EventType GetStaticEventType() noexcept;

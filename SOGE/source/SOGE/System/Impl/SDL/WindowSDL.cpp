@@ -20,11 +20,13 @@ namespace soge
             m_windowDescriptor.m_height,
             SDL_WINDOW_INPUT_FOCUS
         );
+
+        //SDL_SetWindowRelativeMouseMode(m_sdlWindow, true);
     }
 
     WindowSDL::~WindowSDL()
     {
-        delete m_sdlWindow;
+        SDL_DestroyWindow(m_sdlWindow);
     }
 
     void* WindowSDL::GetNativeHandler() const

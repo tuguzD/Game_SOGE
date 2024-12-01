@@ -49,17 +49,18 @@ namespace soge
     {
     }
 
-    MouseMovedEvent::MouseMovedEvent(const FloatPair aCoords) noexcept : m_coords(aCoords)
+    MouseMovedEvent::MouseMovedEvent(float aRelX, float aRelY) noexcept : m_relX(aRelX), m_relY(aRelY)
     {
     }
 
-    MouseMovedEvent::MouseMovedEvent(float aX, float aY) noexcept : m_coords(aX, aY)
+    float MouseMovedEvent::GetRelativeX() const
     {
+        return m_relX;
     }
 
-    MouseMovedEvent::FloatPair MouseMovedEvent::GetCoords() const
+    float MouseMovedEvent::GetRelativeY() const
     {
-        return m_coords;
+        return m_relY;
     }
 
     MouseWheelEvent::MouseWheelEvent(float aXOffset, float aYOffset) noexcept : m_xOffset(aXOffset), m_yOffset(aYOffset)

@@ -5,6 +5,7 @@
 #include "SOGE/Input/KeyMapManager.hpp"
 #include "SOGE/Core/Engine.hpp"
 
+#include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL.h>
 
 
@@ -30,31 +31,31 @@ namespace soge
 
             switch (sdlEvent->type)
             {
-
             case SDL_EVENT_MOUSE_MOTION: {
-                //SDL_GetGlobalMouseState(m_coords.first, m_coords.second);
-                //eventManager->Enqueue<MouseMovedEvent>(*m_coords.first, *m_coords.second);
+                float x, y;
+                SDL_GetMouseState(&x, &y);
+                eventManager->Enqueue<MouseMovedEvent>(x, y);
 
                 break;
             }
 
             case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-                SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
-                const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+                SGScanCode sdlButtonCode = static_cast<SGScanCode>(sdlEvent->button.button);
+                const Key& sogeButton = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlButtonCode);
 
                 if (sdlEvent->key.repeat)
                     m_repeatCounter++;
                 else
                     m_repeatCounter = 0;
 
-                eventManager->Enqueue<MouseButtonPressedEvent>(sogeKey, m_repeatCounter);
+                eventManager->Enqueue<MouseButtonPressedEvent>(sogeButton, m_repeatCounter);
                 break;
             }
 
             case SDL_EVENT_MOUSE_BUTTON_UP: {
-                SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
-                const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
-                eventManager->Enqueue<MouseButtonReleasedEvent>(sogeKey);
+                SGScanCode sdlButtonCode = static_cast<SGScanCode>(sdlEvent->button.button);
+                const Key& sogeButton = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlButtonCode);
+                eventManager->Enqueue<MouseButtonReleasedEvent>(sogeButton);
 
                 break;
             }

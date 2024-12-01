@@ -3,12 +3,19 @@
 #include "SOGE/Input/InputTypes.hpp"
 
 #include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_mouse.h>
 
 
 namespace soge
 {
     void impl::SDLKeyMapManager::SetupKeyMappings()
     {
+        SetScanCode(SDL_BUTTON_LEFT, Keys::LeftMouseButton);
+        SetScanCode(SDL_BUTTON_MIDDLE, Keys::MiddleMouseButton);
+        SetScanCode(SDL_BUTTON_RIGHT, Keys::RightMouseButton);
+        SetScanCode(SDL_BUTTON_X1, Keys::ThumbMouseButton);
+        SetScanCode(SDL_BUTTON_X2, Keys::ThumbMouseButton2);
+
         SetScanCode(SDLK_0, Keys::Zero);
         SetScanCode(SDLK_1, Keys::One);
         SetScanCode(SDLK_2, Keys::Two);
