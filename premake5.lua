@@ -13,6 +13,7 @@ workspace "SOGE"
 
     group "Dependencies"
         include "3rdparty/EASTL/premake5.lua"
+        include "3rdparty/SDL/premake5.lua"
     group ""
 
     project "SOGE"
@@ -85,6 +86,11 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.SDL3_LIB_D}"
             }
 
+            postbuildcommands
+            {
+                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME"
+            }
+
         filter "configurations:Release"
             optimize "on"
 
@@ -98,6 +104,11 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.SDL_UCLIB_R}",
                 "%{wks.location}/%{Libraries.SDL3_DLL_R}",
                 "%{wks.location}/%{Libraries.SDL3_LIB_R}"
+            }
+
+            postbuildcommands
+            {
+                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME"
             }
 
 -----------------------
