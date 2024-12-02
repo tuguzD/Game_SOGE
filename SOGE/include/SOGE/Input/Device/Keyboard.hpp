@@ -14,12 +14,8 @@ namespace soge
         virtual ~Keyboard() = default;
 
         virtual void Update() = 0;
-
         virtual bool IsKeyPressed(Key aKeyName)     = 0;
         virtual bool IsKeyReleased(Key aKeyName)    = 0;
-
-        virtual Key GetPressedKey()     = 0;
-        virtual Key GetReleasedKey()    = 0;
 
     };
 }

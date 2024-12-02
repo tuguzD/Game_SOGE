@@ -2,7 +2,7 @@
 #define SOGE_INPUT_INPUTTYPES_HPP
 
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
-#include "SOGE/Containers/FriendAccessor.hpp"
+#include "SOGE/Containers/FriendFuncPtr.hpp"
 #include "SOGE/Containers/LWString.hpp"
 #include "SOGE/System/Memory.hpp"
 
@@ -88,8 +88,7 @@ namespace soge
         const LWString& GetAlternateName() const;
         KeyState GetKeyState() const;
 
-        static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState()
-        {
+        __forceinline static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState() {
             return FriendFuncPtr<KeyDetails, void, KeyState>(&KeyDetails::SetKeyState);
         }
 

@@ -2,6 +2,7 @@
 #define SOGE_INPUT_MOUSE_HPP
 
 #include "SOGE/Input/Device/InputDevice.hpp"
+#include "SOGE/Input/InputTypes.hpp"
 
 
 namespace soge
@@ -13,9 +14,8 @@ namespace soge
         virtual ~Mouse() = default;
 
         virtual void Update() = 0;
-
-        virtual bool IsButtonPressed() = 0;
-        virtual bool IsButtonReleased() = 0;
+        virtual bool IsButtonPressed(const Key aMouseButton) = 0;
+        virtual bool IsButtonReleased(const Key aMouseButton) = 0;
 
     };
 }

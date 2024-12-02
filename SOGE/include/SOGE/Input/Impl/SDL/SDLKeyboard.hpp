@@ -17,12 +17,8 @@ namespace soge
         ~SDLKeyboard() = default;
 
         void Update() override;
-
         bool IsKeyPressed(const Key aKeyName) override;
         bool IsKeyReleased(const Key aKeyName) override;
-
-        Key GetPressedKey() override;
-        Key GetReleasedKey() override;
 
     };
 

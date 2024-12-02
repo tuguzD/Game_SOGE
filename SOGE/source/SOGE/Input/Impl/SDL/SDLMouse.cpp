@@ -1,5 +1,7 @@
 #include "sogepch.hpp"
 #include "SOGE/Input/Impl/SDL/SDLMouse.hpp"
+
+#include "SOGE/Containers/FriendFuncPtr.hpp"
 #include "SOGE/Event/InputEvents.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 #include "SOGE/Input/KeyMapManager.hpp"
@@ -41,7 +43,10 @@ namespace soge
             case SDL_EVENT_MOUSE_BUTTON_DOWN: {
                 SGScanCode sdlButtonCode = static_cast<SGScanCode>(sdlEvent->button.button);
                 const Key& sogeButton = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlButtonCode);
+                KeyDetails* buttonDetails = sogeButton.GetDetails();
 
+                FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                accessor.Call(*buttonDetails, KeyState_KeyPressed);
                 if (sdlEvent->key.repeat)
                     m_repeatCounter++;
                 else
@@ -54,8 +59,12 @@ namespace soge
             case SDL_EVENT_MOUSE_BUTTON_UP: {
                 SGScanCode sdlButtonCode = static_cast<SGScanCode>(sdlEvent->button.button);
                 const Key& sogeButton = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlButtonCode);
-                eventManager->Enqueue<MouseButtonReleasedEvent>(sogeButton);
+                KeyDetails* buttonDetails = sogeButton.GetDetails();
 
+                FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                accessor.Call(*buttonDetails, KeyState_KeyReleased);
+
+                eventManager->Enqueue<MouseButtonReleasedEvent>(sogeButton);
                 break;
             }
 
@@ -79,13 +88,17 @@ namespace soge
         }
     }
 
-    bool SDLMouse::IsButtonPressed()
+    bool SDLMouse::IsButtonPressed(const Key aMouseButton)
     {
+        if (aMouseButton.GetKeyState() == KeyState_KeyPressed)
+            return true;
         return false;
     }
 
-    bool SDLMouse::IsButtonReleased()
+    bool SDLMouse::IsButtonReleased(const Key aMouseButton)
     {
+        if (aMouseButton.GetKeyState() != KeyState_KeyPressed)
+            return true;
         return false;
     }
 }

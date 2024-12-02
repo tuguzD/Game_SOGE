@@ -2,7 +2,7 @@
 #include "SOGE/Input/Impl/SDL/SDLKeyboard.hpp"
 #include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
 
-#include "SOGE/Containers/FriendAccessor.hpp"
+#include "SOGE/Containers/FriendFuncPtr.hpp"
 #include "SOGE/Core/EventManager.hpp"
 #include "SOGE/Event/InputEvents.hpp"
 #include "SOGE/Event/CoreEvents.hpp"
@@ -87,15 +87,5 @@ namespace soge
         if (aKeyName.GetKeyState() != KeyState_KeyPressed)
             return true;
         return false;
-    }
-
-    Key SDLKeyboard::GetPressedKey()
-    {
-        return Key("");
-    }
-
-    Key SDLKeyboard::GetReleasedKey()
-    {
-        return Key("");
     }
 }

@@ -21,9 +21,8 @@ namespace soge
         ~SDLMouse() = default;
 
         void Update() override;
-
-        bool IsButtonPressed() override;
-        bool IsButtonReleased() override;
+        bool IsButtonPressed(const Key aMouseButton) override;
+        bool IsButtonReleased(const Key aMouseButton) override;
 
     };
 
