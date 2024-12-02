@@ -3,6 +3,7 @@
 
 #include "SOGE/Core/Event/EventCategory.hpp"
 #include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/System/Hash.hpp"
 #include "SOGE/System/StringId.hpp"
 
 
@@ -41,5 +42,27 @@ namespace soge
         return m_category;
     }
 }
+
+template <>
+struct std::hash<soge::EventType>
+{
+    std::size_t operator()(const soge::EventType& aEventType) const noexcept
+    {
+        std::size_t hash;
+        soge::HashCombine<std::hash>(hash, aEventType.GetId(), aEventType.GetCategory());
+        return hash;
+    }
+};
+
+template <>
+struct eastl::hash<soge::EventType>
+{
+    eastl_size_t operator()(const soge::EventType& aEventType) const noexcept
+    {
+        std::size_t hash;
+        soge::HashCombine<eastl::hash>(hash, aEventType.GetId(), aEventType.GetCategory());
+        return hash;
+    }
+};
 
 #endif // SOGE_CORE_EVENT_EVENTTYPE_HPP

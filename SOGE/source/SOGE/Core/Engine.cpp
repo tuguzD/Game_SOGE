@@ -81,4 +81,9 @@ namespace soge
     {
         m_shutdownRequested = true;
     }
+
+    di::Container& Engine::GetContainer()
+    {
+        return m_container;
+    }
 }

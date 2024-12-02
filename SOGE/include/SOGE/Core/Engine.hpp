@@ -1,6 +1,7 @@
 #ifndef SOGE_CORE_ENGINE_HPP
 #define SOGE_CORE_ENGINE_HPP
 
+#include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/System/Memory.hpp"
 #include "SOGE/Core/EventManager.hpp"
 #include "SOGE/Input/InputManager.hpp"
@@ -28,6 +29,8 @@ namespace soge
         bool m_isRunning;
         bool m_shutdownRequested;
 
+        di::Container m_container;
+
     protected:
         explicit Engine();
 
@@ -47,6 +50,7 @@ namespace soge
         bool IsRunning() const;
 
         EventManager* GetEventManager() const;
+        di::Container& GetContainer();
 
     public:
         static Engine* GetInstance();

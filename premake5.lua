@@ -13,6 +13,7 @@ workspace "SOGE"
 
     group "Dependencies"
         include "3rdparty/EASTL/premake5.lua"
+        include "3rdparty/kangaru/premake5.lua"
         include "3rdparty/SDL/premake5.lua"
     group ""
 
@@ -44,6 +45,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
             "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
         }
 
@@ -58,7 +61,8 @@ workspace "SOGE"
 
         links
         {
-            "EASTL"
+            "EASTL",
+            "kangaru"
         }
 
         filter "system:windows"
@@ -142,6 +146,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
             "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
             "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
         }

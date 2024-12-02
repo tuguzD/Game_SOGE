@@ -48,7 +48,9 @@ namespace soge
     template <typename Derived>
     class StaticEvent : public Event
     {
-    protected:
+    private:
+        friend Derived;
+
         explicit constexpr StaticEvent() noexcept = default;
 
     public:
