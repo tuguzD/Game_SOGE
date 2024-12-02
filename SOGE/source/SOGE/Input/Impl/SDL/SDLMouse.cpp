@@ -45,7 +45,7 @@ namespace soge
                 const Key& sogeButton = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlButtonCode);
                 KeyDetails* buttonDetails = sogeButton.GetDetails();
 
-                FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                FriendFuncAccessor<KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
                 accessor.Call(*buttonDetails, KeyState_KeyPressed);
                 if (sdlEvent->key.repeat)
                     m_repeatCounter++;
@@ -61,7 +61,7 @@ namespace soge
                 const Key& sogeButton = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlButtonCode);
                 KeyDetails* buttonDetails = sogeButton.GetDetails();
 
-                FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                FriendFuncAccessor<KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
                 accessor.Call(*buttonDetails, KeyState_KeyReleased);
 
                 eventManager->Enqueue<MouseButtonReleasedEvent>(sogeButton);

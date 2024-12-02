@@ -52,6 +52,9 @@ namespace soge
         }
     */
 
+    // ClassType - Type of class which protected method you want to use externaly
+    // ReturnType - Return type of the protected method
+    // Args... - All argument types of protected method
     template <typename ClassType, typename ReturnType, typename... Args>
     class FriendFuncPtr final
     {
@@ -66,7 +69,10 @@ namespace soge
 
     };
 
-    template <typename TargetClass, typename ClassType, typename ReturnType, typename... Args>
+    // ClassType - the class where stored protected method
+    // ReturnType - return type of this protected method
+    // Args... - Argument types of this protected method
+    template <typename ClassType, typename ReturnType, typename... Args>
     class FriendFuncAccessor final
     {
         using MemberFunctionPtr = ReturnType (ClassType::*)(Args...);
@@ -78,7 +84,7 @@ namespace soge
         explicit FriendFuncAccessor(const FriendFuncPtr<ClassType, ReturnType, Args...>& aFriendFuncPtr)
             : m_funcPtr(aFriendFuncPtr.m_funcPtr){};
 
-        ReturnType Call(TargetClass& aTargetClass, Args&&... args) const
+        ReturnType Call(ClassType& aTargetClass, Args&&... args) const
         {
             return (aTargetClass.*m_funcPtr)(std::forward<Args>(args)...);
         }
