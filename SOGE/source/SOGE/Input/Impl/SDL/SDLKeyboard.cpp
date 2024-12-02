@@ -43,11 +43,8 @@ namespace soge
                 const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
                 KeyDetails* keyDetails = sogeKey.GetDetails();
 
-                //FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
-                //friendAccessor.Call(*keyDetails, KeyState_KeyPressed);
-
-                //sogeKey.GetDetails()->SetKeyState(KeyState_KeyPressed);
-
+                FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                accessor.Call(*keyDetails, KeyState_KeyPressed);
                 if (sdlEvent->key.repeat)
                     m_repeatCounter++;
                 else
@@ -61,8 +58,10 @@ namespace soge
                 m_inputCoreSDL->m_isAnyButtonPressed = false;
                 SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
                 const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
-                //sogeKey.GetDetails()->SetKeyState(KeyState_KeyReleased);
+                KeyDetails* keyDetails = sogeKey.GetDetails();
 
+                FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                accessor.Call(*keyDetails, KeyState_KeyReleased);
                 eventManager->Enqueue<KeyReleasedEvent>(sogeKey);
                 break;
             }

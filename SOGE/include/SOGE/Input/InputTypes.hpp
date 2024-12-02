@@ -88,10 +88,10 @@ namespace soge
         const LWString& GetAlternateName() const;
         KeyState GetKeyState() const;
 
-        //static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState()
-        //{
-        //    return FriendFuncPtr<KeyDetails, void, KeyState>(&KeyDetails::SetKeyState);
-        //}
+        static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState()
+        {
+            return FriendFuncPtr<KeyDetails, void, KeyState>(&KeyDetails::SetKeyState);
+        }
 
     protected:
         void SetKeyState(KeyState aKeyState);
