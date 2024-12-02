@@ -20,6 +20,7 @@ namespace soge
 
     protected:
         eastl::list<SDL_Event> m_sdlEventList;
+        bool m_isAnyButtonPressed;
 
     public:
         SDLInputCore();
@@ -27,6 +28,7 @@ namespace soge
 
         void LockInput(bool aLockInput) override;
         void UseRelativeMouseMode(bool aRelMouse) override;
+        bool IsAnyButtonPressed() override;
 
         void BeginUpdateInput() override;
         void EndUpdateInput() override;

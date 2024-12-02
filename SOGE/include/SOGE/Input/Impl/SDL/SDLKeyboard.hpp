@@ -18,14 +18,11 @@ namespace soge
 
         void Update() override;
 
-        bool IsKeyPressed(Key aKeyName) override;
-        bool IsKeyReleased(Key aKeyName) override;
+        bool IsKeyPressed(const Key aKeyName) override;
+        bool IsKeyReleased(const Key aKeyName) override;
 
         Key GetPressedKey() override;
         Key GetReleasedKey() override;
-
-        bool IsAnyKeyPressed() override;
-        bool IsAnyKeyReleased() override;
 
     };
 

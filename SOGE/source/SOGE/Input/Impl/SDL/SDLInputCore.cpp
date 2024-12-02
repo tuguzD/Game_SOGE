@@ -33,6 +33,11 @@ namespace soge
 
     }
 
+    bool SDLInputCore::IsAnyButtonPressed()
+    {
+        return m_isAnyButtonPressed;
+    }
+
     void SDLInputCore::BeginUpdateInput()
     {
         if (m_isPauseUpdateRequested)

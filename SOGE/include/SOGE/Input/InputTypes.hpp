@@ -1,6 +1,8 @@
 #ifndef SOGE_INPUT_INPUTTYPES_HPP
 #define SOGE_INPUT_INPUTTYPES_HPP
 
+#include "SOGE/Utils/PreprocessorHelpers.hpp"
+#include "SOGE/Containers/FriendAccessor.hpp"
 #include "SOGE/Containers/LWString.hpp"
 #include "SOGE/System/Memory.hpp"
 
@@ -8,6 +10,13 @@
 namespace soge
 {
     typedef std::uint32_t SGScanCode;
+
+    enum KeyState
+    {
+        KeyState_KeyReleased    = 0x000,
+        KeyState_KeyPressed     = 0x001,
+        KeyState_Undefined      = 0x002
+    };
 
     //////////////////////////
     // Key
@@ -38,12 +47,10 @@ namespace soge
 
         KeyDetails* GetDetails() const;
         const LWString& GetAlternateName() const;
-        SGScanCode GetScanCode() const;
+        KeyState GetKeyState() const;
 
         const char* ToCString() const;
         eastl::string ToString() const;
-
-
 
     public:
         friend bool operator==(const Key& aKeyA, const Key& aKeyB);
@@ -79,21 +86,29 @@ namespace soge
 
         const Key& GetKey() const;
         const LWString& GetAlternateName() const;
-        SGScanCode GetScanCode() const;
+        KeyState GetKeyState() const;
+
+        //static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState()
+        //{
+        //    return FriendFuncPtr<KeyDetails, void, KeyState>(&KeyDetails::SetKeyState);
+        //}
+
+    protected:
+        void SetKeyState(KeyState aKeyState);
 
     private:
         friend struct Keys;
-        friend class InputMap;
 
         Key m_keyObj;
         LWString m_alternateName;
-        SGScanCode m_scanCode;
+        KeyState m_keyState;
 
         std::uint8_t m_isModifierKey = 1;
         std::uint8_t m_isGamepadKey = 1;
         std::uint8_t m_isMouseButton = 1;
 
         void CommonInit(const std::uint32_t aKeyFlags);
+
     };
 
     //////////////////////////

@@ -16,6 +16,7 @@ namespace soge
 
         virtual void LockInput(bool aLockInput)             = 0;
         virtual void UseRelativeMouseMode(bool aLockMouse)  = 0;
+        virtual bool IsAnyButtonPressed()                   = 0;
 
         virtual void BeginUpdateInput() = 0;
         virtual void EndUpdateInput()   = 0;

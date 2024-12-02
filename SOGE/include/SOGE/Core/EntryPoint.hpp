@@ -28,7 +28,7 @@ namespace soge
         if (auto eventManager = Engine::GetInstance()->GetEventManager())
         {
             eventManager->PushBack<KeyPressedEvent>([](const KeyPressedEvent& aEvent) {
-                SOGE_APP_INFO_LOG("Key '{}' pressed with repeat count of {}", aEvent.GetKey().ToCString(),
+                SOGE_APP_INFO_LOG("Keyssss '{}' pressed with repeat count of {}", aEvent.GetKey().ToCString(),
                                   aEvent.GetRepeatCount());
             });
             eventManager->PushBack<KeyReleasedEvent>([](const KeyReleasedEvent& aEvent) {

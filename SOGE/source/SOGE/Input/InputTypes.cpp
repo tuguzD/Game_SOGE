@@ -1,6 +1,12 @@
 #include "sogepch.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 #include "SOGE/Input/KeyMapManager.hpp"
+#include "SOGE/Utils/PreprocessorHelpers.hpp"
+
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,InputCore.hpp)
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,Keyboard.hpp)
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,Mouse.hpp)
+
 
 
 namespace soge
@@ -211,10 +217,10 @@ namespace soge
         return (m_keyDetails.get() != nullptr ? m_keyDetails->GetAlternateName() : m_keyName);
     }
 
-    SGScanCode Key::GetScanCode() const
+    KeyState Key::GetKeyState() const
     {
         LookupForDetails();
-        return (m_keyDetails.get() != nullptr ? m_keyDetails->GetScanCode() : 0);
+        return (m_keyDetails.get() != nullptr ? m_keyDetails->GetKeyState() : KeyState_Undefined);
     }
 
     const char* Key::ToCString() const
@@ -247,18 +253,16 @@ namespace soge
     ////////////////////////
 
     KeyDetails::KeyDetails(const Key aKey, const LWString aAlternateName, const std::uint32_t aKeyFlags = 0)
-        : m_keyObj(aKey), m_alternateName(aAlternateName)
+        : m_keyObj(aKey), m_alternateName(aAlternateName), m_keyState(KeyState_KeyReleased)
     {
         CommonInit(aKeyFlags);
     }
 
     void KeyDetails::CommonInit(const std::uint32_t aKeyFlags)
     {
-        m_scanCode = SGScanCode(0);
-
-        m_isModifierKey = ((aKeyFlags & KeyFlags::keyFlag_ModifierKey) != 0);
-        m_isGamepadKey  = ((aKeyFlags & KeyFlags::keyFlag_GamepadKey) != 0);
-        m_isMouseButton = ((aKeyFlags & KeyFlags::keyFlag_MouseButton) != 0);
+        m_isModifierKey = ((aKeyFlags & KeyFlags::keyFlag_ModifierKey)  != 0);
+        m_isGamepadKey  = ((aKeyFlags & KeyFlags::keyFlag_GamepadKey)   != 0);
+        m_isMouseButton = ((aKeyFlags & KeyFlags::keyFlag_MouseButton)  != 0);
     }
 
     bool KeyDetails::IsModifierKey() const
@@ -286,9 +290,14 @@ namespace soge
         return m_alternateName;
     }
 
-    SGScanCode KeyDetails::GetScanCode() const
+    KeyState KeyDetails::GetKeyState() const
     {
-        return m_scanCode;
+        return m_keyState;
+    }
+
+    void KeyDetails::SetKeyState(KeyState aKeyState)
+    {
+        m_keyState = aKeyState;
     }
 
     ////////////////////////

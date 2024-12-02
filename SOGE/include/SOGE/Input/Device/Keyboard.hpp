@@ -21,9 +21,6 @@ namespace soge
         virtual Key GetPressedKey()     = 0;
         virtual Key GetReleasedKey()    = 0;
 
-        virtual bool IsAnyKeyPressed()  = 0;
-        virtual bool IsAnyKeyReleased() = 0;
-
     };
 }
 

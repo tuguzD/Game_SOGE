@@ -2,6 +2,7 @@
 #define SOGE_UTILS_PREPROCESSORHELPERS_HPP
 
 #include <string.h>
+#include <type_traits>
 
 
 namespace soge

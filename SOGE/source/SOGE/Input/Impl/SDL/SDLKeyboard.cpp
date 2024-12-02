@@ -2,6 +2,7 @@
 #include "SOGE/Input/Impl/SDL/SDLKeyboard.hpp"
 #include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
 
+#include "SOGE/Containers/FriendAccessor.hpp"
 #include "SOGE/Core/EventManager.hpp"
 #include "SOGE/Event/InputEvents.hpp"
 #include "SOGE/Event/CoreEvents.hpp"
@@ -35,9 +36,17 @@ namespace soge
 
             switch (sdlEvent->type)
             {
+
             case SDL_EVENT_KEY_DOWN: {
+                m_inputCoreSDL->m_isAnyButtonPressed = true;
                 SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
                 const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+                KeyDetails* keyDetails = sogeKey.GetDetails();
+
+                //FriendFuncAccessor<KeyDetails, KeyDetails, void, KeyState> accessor(KeyDetails::FriendlySetKeyState());
+                //friendAccessor.Call(*keyDetails, KeyState_KeyPressed);
+
+                //sogeKey.GetDetails()->SetKeyState(KeyState_KeyPressed);
 
                 if (sdlEvent->key.repeat)
                     m_repeatCounter++;
@@ -47,12 +56,17 @@ namespace soge
                 eventManager->Enqueue<KeyPressedEvent>(sogeKey, m_repeatCounter);
                 break;
             }
+
             case SDL_EVENT_KEY_UP: {
+                m_inputCoreSDL->m_isAnyButtonPressed = false;
                 SGScanCode sdlKeyCode = static_cast<SGScanCode>(sdlEvent->key.key);
                 const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+                //sogeKey.GetDetails()->SetKeyState(KeyState_KeyReleased);
+
                 eventManager->Enqueue<KeyReleasedEvent>(sogeKey);
                 break;
             }
+
             default:
                 break;
             }
@@ -62,13 +76,17 @@ namespace soge
         eventManager->DispatchQueue<KeyReleasedEvent>();
     }
 
-    bool SDLKeyboard::IsKeyPressed(Key aKeyName)
+    bool SDLKeyboard::IsKeyPressed(const Key aKeyName)
     {
+        if (aKeyName.GetKeyState() == KeyState_KeyPressed)
+            return true;
         return false;
     }
 
-    bool SDLKeyboard::IsKeyReleased(Key aKeyName)
+    bool SDLKeyboard::IsKeyReleased(const Key aKeyName)
     {
+        if (aKeyName.GetKeyState() != KeyState_KeyPressed)
+            return true;
         return false;
     }
 
@@ -80,15 +98,5 @@ namespace soge
     Key SDLKeyboard::GetReleasedKey()
     {
         return Key("");
-    }
-
-    bool SDLKeyboard::IsAnyKeyPressed()
-    {
-        return false;
-    }
-
-    bool SDLKeyboard::IsAnyKeyReleased()
-    {
-        return false;
     }
 }
