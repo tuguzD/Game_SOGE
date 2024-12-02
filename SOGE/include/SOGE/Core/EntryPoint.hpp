@@ -1,9 +1,7 @@
 #ifndef SOGE_CORE_ENTRYPOINT_HPP
 #define SOGE_CORE_ENTRYPOINT_HPP
 
-#include "SOGE/Event/InputEvents.hpp"
 #include "SOGE/Utils/Logger.hpp"
-
 #include <span>
 
 
@@ -25,22 +23,6 @@ namespace soge
         Logger::Init();
 
         const auto app = CreateApplication();
-        if (auto eventManager = Engine::GetInstance()->GetEventManager())
-        {
-            eventManager->PushBack<KeyPressedEvent>([](const KeyPressedEvent& aEvent) {
-                SOGE_APP_INFO_LOG("Keyssss '{}' pressed with repeat count of {}", aEvent.GetKey().ToCString(),
-                                  aEvent.GetRepeatCount());
-            });
-            eventManager->PushBack<KeyReleasedEvent>([](const KeyReleasedEvent& aEvent) {
-                SOGE_APP_INFO_LOG("Key '{}' released", aEvent.GetKey().ToCString());
-            });
-            eventManager->PushBack<MouseButtonPressedEvent>([](const MouseButtonPressedEvent& aEvent) {
-                SOGE_APP_INFO_LOG("{} pressed with repeat count of {}", aEvent.GetKey().ToCString(), aEvent.GetRepeatCount());
-            });
-            eventManager->PushBack<MouseButtonReleasedEvent>([](const MouseButtonReleasedEvent& aEvent) {
-                SOGE_APP_INFO_LOG("{} released", aEvent.GetKey().ToCString());
-            });
-        }
         app->Run();
 
         return EXIT_SUCCESS;
@@ -69,6 +51,7 @@ inline bool soge::ConsoleInit(std::span<char*> args)
                 engine->RequestShutdown();
                 while (engine->IsRunning())
                 {
+
                 }
             }
 
