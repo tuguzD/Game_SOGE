@@ -1,7 +1,8 @@
 #ifndef SOGE_CORE_EVENTMANAGER_HPP
 #define SOGE_CORE_EVENTMANAGER_HPP
 
-#include "SOGE/Core/Events.hpp"
+#include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Event/CoreEvents.hpp"
 
 #include <eventpp/eventqueue.h>
 #include <eventpp/utilities/anydata.h>

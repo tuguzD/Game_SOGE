@@ -1,10 +1,10 @@
-#ifndef SOGE_HPP
-#define SOGE_HPP
+#ifndef SOGE_SOGE_HPP
+#define SOGE_SOGE_HPP
 
 #include "sogepch.hpp"
 
-#include "SOGE/Core/Engine.hpp"
-#include "SOGE/Core/Timestep.hpp"
-#include "SOGE/Utils/Stopwatch.hpp"
+#include "SOGE/Core/CoreIncludeHeader.hpp"
+#include "SOGE/Input/InputIncludeHeader.hpp"
+#include "SOGE/Utils/UtilsIncludeHeader.hpp"
 
-#endif // SOGE_HPP
+#endif // SOGE_SOGE_HPP

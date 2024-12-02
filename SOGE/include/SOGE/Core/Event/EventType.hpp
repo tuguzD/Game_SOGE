@@ -2,6 +2,7 @@
 #define SOGE_CORE_EVENT_EVENTTYPE_HPP
 
 #include "SOGE/Core/Event/EventCategory.hpp"
+#include "SOGE/Core/Event/Event.hpp"
 #include "SOGE/System/Hash.hpp"
 #include "SOGE/System/StringId.hpp"
 

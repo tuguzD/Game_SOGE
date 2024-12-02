@@ -16,3 +16,6 @@
 [submodule "3rdparty/kangaru/kangaru"]
 	path = 3rdparty/kangaru/kangaru
 	url = https://github.com/gracicot/kangaru.git
+[submodule "3rdparty/SDL/SDL"]
+	path = 3rdparty/SDL/SDL
+	url = https://github.com/libsdl-org/SDL.git

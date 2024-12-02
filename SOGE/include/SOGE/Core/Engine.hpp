@@ -3,6 +3,9 @@
 
 #include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/System/Memory.hpp"
+#include "SOGE/Core/EventManager.hpp"
+#include "SOGE/Input/InputManager.hpp"
+#include "SOGE/System/Window.hpp"
 
 
 namespace soge
@@ -17,6 +20,11 @@ namespace soge
     private:
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
+
+        UniquePtr<EventManager> m_eventManager;
+        UniquePtr<Window> m_systemWindow;
+
+        SharedPtr<InputManager> m_inputManager;
 
         bool m_isRunning;
         bool m_shutdownRequested;
@@ -35,18 +43,20 @@ namespace soge
 
         virtual ~Engine();
 
-        static Engine* GetInstance();
-
-        template <DerivedFromEngine T = Engine, typename... Args>
-        static T* Reset(Args&&... args);
+        void Run();
+        void RequestShutdown();
 
         [[nodiscard]]
         bool IsRunning() const;
 
-        void Run();
-        void RequestShutdown();
-
+        EventManager* GetEventManager() const;
         di::Container& GetContainer();
+
+    public:
+        static Engine* GetInstance();
+        template <DerivedFromEngine T = Engine, typename... Args>
+        static T* Reset(Args&&... args);
+
     };
 
     template <DerivedFromEngine T, typename... Args>
