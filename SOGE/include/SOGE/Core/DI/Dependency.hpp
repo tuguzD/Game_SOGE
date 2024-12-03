@@ -82,9 +82,7 @@ namespace soge::di
         {                                                                                                              \
         };                                                                                                             \
     }                                                                                                                  \
-    auto service_map(const ns::T&) -> soge::di::detail::Definition_##ns##T;                                            \
     template <>                                                                                                        \
-    requires std::derived_from<soge::di::detail::Definition_##ns##T, kgr::supplied>                                    \
     struct kgr::detail::map_entry<kgr::map<>, ns::T, void>                                                             \
     {                                                                                                                  \
         using mapped_service = soge::di::detail::Definition_##ns##T;                                                   \
