@@ -36,6 +36,11 @@ namespace soge
         di::Container& GetDependencyContainer();
 
     public:
+        static Engine* GetInstance();
+
+        template <DerivedFromEngine T = Engine, typename... Args>
+        static T* Reset(Args&&... args);
+
         Engine(const Engine&) = delete;
         auto operator=(const Engine&) = delete;
 
@@ -43,11 +48,6 @@ namespace soge
         auto operator=(Engine&&) = delete;
 
         virtual ~Engine();
-
-        static Engine* GetInstance();
-
-        template <DerivedFromEngine T = Engine, typename... Args>
-        static T* Reset(Args&&... args);
 
         [[nodiscard]]
         bool IsRunning() const;
