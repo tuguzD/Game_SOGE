@@ -4,6 +4,7 @@
 
 #include "SOGE/Containers/FriendFuncPtr.hpp"
 #include "SOGE/Core/Engine.hpp"
+#include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Event/InputEvents.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 #include "SOGE/Input/KeyMapManager.hpp"
@@ -20,11 +21,7 @@ namespace soge
 
     void SDLMouse::Update()
     {
-        const auto eventManager = Engine::GetInstance()->GetEventManager();
-        if (!eventManager)
-        {
-            return;
-        }
+        auto& eventManager = Engine::GetInstance()->GetDependencyProvider().Provide<EventModule>();
 
         for (const auto& sdlEvent : m_inputCoreSDL->m_sdlEventList)
         {
@@ -33,7 +30,7 @@ namespace soge
             case SDL_EVENT_MOUSE_MOTION: {
                 float x, y;
                 SDL_GetMouseState(&x, &y);
-                eventManager->Enqueue<MouseMovedEvent>(x, y);
+                eventManager.Enqueue<MouseMovedEvent>(x, y);
 
                 break;
             }
@@ -51,7 +48,7 @@ namespace soge
                 else
                     m_repeatCounter = 0;
 
-                eventManager->Enqueue<MouseButtonPressedEvent>(sogeButton, m_repeatCounter);
+                eventManager.Enqueue<MouseButtonPressedEvent>(sogeButton, m_repeatCounter);
                 break;
             }
 
@@ -63,14 +60,14 @@ namespace soge
                 FriendFuncAccessor accessor(KeyDetails::FriendlySetKeyState());
                 accessor.Call(*buttonDetails, KeyState_KeyReleased);
 
-                eventManager->Enqueue<MouseButtonReleasedEvent>(sogeButton);
+                eventManager.Enqueue<MouseButtonReleasedEvent>(sogeButton);
                 break;
             }
 
             case SDL_EVENT_MOUSE_WHEEL: {
                 float xOffset = sdlEvent.motion.x;
                 float yOffset = sdlEvent.motion.y;
-                eventManager->Enqueue<MouseWheelEvent>(xOffset, yOffset);
+                eventManager.Enqueue<MouseWheelEvent>(xOffset, yOffset);
                 break;
             }
 
@@ -79,10 +76,10 @@ namespace soge
             }
         }
 
-        eventManager->DispatchQueue<MouseMovedEvent>();
-        eventManager->DispatchQueue<MouseButtonPressedEvent>();
-        eventManager->DispatchQueue<MouseButtonReleasedEvent>();
-        eventManager->DispatchQueue<MouseWheelEvent>();
+        eventManager.DispatchQueue<MouseMovedEvent>();
+        eventManager.DispatchQueue<MouseButtonPressedEvent>();
+        eventManager.DispatchQueue<MouseButtonReleasedEvent>();
+        eventManager.DispatchQueue<MouseWheelEvent>();
     }
 
     bool SDLMouse::IsButtonPressed(const Key aMouseButton)

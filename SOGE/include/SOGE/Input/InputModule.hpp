@@ -1,6 +1,7 @@
-#ifndef SOGE_INPUT_INPUTMANAGER_HPP
-#define SOGE_INPUT_INPUTMANAGER_HPP
+#ifndef SOGE_INPUT_INPUTMODULE_HPP
+#define SOGE_INPUT_INPUTMODULE_HPP
 
+#include "SOGE/Core/Module.hpp"
 #include "SOGE/System/Memory.hpp"
 
 
@@ -12,7 +13,7 @@ namespace soge
     class InputDevice;
     class InputCore;
 
-    class InputManager
+    class InputModule : public Module
     {
     private:
         SharedPtr<Keyboard> m_keyboard;
@@ -23,10 +24,15 @@ namespace soge
         SharedPtr<InputCore> m_inputCore;
 
     public:
-        InputManager();
+        InputModule();
 
         void Update();
+
+        void Load(di::Container& aContainer) override;
+        void Unload(di::Container& aContainer) override;
     };
 }
 
-#endif // SOGE_INPUT_INPUTMANAGER_HPP
+SOGE_DI_REGISTER_MODULE_NS(soge, InputModule)
+
+#endif // SOGE_INPUT_INPUTMODULE_HPP

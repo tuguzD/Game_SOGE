@@ -5,7 +5,7 @@
 
 #include "SOGE/Containers/FriendFuncPtr.hpp"
 #include "SOGE/Core/Engine.hpp"
-#include "SOGE/Core/EventManager.hpp"
+#include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Event/InputEvents.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 #include "SOGE/Input/KeyMapManager.hpp"
@@ -22,11 +22,7 @@ namespace soge
 
     void SDLKeyboard::Update()
     {
-        const auto eventManager = Engine::GetInstance()->GetEventManager();
-        if (!eventManager)
-        {
-            return;
-        }
+        auto& eventManager = Engine::GetInstance()->GetDependencyProvider().Provide<EventModule>();
 
         for (const auto& sdlEvent : m_inputCoreSDL->m_sdlEventList)
         {
@@ -48,7 +44,7 @@ namespace soge
                 else
                     m_repeatCounter = 0;
 
-                eventManager->Enqueue<KeyPressedEvent>(sogeKey, m_repeatCounter);
+                eventManager.Enqueue<KeyPressedEvent>(sogeKey, m_repeatCounter);
                 break;
             }
 
@@ -62,7 +58,7 @@ namespace soge
                 FriendFuncAccessor accessor(KeyDetails::FriendlySetKeyState());
                 accessor.Call(*keyDetails, KeyState_KeyReleased);
 
-                eventManager->Enqueue<KeyReleasedEvent>(sogeKey);
+                eventManager.Enqueue<KeyReleasedEvent>(sogeKey);
                 break;
             }
 
@@ -71,8 +67,8 @@ namespace soge
             }
         }
 
-        eventManager->DispatchQueue<KeyPressedEvent>();
-        eventManager->DispatchQueue<KeyReleasedEvent>();
+        eventManager.DispatchQueue<KeyPressedEvent>();
+        eventManager.DispatchQueue<KeyReleasedEvent>();
     }
 
     bool SDLKeyboard::IsKeyPressed(const Key aKeyName)

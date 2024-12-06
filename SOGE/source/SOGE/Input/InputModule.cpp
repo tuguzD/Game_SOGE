@@ -1,6 +1,6 @@
 #include "sogepch.hpp"
 
-#include "SOGE/Input/InputManager.hpp"
+#include "SOGE/Input/InputModule.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 #include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, InputCore.hpp)
@@ -10,7 +10,7 @@
 
 namespace soge
 {
-    InputManager::InputManager()
+    InputModule::InputModule()
     {
         Keys::Initialize();
 
@@ -19,10 +19,20 @@ namespace soge
         m_mouse.reset(m_inputCore->CreateMouse());
     }
 
-    void InputManager::Update()
+    void InputModule::Update()
     {
         m_inputCore->BeginUpdateInput();
         m_keyboard->Update();
         m_mouse->Update();
+    }
+
+    void InputModule::Load(di::Container& aContainer)
+    {
+        SOGE_INFO_LOG("Input module loaded...");
+    }
+
+    void InputModule::Unload(di::Container& aContainer)
+    {
+        SOGE_INFO_LOG("Input module unloaded...");
     }
 }

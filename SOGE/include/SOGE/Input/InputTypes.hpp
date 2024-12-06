@@ -254,8 +254,8 @@ namespace soge
         static const Key Colon;
         static const Key Dollar;
         static const Key Exclamation;
-        static const Key LeftParantheses;
-        static const Key RightParantheses;
+        static const Key LeftParenthesis;
+        static const Key RightParenthesis;
         static const Key Quote;
 
         // NOLINTEND(readability-identifier-naming) reason: Ease of use for working with key names

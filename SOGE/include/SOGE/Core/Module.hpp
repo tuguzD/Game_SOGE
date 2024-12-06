@@ -1,8 +1,13 @@
 #ifndef SOGE_CORE_MODULE_HPP
 #define SOGE_CORE_MODULE_HPP
 
-#include "SOGE/DI/Container.hpp"
+#include "SOGE/DI/Dependency.hpp"
 
+
+namespace soge::di
+{
+    class Container;
+}
 
 namespace soge
 {

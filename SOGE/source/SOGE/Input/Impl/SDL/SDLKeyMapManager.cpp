@@ -115,8 +115,8 @@ namespace soge
         SetScanCode(SDLK_COLON, Keys::Colon);                 // :
         SetScanCode(SDLK_DOLLAR, Keys::Dollar);               // $
         SetScanCode(SDLK_EXCLAIM, Keys::Exclamation);         // !
-        SetScanCode(SDLK_LEFTPAREN, Keys::LeftParantheses);   // (
-        SetScanCode(SDLK_RIGHTPAREN, Keys::RightParantheses); // )
+        SetScanCode(SDLK_LEFTPAREN, Keys::LeftParenthesis);   // (
+        SetScanCode(SDLK_RIGHTPAREN, Keys::RightParenthesis); // )
         SetScanCode(SDLK_DBLAPOSTROPHE, Keys::Quote);         // "
         SetScanCode(SDLK_UNDERSCORE, Keys::Underscore);       // _
     }

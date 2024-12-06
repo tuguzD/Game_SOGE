@@ -142,8 +142,8 @@ namespace soge
     const Key Keys::Tilde("Tilde");
     const Key Keys::LeftBracket("LeftBracket");
     const Key Keys::RightBracket("RightBracket");
-    const Key Keys::LeftParantheses("LeftParanthesis");
-    const Key Keys::RightParantheses("RightParantheses");
+    const Key Keys::LeftParenthesis("LeftParenthesis");
+    const Key Keys::RightParenthesis("RightParenthesis");
     const Key Keys::Apostrophe("Apostrophe");
     const Key Keys::Quote("Quote");
 
@@ -441,8 +441,8 @@ namespace soge
         AddKey(KeyDetails(Keys::Apostrophe, "'"));
         AddKey(KeyDetails(Keys::Quote, "\""));
 
-        AddKey(KeyDetails(Keys::LeftParantheses, "("));
-        AddKey(KeyDetails(Keys::RightParantheses, ")"));
+        AddKey(KeyDetails(Keys::LeftParenthesis, "("));
+        AddKey(KeyDetails(Keys::RightParenthesis, ")"));
         AddKey(KeyDetails(Keys::Ampersand, "&"));
         AddKey(KeyDetails(Keys::Asterix, "*"));
         AddKey(KeyDetails(Keys::Caret, "^"));
