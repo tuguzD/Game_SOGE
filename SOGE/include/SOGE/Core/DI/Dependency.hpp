@@ -63,6 +63,9 @@ namespace soge::di
     template <typename T>
     concept PolymorphicDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::polymorphic>;
 
+    template <typename T>
+    concept AbstractDependency = Dependency<T> && std::derived_from<DependencyDefinition<T>, kgr::abstract>;
+
     template <Dependency T>
     using Lazy = kgr::lazy<DependencyDefinition<T>>;
 
@@ -79,9 +82,7 @@ namespace soge::di
         {                                                                                                              \
         };                                                                                                             \
     }                                                                                                                  \
-    auto service_map(const ns::T&) -> soge::di::detail::Definition_##ns##T;                                            \
     template <>                                                                                                        \
-    requires std::derived_from<soge::di::detail::Definition_##ns##T, soge::di::df::External<ns::T>>                    \
     struct kgr::detail::map_entry<kgr::map<>, ns::T, void>                                                             \
     {                                                                                                                  \
         using mapped_service = soge::di::detail::Definition_##ns##T;                                                   \

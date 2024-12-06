@@ -2,6 +2,7 @@
 #define SOGE_CORE_ENGINE_HPP
 
 #include "SOGE/Core/DI/Container.hpp"
+#include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/System/Memory.hpp"
 #include "SOGE/Core/EventManager.hpp"
 #include "SOGE/Input/InputManager.hpp"
@@ -13,7 +14,7 @@ namespace soge
     class Engine;
 
     template <typename T>
-    concept DerivedFromEngine = std::is_base_of_v<Engine, T>;
+    concept DerivedFromEngine = std::derived_from<T, Engine>;
 
     class Engine
     {
@@ -30,9 +31,17 @@ namespace soge
         bool m_shutdownRequested;
 
         di::Container m_container;
+        ModuleManager m_moduleManager;
+
+        // do not destroy modules immediately after removing them, they might be still in use
+        // (because they could have been provided by dependency container)
+        using RemovedModules = eastl::vector<UniquePtr<Module>>;
+        RemovedModules m_removedModules;
 
     protected:
         explicit Engine();
+
+        di::Container& GetDependencyContainer();
 
     public:
         Engine(const Engine&) = delete;
@@ -49,8 +58,21 @@ namespace soge
         [[nodiscard]]
         bool IsRunning() const;
 
+        di::Provider& GetDependencyProvider();
+
+        template <DerivedFromModule T, typename... Args>
+        T& CreateModule(Args&&... args);
+
+        template <DerivedFromModule T, typename... Args>
+        T& RecreateModule(Args&&... args);
+
+        template <DerivedFromModule T>
+        void RemoveModule();
+
+        template <DerivedFromModule T>
+        [[nodiscard]]
+        T* GetModule() const;
         EventManager* GetEventManager() const;
-        di::Container& GetContainer();
 
     public:
         static Engine* GetInstance();
@@ -74,6 +96,64 @@ namespace soge
         s_instance = std::move(newInstance);
         // Return previously saved pointer
         return pNewInstance;
+    }
+
+    template <DerivedFromModule T, typename... Args>
+    T& Engine::CreateModule(Args&&... args)
+    {
+        auto [module, created] = m_moduleManager.CreateModule<T>(std::forward<Args>(args)...);
+        if constexpr (di::ModuleDependency<T>)
+        {
+            m_container.Create<T>(module);
+        }
+
+        if (created && m_isRunning)
+        {
+            module.Load(m_container);
+        }
+
+        return module;
+    }
+
+    template <DerivedFromModule T, typename... Args>
+    T& Engine::RecreateModule(Args&&... args)
+    {
+        auto [module, oldModule] = m_moduleManager.RecreateModule<T>(std::forward<Args>(args)...);
+        if constexpr (di::ModuleDependency<T>)
+        {
+            m_container.Recreate<T>(module);
+        }
+
+        if (m_isRunning)
+        {
+            if (oldModule != nullptr)
+            {
+                oldModule->Unload(m_container);
+                m_removedModules.push_back(std::move(oldModule));
+            }
+
+            module.Load(m_container);
+        }
+
+        return module;
+    }
+
+    template <DerivedFromModule T>
+    void Engine::RemoveModule()
+    {
+        auto oldModule = m_moduleManager.RemoveModule<T>();
+
+        if (oldModule != nullptr && m_isRunning)
+        {
+            oldModule->Unload(m_container);
+            m_removedModules.push_back(std::move(oldModule));
+        }
+    }
+
+    template <DerivedFromModule T>
+    T* Engine::GetModule() const
+    {
+        return m_moduleManager.GetModule<T>();
     }
 
     Engine* CreateApplication();

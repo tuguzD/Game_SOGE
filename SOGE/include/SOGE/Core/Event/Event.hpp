@@ -9,7 +9,7 @@ namespace soge
     class Event;
 
     template <typename T>
-    concept DerivedFromEvent = std::is_base_of_v<Event, T>;
+    concept DerivedFromEvent = std::derived_from<T, Event>;
 
     class Event
     {
