@@ -3,6 +3,7 @@
 
 #include "SOGE/Core/Module.hpp"
 #include "SOGE/Event/CoreEvents.hpp"
+#include "SOGE/Event/InputEvents.hpp"
 
 #include <eventpp/eventqueue.h>
 #include <eventpp/utilities/anydata.h>
@@ -31,7 +32,9 @@ namespace soge
         class AnyEvent final : public Event
         {
         private:
-            static constexpr std::size_t s_anyEventMaxSize = eventpp::maxSizeOf<Event, UpdateEvent>();
+            static constexpr std::size_t s_anyEventMaxSize =
+                eventpp::maxSizeOf<Event, UpdateEvent, KeyPressedEvent, KeyReleasedEvent, MouseButtonPressedEvent,
+                                   MouseButtonReleasedEvent, MouseMovedEvent, MouseWheelEvent>();
             eventpp::AnyData<s_anyEventMaxSize> m_data;
 
         public:

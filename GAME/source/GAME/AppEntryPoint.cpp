@@ -39,6 +39,8 @@ namespace game
     Game::~Game()
     {
         SOGE_APP_INFO_LOG("Destroy game...");
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
 

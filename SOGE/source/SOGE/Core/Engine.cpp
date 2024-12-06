@@ -5,6 +5,8 @@
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
 
+#include <ranges>
+
 
 namespace soge
 {
@@ -71,7 +73,7 @@ namespace soge
             eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
         }
 
-        for (Module& module : m_moduleManager)
+        for (Module& module : m_moduleManager | std::views::reverse)
         {
             module.Unload(m_container, m_moduleManager);
         }
