@@ -1,8 +1,8 @@
-#ifndef SOGE_INPUT_IMPL_GAMEPADSDL_HPP
-#define SOGE_INPUT_IMPL_GAMEPADSDL_HPP
+#ifndef SOGE_INPUT_IMPL_SDL_SDLGAMEPAD_HPP
+#define SOGE_INPUT_IMPL_SDL_SDLGAMEPAD_HPP
 
-#include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
 #include "SOGE/Input/Device/Gamepad.hpp"
+#include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
 
@@ -14,13 +14,10 @@ namespace soge
         SharedPtr<SDLInputCore> m_inputCoreSDL;
 
     public:
-        SDLGamepad(SharedPtr<SDLInputCore> aInputCore);
-        ~SDLGamepad() = default;
-
+        explicit SDLGamepad(const SharedPtr<SDLInputCore>& aInputCore);
     };
 
     typedef SDLGamepad ImplGamepad;
-
 }
 
-#endif // SOGE_INPUT_IMPL_GAMEPADSDL_HPP
+#endif // SOGE_INPUT_IMPL_SDL_SDLGAMEPAD_HPP

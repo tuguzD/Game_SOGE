@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_EVENT_EVENTCHAIN_HPP
-#define SOGE_CORE_EVENT_EVENTCHAIN_HPP
+#ifndef SOGE_EVENT_EVENTCHAIN_HPP
+#define SOGE_EVENT_EVENTCHAIN_HPP
 
-#include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Event/Event.hpp"
 
 #include <eventpp/callbacklist.h>
 
@@ -200,4 +200,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_EVENT_EVENTCHAIN_HPP
+#endif // SOGE_EVENT_EVENTCHAIN_HPP

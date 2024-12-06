@@ -1,4 +1,5 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Input/Impl/SDL/SDLKeyMapManager.hpp"
 #include "SOGE/Input/InputTypes.hpp"
 
@@ -95,28 +96,28 @@ namespace soge
         SetScanCode(SDLK_RSHIFT, Keys::RightShift);
         SetScanCode(SDLK_NUMLOCKCLEAR, Keys::NumLock);
 
-        SetScanCode(SDLK_SEMICOLON, Keys::Semicolon);                   // ;
-        SetScanCode(SDLK_EQUALS, Keys::Equals);                         // =
-        SetScanCode(SDLK_COMMA, Keys::Comma);                           // ,
-        SetScanCode(SDLK_MINUS, Keys::Hyphen);                          // -
-        SetScanCode(SDLK_PERIOD, Keys::Period);                         // .
-        SetScanCode(SDLK_SLASH, Keys::Slash);                           // /
-        SetScanCode(SDLK_TILDE, Keys::Tilde);                           // ~
-        SetScanCode(SDLK_LEFTBRACKET, Keys::LeftBracket);               // [
-        SetScanCode(SDLK_RIGHTBRACKET, Keys::RightBracket);             // ]
-        SetScanCode(SDLK_BACKSLASH, Keys::Backslash);                   // \'
-        SetScanCode(SDLK_APOSTROPHE, Keys::Apostrophe);                 // '
-        SetScanCode(SDLK_SPACE, Keys::SpaceBar);                        //  
+        SetScanCode(SDLK_SEMICOLON, Keys::Semicolon);       // ;
+        SetScanCode(SDLK_EQUALS, Keys::Equals);             // =
+        SetScanCode(SDLK_COMMA, Keys::Comma);               // ,
+        SetScanCode(SDLK_MINUS, Keys::Hyphen);              // -
+        SetScanCode(SDLK_PERIOD, Keys::Period);             // .
+        SetScanCode(SDLK_SLASH, Keys::Slash);               // /
+        SetScanCode(SDLK_TILDE, Keys::Tilde);               // ~
+        SetScanCode(SDLK_LEFTBRACKET, Keys::LeftBracket);   // [
+        SetScanCode(SDLK_RIGHTBRACKET, Keys::RightBracket); // ]
+        SetScanCode(SDLK_BACKSLASH, Keys::Backslash);       // \'
+        SetScanCode(SDLK_APOSTROPHE, Keys::Apostrophe);     // '
+        SetScanCode(SDLK_SPACE, Keys::SpaceBar);            // ` `
 
-        SetScanCode(SDLK_AMPERSAND, Keys::Ampersand);                   // &
-        SetScanCode(SDLK_ASTERISK, Keys::Asterix);                      // *
-        SetScanCode(SDLK_CARET, Keys::Caret);                           // ^
-        SetScanCode(SDLK_COLON, Keys::Colon);                           // :
-        SetScanCode(SDLK_DOLLAR, Keys::Dollar);                         // $
-        SetScanCode(SDLK_EXCLAIM, Keys::Exclamation);                   // !
-        SetScanCode(SDLK_LEFTPAREN, Keys::LeftParantheses);             // (
-        SetScanCode(SDLK_RIGHTPAREN, Keys::RightParantheses);           // )
-        SetScanCode(SDLK_DBLAPOSTROPHE, Keys::Quote);                   // "
-        SetScanCode(SDLK_UNDERSCORE, Keys::Underscore);                 // _
+        SetScanCode(SDLK_AMPERSAND, Keys::Ampersand);         // &
+        SetScanCode(SDLK_ASTERISK, Keys::Asterix);            // *
+        SetScanCode(SDLK_CARET, Keys::Caret);                 // ^
+        SetScanCode(SDLK_COLON, Keys::Colon);                 // :
+        SetScanCode(SDLK_DOLLAR, Keys::Dollar);               // $
+        SetScanCode(SDLK_EXCLAIM, Keys::Exclamation);         // !
+        SetScanCode(SDLK_LEFTPAREN, Keys::LeftParantheses);   // (
+        SetScanCode(SDLK_RIGHTPAREN, Keys::RightParantheses); // )
+        SetScanCode(SDLK_DBLAPOSTROPHE, Keys::Quote);         // "
+        SetScanCode(SDLK_UNDERSCORE, Keys::Underscore);       // _
     }
 }

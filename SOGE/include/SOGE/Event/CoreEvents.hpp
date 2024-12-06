@@ -1,14 +1,16 @@
 #ifndef SOGE_EVENT_COREEVENTS_HPP
 #define SOGE_EVENT_COREEVENTS_HPP
 
-#include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Event/Event.hpp"
 #include "SOGE/Event/EventHelpers.hpp"
 
 
 namespace soge
 {
+    // NOLINTNEXTLINE(readability-identifier-naming)
     namespace EventTypes
     {
+        // NOLINTNEXTLINE(readability-identifier-naming)
         namespace CoreEvents
         {
             constexpr EventType g_updateEvent{StringId("UpdateEvent"), EventCategory::Core};
@@ -55,4 +57,4 @@ namespace soge
     }
 }
 
-#endif // !SOGE_EVENT_COREEVENTS_HPP
+#endif // SOGE_EVENT_COREEVENTS_HPP

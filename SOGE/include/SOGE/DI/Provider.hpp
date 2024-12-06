@@ -1,8 +1,8 @@
-#ifndef SOGE_CORE_DI_PROVIDER_HPP
-#define SOGE_CORE_DI_PROVIDER_HPP
+#ifndef SOGE_DI_PROVIDER_HPP
+#define SOGE_DI_PROVIDER_HPP
 
-#include "SOGE/Core/DI/Debug.hpp"
-#include "SOGE/Core/DI/Dependency.hpp"
+#include "SOGE/DI/Debug.hpp"
+#include "SOGE/DI/Dependency.hpp"
 
 #include <kangaru/container.hpp>
 #include <kangaru/operator_service.hpp>
@@ -59,4 +59,4 @@ namespace soge::di
     }
 }
 
-#endif // SOGE_CORE_DI_PROVIDER_HPP
+#endif // SOGE_DI_PROVIDER_HPP

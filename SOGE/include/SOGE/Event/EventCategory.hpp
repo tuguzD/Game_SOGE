@@ -1,5 +1,5 @@
-#ifndef SOGE_CORE_EVENT_EVENTCATEGORY_HPP
-#define SOGE_CORE_EVENT_EVENTCATEGORY_HPP
+#ifndef SOGE_EVENT_EVENTCATEGORY_HPP
+#define SOGE_EVENT_EVENTCATEGORY_HPP
 
 #include <variant>
 
@@ -68,6 +68,7 @@ namespace soge
     }
 
     template <typename T>
+    // NOLINTNEXTLINE(cppcoreguidelines-missing-std-forward) reason: it is actually present, false positive
     constexpr EventCategory::EventCategory(T&& aVariant) noexcept
     requires std::constructible_from<Variants, T>
         : m_variants(std::forward<T>(aVariant))
@@ -127,4 +128,4 @@ struct eastl::hash<soge::EventCategory>
     }
 };
 
-#endif // SOGE_CORE_EVENT_EVENTCATEGORY_HPP
+#endif // SOGE_EVENT_EVENTCATEGORY_HPP

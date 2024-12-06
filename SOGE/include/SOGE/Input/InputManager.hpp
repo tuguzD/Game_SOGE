@@ -24,7 +24,6 @@ namespace soge
 
     public:
         InputManager();
-        ~InputManager() = default;
 
         void Update();
     };

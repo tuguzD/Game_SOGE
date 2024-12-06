@@ -1,36 +1,29 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
 #include "SOGE/Input/Impl/SDL/SDLKeyboard.hpp"
 #include "SOGE/Input/Impl/SDL/SDLMouse.hpp"
 
 #include <SDL3/SDL_init.h>
 
+
 namespace soge
 {
     SDLInputCore::SDLInputCore()
+        : m_isPauseUpdateRequested(false), m_isEndUpdateRequested(false), m_isAnyButtonPressed(false)
     {
-        m_isPauseUpdateRequested = false;
-        m_isEndUpdateRequested = false;
-
         if (!SDL_Init(SDL_INIT_EVENTS))
         {
             SOGE_ERROR_LOG("Failed to initialize SDL events subsystem...");
         }
     }
 
-    SDLInputCore::~SDLInputCore()
-    {
-
-    }
-
     void SDLInputCore::LockInput(bool aLockInput)
     {
-
     }
 
     void SDLInputCore::UseRelativeMouseMode(bool aRelMouse)
     {
-
     }
 
     bool SDLInputCore::IsAnyButtonPressed()
@@ -41,7 +34,9 @@ namespace soge
     void SDLInputCore::BeginUpdateInput()
     {
         if (m_isPauseUpdateRequested)
+        {
             return;
+        }
 
         SDL_Event sdlEvent;
         m_sdlEventList.clear();
@@ -56,7 +51,7 @@ namespace soge
         m_isEndUpdateRequested = true;
     }
 
-    void SDLInputCore::SetPauseUpdate(bool aIsPauseNeeded)
+    void SDLInputCore::SetPauseUpdate(const bool aIsPauseNeeded)
     {
         m_isPauseUpdateRequested = aIsPauseNeeded;
     }

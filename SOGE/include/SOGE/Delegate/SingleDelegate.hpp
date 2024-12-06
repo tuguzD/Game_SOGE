@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_DELEGATE_SINGLEDELEGATE_HPP
-#define SOGE_CORE_DELEGATE_SINGLEDELEGATE_HPP
+#ifndef SOGE_DELEGATE_SINGLEDELEGATE_HPP
+#define SOGE_DELEGATE_SINGLEDELEGATE_HPP
 
-#include "SOGE/Core/Delegate/Delegate.hpp"
+#include "SOGE/Delegate/Delegate.hpp"
 
 #include <functional>
 #include <optional>
@@ -132,4 +132,4 @@ namespace soge
     }
 }
 
-#endif // SOGE_CORE_DELEGATE_SINGLEDELEGATE_HPP
+#endif // SOGE_DELEGATE_SINGLEDELEGATE_HPP

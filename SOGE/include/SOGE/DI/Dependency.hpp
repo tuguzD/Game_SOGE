@@ -1,5 +1,5 @@
-#ifndef SOGE_CORE_DI_DEPENDENCY_HPP
-#define SOGE_CORE_DI_DEPENDENCY_HPP
+#ifndef SOGE_DI_DEPENDENCY_HPP
+#define SOGE_DI_DEPENDENCY_HPP
 
 #include <kangaru/autowire.hpp>
 #include <kangaru/operator.hpp>
@@ -92,4 +92,4 @@ namespace soge::di
 // Should be called in global namespace
 #define SOGE_DI_REGISTER(T, ...) SOGE_DI_REGISTER_NS(, T, __VA_ARGS__)
 
-#endif // SOGE_CORE_DI_DEPENDENCY_HPP
+#endif // SOGE_DI_DEPENDENCY_HPP

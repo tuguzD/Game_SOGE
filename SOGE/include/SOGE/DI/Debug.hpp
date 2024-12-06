@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_DI_DEBUG_HPP
-#define SOGE_CORE_DI_DEBUG_HPP
+#ifndef SOGE_DI_DEBUG_HPP
+#define SOGE_DI_DEBUG_HPP
 
-#include "SOGE/Core/DI/Dependency.hpp"
+#include "SOGE/DI/Dependency.hpp"
 
 #include <kangaru/debug.hpp>
 
@@ -33,4 +33,4 @@ namespace soge::di::debug
     }
 }
 
-#endif // SOGE_CORE_DI_DEBUG_HPP
+#endif // SOGE_DI_DEBUG_HPP

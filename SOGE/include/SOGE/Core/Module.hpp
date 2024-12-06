@@ -1,7 +1,7 @@
 #ifndef SOGE_CORE_MODULE_HPP
 #define SOGE_CORE_MODULE_HPP
 
-#include "SOGE/Core/DI/Container.hpp"
+#include "SOGE/DI/Container.hpp"
 
 
 namespace soge

@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_EVENT_EVENT_HPP
-#define SOGE_CORE_EVENT_EVENT_HPP
+#ifndef SOGE_EVENT_EVENT_HPP
+#define SOGE_EVENT_EVENT_HPP
 
-#include "SOGE/Core/Event/EventType.hpp"
+#include "SOGE/Event/EventType.hpp"
 
 
 namespace soge
@@ -14,8 +14,15 @@ namespace soge
     class Event
     {
     public:
-        constexpr Event() = default;
-        virtual constexpr ~Event() = default;
+        constexpr explicit Event() noexcept = default;
+
+        constexpr explicit Event(const Event&) noexcept = default;
+        Event& operator=(const Event&) = default;
+
+        constexpr explicit Event(Event&&) noexcept = default;
+        Event& operator=(Event&&) = default;
+
+        virtual constexpr ~Event() noexcept = default;
 
         [[nodiscard]]
         virtual constexpr EventType GetEventType() const = 0;
@@ -64,15 +71,15 @@ namespace soge
         return Derived::GetStaticEventType();
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     namespace EventTypes
     {
+        // NOLINTNEXTLINE(readability-identifier-naming)
         namespace Dummy
         {
             constexpr EventType g_dummyEvent{StringId("DummyEvent"), EventCategory::Default};
         }
     }
-
-    typedef std::function<void(Event&)> DefaultEventCallback;
 }
 
-#endif // SOGE_CORE_EVENT_EVENT_HPP
+#endif // SOGE_EVENT_EVENT_HPP

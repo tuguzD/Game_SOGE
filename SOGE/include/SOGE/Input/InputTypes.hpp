@@ -1,7 +1,6 @@
 #ifndef SOGE_INPUT_INPUTTYPES_HPP
 #define SOGE_INPUT_INPUTTYPES_HPP
 
-#include "SOGE/Utils/PreprocessorHelpers.hpp"
 #include "SOGE/Containers/FriendFuncPtr.hpp"
 #include "SOGE/Containers/LWString.hpp"
 #include "SOGE/System/Memory.hpp"
@@ -9,36 +8,38 @@
 
 namespace soge
 {
-    typedef std::uint32_t SGScanCode;
+    using SGScanCode = std::uint32_t;
 
-    enum KeyState
+    enum KeyState : std::uint8_t
     {
-        KeyState_KeyReleased    = 0x000,
-        KeyState_KeyPressed     = 0x001,
-        KeyState_Undefined      = 0x002
+        // NOLINTBEGIN(readability-identifier-naming) reason: naming errors can occur
+        KeyState_KeyReleased = 0x000,
+        KeyState_KeyPressed = 0x001,
+        KeyState_Undefined = 0x002,
+        // NOLINTEND(readability-identifier-naming) reason: naming errors can occur
     };
 
     //////////////////////////
     // Key
     //////////////////////////
 
+    struct KeyDetails;
+
     class Key final
     {
         friend struct Keys;
 
     private:
-        // Can't use SharedPtr name here
-        mutable class eastl::shared_ptr<struct KeyDetails> m_keyDetails;
+        mutable SharedPtr<KeyDetails> m_keyDetails;
         LWString m_keyName;
 
-    private:
         void LookupForDetails() const;
 
     public:
         Key() = default;
-        Key(const char* aKeyName);
-        Key(const LWString& aKeyName);
-        ~Key() = default;
+
+        explicit Key(const char* aKeyName);
+        explicit Key(const LWString& aKeyName);
 
         bool IsValid() const;
         bool IsModifierKey() const;
@@ -52,11 +53,9 @@ namespace soge
         const char* ToCString() const;
         eastl::string ToString() const;
 
-    public:
         friend bool operator==(const Key& aKeyA, const Key& aKeyB);
         friend bool operator!=(const Key& aKeyA, const Key& aKeyB);
         friend bool operator<(const Key& aKeyA, const Key& aKeyB);
-
     };
 
     //////////////////////////
@@ -67,18 +66,19 @@ namespace soge
     {
         enum KeyFlags : std::uint8_t
         {
-            keyFlag_NoFlag      = 0,
-            keyFlag_GamepadKey  = 1 << 0,
+            // NOLINTBEGIN(readability-identifier-naming) reason: naming errors can occur
+            keyFlag_NoFlag = 0,
+            keyFlag_GamepadKey = 1 << 0,
             keyFlag_MouseButton = 1 << 1,
             keyFlag_ModifierKey = 1 << 2,
-            keyFlag_Axis1D      = 1 << 3,
-            keyFlag_Axis3D      = 1 << 4,
-            keyFlag_ButtonAxis  = 1 << 5,
-            keyFlag_NoBindable  = 1 << 6
+            keyFlag_Axis1D = 1 << 3,
+            keyFlag_Axis3D = 1 << 4,
+            keyFlag_ButtonAxis = 1 << 5,
+            keyFlag_NoBindable = 1 << 6,
+            // NOLINTEND(readability-identifier-naming) reason: naming errors can occur
         };
 
-        KeyDetails(const Key aKey, const LWString aAlternateName, const std::uint32_t aKeyFlags);
-        ~KeyDetails() = default;
+        KeyDetails(const Key& aKey, const LWString& aAlternateName, std::uint32_t aKeyFlags);
 
         bool IsModifierKey() const;
         bool IsGamepadKey() const;
@@ -88,8 +88,9 @@ namespace soge
         const LWString& GetAlternateName() const;
         KeyState GetKeyState() const;
 
-        __forceinline static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState() {
-            return FriendFuncPtr<KeyDetails, void, KeyState>(&KeyDetails::SetKeyState);
+        static FriendFuncPtr<KeyDetails, void, KeyState> FriendlySetKeyState()
+        {
+            return FriendFuncPtr(&KeyDetails::SetKeyState);
         }
 
     protected:
@@ -107,7 +108,6 @@ namespace soge
         std::uint8_t m_isMouseButton = 1;
 
         void CommonInit(const std::uint32_t aKeyFlags);
-
     };
 
     //////////////////////////
@@ -116,7 +116,7 @@ namespace soge
 
     struct Keys
     {
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: Ease of use for working with key names
+        // NOLINTBEGIN(readability-identifier-naming) reason: Ease of use for working with key names
 
         static const Key UndefinedKey;
         static const Key AnyKey;
@@ -258,22 +258,22 @@ namespace soge
         static const Key RightParantheses;
         static const Key Quote;
 
+        // NOLINTEND(readability-identifier-naming) reason: Ease of use for working with key names
+
         // Methods
 
         static void Initialize();
         static void AddKey(const KeyDetails& aKeyDetails);
-        static SharedPtr<KeyDetails> GetKeyDetails(const Key aKey);
+        static SharedPtr<KeyDetails> GetKeyDetails(const Key& aKey);
 
-        static bool IsModifierKey(Key aKey);
-        static bool IsGamepadKey(Key aKey);
-        static bool IsMouseButton(Key aKey);
+        static bool IsModifierKey(const Key& aKey);
+        static bool IsGamepadKey(const Key& aKey);
+        static bool IsMouseButton(const Key& aKey);
 
     private:
-        static eastl::map<Key, SharedPtr<KeyDetails>> m_inputKeys;
-        static bool m_isInitialized;
-
+        static eastl::map<Key, SharedPtr<KeyDetails>> s_inputKeys;
+        static bool s_isInitialized;
     };
-
 }
 
 #endif // SOGE_INPUT_INPUTTYPES_HPP

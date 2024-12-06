@@ -1,8 +1,7 @@
-#ifndef SOGE_CORE_EVENT_EVENTTYPE_HPP
-#define SOGE_CORE_EVENT_EVENTTYPE_HPP
+#ifndef SOGE_EVENT_EVENTTYPE_HPP
+#define SOGE_EVENT_EVENTTYPE_HPP
 
-#include "SOGE/Core/Event/EventCategory.hpp"
-#include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Event/EventCategory.hpp"
 #include "SOGE/System/Hash.hpp"
 #include "SOGE/System/StringId.hpp"
 
@@ -65,4 +64,4 @@ struct eastl::hash<soge::EventType>
     }
 };
 
-#endif // SOGE_CORE_EVENT_EVENTTYPE_HPP
+#endif // SOGE_EVENT_EVENTTYPE_HPP

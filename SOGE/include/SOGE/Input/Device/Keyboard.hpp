@@ -10,13 +10,11 @@ namespace soge
     class Keyboard : public InputDevice
     {
     public:
-        Keyboard(eastl::string_view aKeyboardName);
-        virtual ~Keyboard() = default;
+        explicit Keyboard(eastl::string_view aKeyboardName);
 
         virtual void Update() = 0;
-        virtual bool IsKeyPressed(Key aKeyName)     = 0;
-        virtual bool IsKeyReleased(Key aKeyName)    = 0;
-
+        virtual bool IsKeyPressed(Key aKeyName) = 0;
+        virtual bool IsKeyReleased(Key aKeyName) = 0;
     };
 }
 

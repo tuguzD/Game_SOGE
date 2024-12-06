@@ -1,11 +1,11 @@
 #ifndef SOGE_CORE_ENGINE_HPP
 #define SOGE_CORE_ENGINE_HPP
 
-#include "SOGE/Core/DI/Container.hpp"
-#include "SOGE/Core/ModuleManager.hpp"
-#include "SOGE/System/Memory.hpp"
 #include "SOGE/Core/EventManager.hpp"
+#include "SOGE/Core/ModuleManager.hpp"
+#include "SOGE/DI/Container.hpp"
 #include "SOGE/Input/InputManager.hpp"
+#include "SOGE/System/Memory.hpp"
 #include "SOGE/System/Window.hpp"
 
 
@@ -78,7 +78,6 @@ namespace soge
         static Engine* GetInstance();
         template <DerivedFromEngine T = Engine, typename... Args>
         static T* Reset(Args&&... args);
-
     };
 
     template <DerivedFromEngine T, typename... Args>

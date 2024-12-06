@@ -1,16 +1,21 @@
 #ifndef SOGE_EVENT_INPUTEVENTS_HPP
 #define SOGE_EVENT_INPUTEVENTS_HPP
 
-#include "SOGE/Core/Event/Event.hpp"
-#include "SOGE/Core/EngineTypes.hpp"
-#include "SOGE/Input/InputTypes.hpp"
+#include "SOGE/Event/Event.hpp"
 #include "SOGE/Event/EventHelpers.hpp"
+#include "SOGE/Input/InputTypes.hpp"
 
 
 namespace soge
 {
+    //////////////////////
+    // Input Event types
+    /////////////////////
+
+    // NOLINTNEXTLINE(readability-identifier-naming)
     namespace EventTypes
     {
+        // NOLINTNEXTLINE(readability-identifier-naming)
         namespace InputEvents
         {
             constexpr EventType g_keyPressedEvent{StringId("KeyPressedEvent"), EventCategory::Input};
@@ -29,13 +34,12 @@ namespace soge
         Key m_keyObj;
 
     public:
-        explicit KeyEventBase(const Key aKeyObj) noexcept;
-        virtual ~KeyEventBase() = default;
-        virtual Key GetKey() const;
-
-    public:
         static constexpr EventType GetStaticEventType() noexcept;
 
+        explicit KeyEventBase(const Key& aKeyObj) noexcept;
+
+        [[nodiscard]]
+        virtual Key GetKey() const;
     };
 
     //////////////////////
@@ -45,19 +49,19 @@ namespace soge
     class KeyPressedEvent : public KeyEventBase
     {
     private:
-        int m_repeatCount;
-
-    public:
-        explicit KeyPressedEvent(const Key aPressedKey, int aRepeatCount) noexcept;
-        ~KeyPressedEvent() = default;
-        int GetRepeatCount() const;
+        std::uint32_t m_repeatCount;
 
     public:
         static constexpr EventType GetStaticEventType() noexcept;
 
-        // this is needed because static event class overrides this method only from the first derived class, not the last one
-        // how to reimplement this? for now, idk
-        inline constexpr EventType GetEventType() const override
+        explicit KeyPressedEvent(const Key& aPressedKey, std::uint32_t aRepeatCount) noexcept;
+
+        [[nodiscard]]
+        std::uint32_t GetRepeatCount() const;
+
+        // FIXME: this is needed because static event class overrides this method
+        //  only from the first derived class, not the last one
+        constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
@@ -66,15 +70,13 @@ namespace soge
     class KeyReleasedEvent : public KeyEventBase
     {
     public:
-        explicit KeyReleasedEvent(const Key aReleasedKey) noexcept;
-        ~KeyReleasedEvent() = default;
-
-    public:
         static constexpr EventType GetStaticEventType() noexcept;
 
-        // this is needed because static event class overrides this method only from the first derived class, not the last one
-        // how to reimplement this? for now, idk
-        inline constexpr EventType GetEventType() const override
+        explicit KeyReleasedEvent(const Key& aReleasedKey) noexcept;
+
+        // FIXME: this is needed because static event class overrides this method
+        //  only from the first derived class, not the last one
+        constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
@@ -86,71 +88,69 @@ namespace soge
 
     // Pretty much similar to keyboard key pressed event.
     // But we need set exactly g_mouseButtonKeyPressedEvent.
-    // So here'll be some code duplication. Probably can be
-    // Moved to some kind of multifunction for all button events.
+    //
+    // So here is some code duplication.
+    // Probably this can be moved to some kind of multifunction for all button events.
     //
     // TODO: Figure out this garbage in the future
 
     class MouseButtonPressedEvent : public KeyEventBase
     {
     private:
-        int m_repeatCount;
-
-    public:
-        explicit MouseButtonPressedEvent(const Key aPressedButton, int aRepeatCount) noexcept;
-        ~MouseButtonPressedEvent() = default;
-        int GetRepeatCount() const;
+        std::uint32_t m_repeatCount;
 
     public:
         static constexpr EventType GetStaticEventType() noexcept;
 
-        inline constexpr EventType GetEventType() const override
+        explicit MouseButtonPressedEvent(const Key& aPressedButton, std::uint32_t aRepeatCount) noexcept;
+
+        [[nodiscard]]
+        std::uint32_t GetRepeatCount() const;
+
+        // FIXME: this is needed because static event class overrides this method
+        //  only from the first derived class, not the last one
+        constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
-
     };
 
     class MouseButtonReleasedEvent : public KeyEventBase
     {
     public:
-        explicit MouseButtonReleasedEvent(const Key aReleasedButton) noexcept;
-        ~MouseButtonReleasedEvent() = default;
-
-    public:
         static constexpr EventType GetStaticEventType() noexcept;
 
-        inline constexpr EventType GetEventType() const override
+        explicit MouseButtonReleasedEvent(const Key& aReleasedButton) noexcept;
+
+        // FIXME: this is needed because static event class overrides this method
+        //  only from the first derived class, not the last one
+        constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
-
     };
 
     class MouseMovedEvent : public StaticEvent<MouseMovedEvent>
     {
-        using FloatPair = eastl::pair<float, float>;
-
     private:
         float m_relX;
         float m_relY;
 
-
-    public:
-        explicit MouseMovedEvent(float aRelX, float aRelY) noexcept;
-        ~MouseMovedEvent() = default;
-
-        float GetRelativeX() const;
-        float GetRelativeY() const;
-
     public:
         static constexpr EventType GetStaticEventType() noexcept;
 
-        inline constexpr EventType GetEventType() const override
+        explicit MouseMovedEvent(float aRelX, float aRelY) noexcept;
+
+        [[nodiscard]]
+        float GetRelativeX() const;
+        [[nodiscard]]
+        float GetRelativeY() const;
+
+        [[nodiscard]]
+        constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
-
     };
 
     class MouseWheelEvent : public StaticEvent<MouseWheelEvent>
@@ -160,20 +160,20 @@ namespace soge
         float m_yOffset;
 
     public:
-        explicit MouseWheelEvent(float aXOffset, float aYOffset) noexcept;
-        ~MouseWheelEvent() = default;
-
-        float GetXOffset() const;
-        float GetYOffset() const;
-
-    public:
         static constexpr EventType GetStaticEventType() noexcept;
 
-        inline constexpr EventType GetEventType() const override
+        explicit MouseWheelEvent(float aXOffset, float aYOffset) noexcept;
+
+        [[nodiscard]]
+        float GetXOffset() const;
+        [[nodiscard]]
+        float GetYOffset() const;
+
+        [[nodiscard]]
+        constexpr EventType GetEventType() const override
         {
             return GetStaticEventType();
         }
-
     };
 
     //////////////////////
@@ -226,7 +226,6 @@ namespace soge
     {
         return EventTypes::InputEvents::g_mouseWheelEvent;
     }
-
 }
 
 #endif // SOGE_EVENT_INPUTEVENTS_HPP

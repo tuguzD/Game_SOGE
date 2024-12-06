@@ -1,10 +1,11 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Event/InputEvents.hpp"
 
 
 namespace soge
 {
-    KeyEventBase::KeyEventBase(const Key aKeyObj) noexcept : m_keyObj(aKeyObj)
+    KeyEventBase::KeyEventBase(const Key& aKeyObj) noexcept : m_keyObj(aKeyObj)
     {
     }
 
@@ -17,17 +18,17 @@ namespace soge
     // Keyboard Event
     /////////////////////
 
-    KeyPressedEvent::KeyPressedEvent(const Key aPressedKey, int aRepeatCount) noexcept
+    KeyPressedEvent::KeyPressedEvent(const Key& aPressedKey, const std::uint32_t aRepeatCount) noexcept
         : KeyEventBase(aPressedKey), m_repeatCount(aRepeatCount)
     {
     }
 
-    int KeyPressedEvent::GetRepeatCount() const
+    std::uint32_t KeyPressedEvent::GetRepeatCount() const
     {
         return m_repeatCount;
     }
 
-    KeyReleasedEvent::KeyReleasedEvent(const Key aReleasedKey) noexcept : KeyEventBase(aReleasedKey)
+    KeyReleasedEvent::KeyReleasedEvent(const Key& aReleasedKey) noexcept : KeyEventBase(aReleasedKey)
     {
     }
 
@@ -35,21 +36,23 @@ namespace soge
     // Mouse Event
     /////////////////////
 
-    MouseButtonPressedEvent::MouseButtonPressedEvent(const Key aPressedButton, int aRepeatCount) noexcept
+    MouseButtonPressedEvent::MouseButtonPressedEvent(const Key& aPressedButton,
+                                                     const std::uint32_t aRepeatCount) noexcept
         : KeyEventBase(aPressedButton), m_repeatCount(aRepeatCount)
     {
     }
 
-    int MouseButtonPressedEvent::GetRepeatCount() const
+    std::uint32_t MouseButtonPressedEvent::GetRepeatCount() const
     {
         return m_repeatCount;
     }
 
-    MouseButtonReleasedEvent::MouseButtonReleasedEvent(const Key aReleasedButton) noexcept : KeyEventBase(aReleasedButton)
+    MouseButtonReleasedEvent::MouseButtonReleasedEvent(const Key& aReleasedButton) noexcept
+        : KeyEventBase(aReleasedButton)
     {
     }
 
-    MouseMovedEvent::MouseMovedEvent(float aRelX, float aRelY) noexcept : m_relX(aRelX), m_relY(aRelY)
+    MouseMovedEvent::MouseMovedEvent(const float aRelX, const float aRelY) noexcept : m_relX(aRelX), m_relY(aRelY)
     {
     }
 
@@ -63,7 +66,8 @@ namespace soge
         return m_relY;
     }
 
-    MouseWheelEvent::MouseWheelEvent(float aXOffset, float aYOffset) noexcept : m_xOffset(aXOffset), m_yOffset(aYOffset)
+    MouseWheelEvent::MouseWheelEvent(const float aXOffset, const float aYOffset) noexcept
+        : m_xOffset(aXOffset), m_yOffset(aYOffset)
     {
     }
 
@@ -76,5 +80,4 @@ namespace soge
     {
         return m_yOffset;
     }
-
 }
