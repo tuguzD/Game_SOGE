@@ -15,12 +15,12 @@ namespace soge
         return m_data.get<Event>().IsHandled();
     }
 
-    EventManager::FunctionHandleInternal::FunctionHandleInternal(Parent&& aHandle, const EventType& aEventType) noexcept
+    EventManager::FunctionHandle::FunctionHandle(Parent&& aHandle, const EventType& aEventType) noexcept
         : Parent(std::move(aHandle)), m_eventType(aEventType)
     {
     }
 
-    const EventType& EventManager::FunctionHandleInternal::GetEventType() const noexcept
+    const EventType& EventManager::FunctionHandle::GetEventType() const noexcept
     {
         return m_eventType;
     }

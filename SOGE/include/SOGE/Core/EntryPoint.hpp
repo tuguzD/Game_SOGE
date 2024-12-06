@@ -2,7 +2,6 @@
 #define SOGE_CORE_ENTRYPOINT_HPP
 
 #include "SOGE/Utils/Logger.hpp"
-
 #include <span>
 
 
@@ -52,6 +51,7 @@ inline bool soge::ConsoleInit(std::span<char*> args)
                 engine->RequestShutdown();
                 while (engine->IsRunning())
                 {
+
                 }
             }
 

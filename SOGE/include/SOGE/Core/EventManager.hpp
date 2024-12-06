@@ -1,7 +1,8 @@
 #ifndef SOGE_CORE_EVENTMANAGER_HPP
 #define SOGE_CORE_EVENTMANAGER_HPP
 
-#include "SOGE/Core/Events.hpp"
+#include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Event/CoreEvents.hpp"
 
 #include <eventpp/eventqueue.h>
 #include <eventpp/utilities/anydata.h>
@@ -56,27 +57,11 @@ namespace soge
         };
 
         using EventQueue = eventpp::EventQueue<EventType, void(AnyEvent&), Policies>;
-
-        class FunctionHandleInternal final : public EventQueue::Handle
-        {
-        private:
-            using Parent = EventQueue::Handle;
-            friend EventManager;
-
-            explicit FunctionHandleInternal(Parent&& aHandle, const EventType& aEventType) noexcept;
-
-            EventType m_eventType;
-
-        public:
-            [[nodiscard]]
-            const EventType& GetEventType() const noexcept;
-        };
-
         EventQueue m_eventQueue;
 
     public:
         using Function = EventQueue::Callback;
-        using FunctionHandle = FunctionHandleInternal;
+        class FunctionHandle;
 
         explicit EventManager() noexcept = default;
         ~EventManager() = default;
@@ -144,6 +129,21 @@ namespace soge
         void DispatchQueue();
     };
 
+    class EventManager::FunctionHandle : public EventQueue::Handle
+    {
+    private:
+        using Parent = EventQueue::Handle;
+        friend EventManager;
+
+        explicit FunctionHandle(Parent&& aHandle, const EventType& aEventType) noexcept;
+
+        EventType m_eventType;
+
+    public:
+        [[nodiscard]]
+        const EventType& GetEventType() const noexcept;
+    };
+
     constexpr EventType EventManager::Policies::getEvent(const Event& aEvent)
     {
         return aEvent.GetEventType();
@@ -162,7 +162,7 @@ namespace soge
     template <DerivedFromEvent E>
     EventManager::AnyEvent::operator E&() const
     {
-        return m_data.get<E>();
+        return static_cast<E&>(m_data);
     }
 
     template <DerivedFromStaticEvent E, typename F>

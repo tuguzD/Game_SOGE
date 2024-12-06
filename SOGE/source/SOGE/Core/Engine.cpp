@@ -2,6 +2,7 @@
 
 #include "SOGE/Core/Engine.hpp"
 #include "SOGE/Core/Timestep.hpp"
+#include "SOGE/Input/InputTypes.hpp"
 
 
 namespace soge
@@ -31,6 +32,11 @@ namespace soge
     Engine::Engine() : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
+
+        m_eventManager = CreateUnique<EventManager>();
+        m_systemWindow = UniquePtr<Window>(Window::Create());
+
+        m_inputManager = CreateShared<InputManager>();
     }
 
     Engine::~Engine()
@@ -59,6 +65,8 @@ namespace soge
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
+
+            m_inputManager->Update();
         }
 
         for (Module& module : m_moduleManager)
@@ -72,6 +80,11 @@ namespace soge
     bool Engine::IsRunning() const
     {
         return m_isRunning;
+    }
+
+    EventManager* Engine::GetEventManager() const
+    {
+        return m_eventManager.get();
     }
 
     void Engine::RequestShutdown()

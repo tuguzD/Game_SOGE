@@ -4,6 +4,9 @@
 #include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/System/Memory.hpp"
+#include "SOGE/Core/EventManager.hpp"
+#include "SOGE/Input/InputManager.hpp"
+#include "SOGE/System/Window.hpp"
 
 
 namespace soge
@@ -18,6 +21,11 @@ namespace soge
     private:
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
+
+        UniquePtr<EventManager> m_eventManager;
+        UniquePtr<Window> m_systemWindow;
+
+        SharedPtr<InputManager> m_inputManager;
 
         bool m_isRunning;
         bool m_shutdownRequested;
@@ -36,11 +44,6 @@ namespace soge
         di::Container& GetDependencyContainer();
 
     public:
-        static Engine* GetInstance();
-
-        template <DerivedFromEngine T = Engine, typename... Args>
-        static T* Reset(Args&&... args);
-
         Engine(const Engine&) = delete;
         auto operator=(const Engine&) = delete;
 
@@ -49,11 +52,11 @@ namespace soge
 
         virtual ~Engine();
 
-        [[nodiscard]]
-        bool IsRunning() const;
-
         void Run();
         void RequestShutdown();
+
+        [[nodiscard]]
+        bool IsRunning() const;
 
         di::Provider& GetDependencyProvider();
 
@@ -69,6 +72,13 @@ namespace soge
         template <DerivedFromModule T>
         [[nodiscard]]
         T* GetModule() const;
+        EventManager* GetEventManager() const;
+
+    public:
+        static Engine* GetInstance();
+        template <DerivedFromEngine T = Engine, typename... Args>
+        static T* Reset(Args&&... args);
+
     };
 
     template <DerivedFromEngine T, typename... Args>
