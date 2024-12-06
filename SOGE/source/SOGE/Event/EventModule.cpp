@@ -20,6 +20,10 @@ namespace soge
     {
     }
 
+    EventModule::FunctionHandle::FunctionHandle() noexcept : m_eventType(EventTypes::Dummy::g_dummyEvent)
+    {
+    }
+
     const EventType& EventModule::FunctionHandle::GetEventType() const noexcept
     {
         return m_eventType;
@@ -73,11 +77,13 @@ namespace soge
         m_eventQueue.process();
     }
 
-    void EventModule::Load(di::Container& aContainer)
+    void EventModule::Load(di::Container& aContainer, ModuleManager& aModuleManager)
     {
+        SOGE_INFO_LOG("Event module loaded...");
     }
 
-    void EventModule::Unload(di::Container& aContainer)
+    void EventModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
+        SOGE_INFO_LOG("Event module unloaded...");
     }
 }

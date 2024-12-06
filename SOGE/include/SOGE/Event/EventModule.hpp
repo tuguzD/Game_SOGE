@@ -128,8 +128,8 @@ namespace soge
         void DispatchQueue(const EventType& aEventType);
         void DispatchQueue();
 
-        void Load(di::Container& aContainer) override;
-        void Unload(di::Container& aContainer) override;
+        void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
+        void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
     };
 
     class EventModule::FunctionHandle : public EventQueue::Handle
@@ -143,6 +143,8 @@ namespace soge
         EventType m_eventType;
 
     public:
+        explicit FunctionHandle() noexcept;
+
         [[nodiscard]]
         const EventType& GetEventType() const noexcept;
     };

@@ -102,7 +102,7 @@ namespace soge
 
         if (created && m_isRunning)
         {
-            module.Load(m_container);
+            module.Load(m_container, m_moduleManager);
         }
 
         return module;
@@ -121,11 +121,11 @@ namespace soge
         {
             if (oldModule != nullptr)
             {
-                oldModule->Unload(m_container);
+                oldModule->Unload(m_container, m_moduleManager);
                 m_removedModules.push_back(std::move(oldModule));
             }
 
-            module.Load(m_container);
+            module.Load(m_container, m_moduleManager);
         }
 
         return module;
@@ -138,7 +138,7 @@ namespace soge
 
         if (oldModule != nullptr && m_isRunning)
         {
-            oldModule->Unload(m_container);
+            oldModule->Unload(m_container, m_moduleManager);
             m_removedModules.push_back(std::move(oldModule));
         }
     }

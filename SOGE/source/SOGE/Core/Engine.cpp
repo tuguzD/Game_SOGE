@@ -58,7 +58,7 @@ namespace soge
         m_isRunning = true;
         for (Module& module : m_moduleManager)
         {
-            module.Load(m_container);
+            module.Load(m_container, m_moduleManager);
         }
 
         m_shutdownRequested = false;
@@ -67,12 +67,13 @@ namespace soge
             Timestep::StartFrame();
             Timestep::CalculateDelta();
 
-            GetModule<InputModule>()->Update();
+            const auto eventModule = GetModule<EventModule>();
+            eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
         }
 
         for (Module& module : m_moduleManager)
         {
-            module.Unload(m_container);
+            module.Unload(m_container, m_moduleManager);
         }
         m_isRunning = false;
         m_removedModules.clear();

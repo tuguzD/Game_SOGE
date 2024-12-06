@@ -1,7 +1,7 @@
 #ifndef SOGE_INPUT_INPUTMODULE_HPP
 #define SOGE_INPUT_INPUTMODULE_HPP
 
-#include "SOGE/Core/Module.hpp"
+#include "SOGE/Event/EventModule.hpp"
 #include "SOGE/System/Memory.hpp"
 
 
@@ -16,6 +16,11 @@ namespace soge
     class InputModule : public Module
     {
     private:
+        void Update() const;
+
+        EventModule* m_eventModule;
+        EventModule::FunctionHandle m_updateEventHandle;
+
         SharedPtr<Keyboard> m_keyboard;
         SharedPtr<Mouse> m_mouse;
 
@@ -26,10 +31,8 @@ namespace soge
     public:
         InputModule();
 
-        void Update();
-
-        void Load(di::Container& aContainer) override;
-        void Unload(di::Container& aContainer) override;
+        void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
+        void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
     };
 }
 
