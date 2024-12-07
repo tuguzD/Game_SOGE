@@ -1,36 +1,39 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
+
+#include "SOGE/Input/Impl/SDL/SDLGamepad.hpp"
+#include "SOGE/Input/Impl/SDL/SDLKeyMapManager.hpp"
 #include "SOGE/Input/Impl/SDL/SDLKeyboard.hpp"
 #include "SOGE/Input/Impl/SDL/SDLMouse.hpp"
 
 #include <SDL3/SDL_init.h>
 
+
 namespace soge
 {
-    SDLInputCore::SDLInputCore()
+    SDLInputCore::SDLInputCore(EventModule* aEventModule)
+        : InputCore(aEventModule), m_isPauseUpdateRequested(false), m_isEndUpdateRequested(false),
+          m_isAnyButtonPressed(false)
     {
-        m_isPauseUpdateRequested = false;
-        m_isEndUpdateRequested = false;
-
         if (!SDL_Init(SDL_INIT_EVENTS))
         {
-            SOGE_ERROR_LOG("Failed to initialize SDL events subsystem...");
+            SOGE_ERROR_LOG("Failed to initialize SDL event subsystem...");
+            return;
         }
-    }
 
-    SDLInputCore::~SDLInputCore()
-    {
-
+        m_keyMapManager = CreateUnique<SDLKeyMapManager>();
+        m_keyboard = CreateUnique<SDLKeyboard>(*this);
+        m_gamepad = CreateUnique<SDLGamepad>(*this);
+        m_mouse = CreateUnique<SDLMouse>(*this);
     }
 
     void SDLInputCore::LockInput(bool aLockInput)
     {
-
     }
 
     void SDLInputCore::UseRelativeMouseMode(bool aRelMouse)
     {
-
     }
 
     bool SDLInputCore::IsAnyButtonPressed()
@@ -41,7 +44,9 @@ namespace soge
     void SDLInputCore::BeginUpdateInput()
     {
         if (m_isPauseUpdateRequested)
+        {
             return;
+        }
 
         SDL_Event sdlEvent;
         m_sdlEventList.clear();
@@ -49,6 +54,9 @@ namespace soge
         {
             m_sdlEventList.push_back(sdlEvent);
         }
+
+        m_mouse->Update();
+        m_keyboard->Update();
     }
 
     void SDLInputCore::EndUpdateInput()
@@ -56,23 +64,8 @@ namespace soge
         m_isEndUpdateRequested = true;
     }
 
-    void SDLInputCore::SetPauseUpdate(bool aIsPauseNeeded)
+    void SDLInputCore::SetPauseUpdate(const bool aIsPauseNeeded)
     {
         m_isPauseUpdateRequested = aIsPauseNeeded;
-    }
-
-    Mouse* SDLInputCore::CreateMouse()
-    {
-        return new SDLMouse(shared_from_this());
-    }
-
-    Gamepad* SDLInputCore::CreateGamepad()
-    {
-        return nullptr;
-    }
-
-    Keyboard* SDLInputCore::CreateKeyboard()
-    {
-        return new SDLKeyboard(shared_from_this());
     }
 }

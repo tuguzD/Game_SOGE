@@ -1,11 +1,9 @@
 #ifndef SOGE_CORE_ENGINE_HPP
 #define SOGE_CORE_ENGINE_HPP
 
-#include "SOGE/Core/DI/Container.hpp"
 #include "SOGE/Core/ModuleManager.hpp"
+#include "SOGE/DI/Container.hpp"
 #include "SOGE/System/Memory.hpp"
-#include "SOGE/Core/EventManager.hpp"
-#include "SOGE/Input/InputManager.hpp"
 #include "SOGE/System/Window.hpp"
 
 
@@ -22,13 +20,10 @@ namespace soge
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
 
-        UniquePtr<EventManager> m_eventManager;
-        UniquePtr<Window> m_systemWindow;
-
-        SharedPtr<InputManager> m_inputManager;
-
         bool m_isRunning;
         bool m_shutdownRequested;
+
+        UniquePtr<Window> m_systemWindow;
 
         di::Container m_container;
         ModuleManager m_moduleManager;
@@ -44,11 +39,16 @@ namespace soge
         di::Container& GetDependencyContainer();
 
     public:
+        static Engine* GetInstance();
+
+        template <DerivedFromEngine T = Engine, typename... Args>
+        static T* Reset(Args&&... args);
+
         Engine(const Engine&) = delete;
-        auto operator=(const Engine&) = delete;
+        Engine& operator=(const Engine&) = delete;
 
         Engine(Engine&&) = delete;
-        auto operator=(Engine&&) = delete;
+        Engine& operator=(Engine&&) = delete;
 
         virtual ~Engine();
 
@@ -72,13 +72,6 @@ namespace soge
         template <DerivedFromModule T>
         [[nodiscard]]
         T* GetModule() const;
-        EventManager* GetEventManager() const;
-
-    public:
-        static Engine* GetInstance();
-        template <DerivedFromEngine T = Engine, typename... Args>
-        static T* Reset(Args&&... args);
-
     };
 
     template <DerivedFromEngine T, typename... Args>
@@ -109,7 +102,7 @@ namespace soge
 
         if (created && m_isRunning)
         {
-            module.Load(m_container);
+            module.Load(m_container, m_moduleManager);
         }
 
         return module;
@@ -128,11 +121,11 @@ namespace soge
         {
             if (oldModule != nullptr)
             {
-                oldModule->Unload(m_container);
+                oldModule->Unload(m_container, m_moduleManager);
                 m_removedModules.push_back(std::move(oldModule));
             }
 
-            module.Load(m_container);
+            module.Load(m_container, m_moduleManager);
         }
 
         return module;
@@ -145,7 +138,7 @@ namespace soge
 
         if (oldModule != nullptr && m_isRunning)
         {
-            oldModule->Unload(m_container);
+            oldModule->Unload(m_container, m_moduleManager);
             m_removedModules.push_back(std::move(oldModule));
         }
     }

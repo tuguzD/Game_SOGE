@@ -2,7 +2,10 @@
 
 #include "SOGE/Core/Engine.hpp"
 #include "SOGE/Core/Timestep.hpp"
-#include "SOGE/Input/InputTypes.hpp"
+#include "SOGE/Event/EventModule.hpp"
+#include "SOGE/Input/InputModule.hpp"
+
+#include <ranges>
 
 
 namespace soge
@@ -33,10 +36,10 @@ namespace soge
     {
         SOGE_INFO_LOG("Initialize engine...");
 
-        m_eventManager = CreateUnique<EventManager>();
-        m_systemWindow = UniquePtr<Window>(Window::Create());
+        CreateModule<EventModule>();
+        CreateModule<InputModule>();
 
-        m_inputManager = CreateShared<InputManager>();
+        m_systemWindow = UniquePtr<Window>(Window::Create());
     }
 
     Engine::~Engine()
@@ -57,7 +60,7 @@ namespace soge
         m_isRunning = true;
         for (Module& module : m_moduleManager)
         {
-            module.Load(m_container);
+            module.Load(m_container, m_moduleManager);
         }
 
         m_shutdownRequested = false;
@@ -66,12 +69,13 @@ namespace soge
             Timestep::StartFrame();
             Timestep::CalculateDelta();
 
-            m_inputManager->Update();
+            const auto eventModule = GetModule<EventModule>();
+            eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
         }
 
-        for (Module& module : m_moduleManager)
+        for (Module& module : m_moduleManager | std::views::reverse)
         {
-            module.Unload(m_container);
+            module.Unload(m_container, m_moduleManager);
         }
         m_isRunning = false;
         m_removedModules.clear();
@@ -80,11 +84,6 @@ namespace soge
     bool Engine::IsRunning() const
     {
         return m_isRunning;
-    }
-
-    EventManager* Engine::GetEventManager() const
-    {
-        return m_eventManager.get();
     }
 
     void Engine::RequestShutdown()

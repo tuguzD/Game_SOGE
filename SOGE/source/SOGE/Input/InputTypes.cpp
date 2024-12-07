@@ -1,12 +1,13 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Input/InputTypes.hpp"
-#include "SOGE/Input/KeyMapManager.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,InputCore.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,Keyboard.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input,Mouse.hpp)
-
+// clang-format off
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, InputCore.hpp)
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Keyboard.hpp)
+#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Mouse.hpp)
+// clang-format on
 
 
 namespace soge
@@ -142,8 +143,8 @@ namespace soge
     const Key Keys::Tilde("Tilde");
     const Key Keys::LeftBracket("LeftBracket");
     const Key Keys::RightBracket("RightBracket");
-    const Key Keys::LeftParantheses("LeftParanthesis");
-    const Key Keys::RightParantheses("RightParantheses");
+    const Key Keys::LeftParenthesis("LeftParenthesis");
+    const Key Keys::RightParenthesis("RightParenthesis");
     const Key Keys::Apostrophe("Apostrophe");
     const Key Keys::Quote("Quote");
 
@@ -169,7 +170,6 @@ namespace soge
 
     Key::Key(const char* aKeyName) : m_keyName(aKeyName)
     {
-
     }
 
     Key::Key(const LWString& aKeyName) : m_keyName(aKeyName)
@@ -220,7 +220,7 @@ namespace soge
     KeyState Key::GetKeyState() const
     {
         LookupForDetails();
-        return (m_keyDetails.get() != nullptr ? m_keyDetails->GetKeyState() : KeyState_Undefined);
+        return (m_keyDetails.get() != nullptr ? m_keyDetails->GetKeyState() : KeyState::KeyState_Undefined);
     }
 
     const char* Key::ToCString() const
@@ -252,17 +252,17 @@ namespace soge
     // KeyDetails class
     ////////////////////////
 
-    KeyDetails::KeyDetails(const Key aKey, const LWString aAlternateName, const std::uint32_t aKeyFlags = 0)
-        : m_keyObj(aKey), m_alternateName(aAlternateName), m_keyState(KeyState_KeyReleased)
+    KeyDetails::KeyDetails(Key aKey, const LWString& aAlternateName, const std::uint32_t aKeyFlags = 0)
+        : m_keyObj(std::move(aKey)), m_alternateName(aAlternateName), m_keyState(KeyState::KeyState_KeyReleased)
     {
         CommonInit(aKeyFlags);
     }
 
     void KeyDetails::CommonInit(const std::uint32_t aKeyFlags)
     {
-        m_isModifierKey = ((aKeyFlags & KeyFlags::keyFlag_ModifierKey)  != 0);
-        m_isGamepadKey  = ((aKeyFlags & KeyFlags::keyFlag_GamepadKey)   != 0);
-        m_isMouseButton = ((aKeyFlags & KeyFlags::keyFlag_MouseButton)  != 0);
+        m_isModifierKey = ((aKeyFlags & KeyFlags::keyFlag_ModifierKey) != 0);
+        m_isGamepadKey = ((aKeyFlags & KeyFlags::keyFlag_GamepadKey) != 0);
+        m_isMouseButton = ((aKeyFlags & KeyFlags::keyFlag_MouseButton) != 0);
     }
 
     bool KeyDetails::IsModifierKey() const
@@ -295,7 +295,7 @@ namespace soge
         return m_keyState;
     }
 
-    void KeyDetails::SetKeyState(KeyState aKeyState)
+    void KeyDetails::SetKeyState(const KeyState aKeyState)
     {
         m_keyState = aKeyState;
     }
@@ -304,15 +304,16 @@ namespace soge
     // Keys class
     ////////////////////////
 
-    eastl::map<Key, SharedPtr<KeyDetails>> Keys::m_inputKeys;
-    bool Keys::m_isInitialized = false;
+    eastl::map<Key, SharedPtr<KeyDetails>> Keys::s_inputKeys;
+    bool Keys::s_isInitialized = false;
 
     void Keys::Initialize()
     {
-        // clang-format off
-        if (m_isInitialized) return;
-        // clang-format on
-        m_isInitialized = true;
+        if (s_isInitialized)
+        {
+            return;
+        }
+        s_isInitialized = true;
 
         // clang-format off
         AddKey(KeyDetails(Keys::UndefinedKey, "Undefined"));
@@ -442,19 +443,15 @@ namespace soge
         AddKey(KeyDetails(Keys::Apostrophe, "'"));
         AddKey(KeyDetails(Keys::Quote, "\""));
 
-        AddKey(KeyDetails(Keys::LeftParantheses, "("));
-        AddKey(KeyDetails(Keys::RightParantheses, ")"));
+        AddKey(KeyDetails(Keys::LeftParenthesis, "("));
+        AddKey(KeyDetails(Keys::RightParenthesis, ")"));
         AddKey(KeyDetails(Keys::Ampersand, "&"));
         AddKey(KeyDetails(Keys::Asterix, "*"));
         AddKey(KeyDetails(Keys::Caret, "^"));
         AddKey(KeyDetails(Keys::Dollar, "$"));
         AddKey(KeyDetails(Keys::Exclamation, "!"));
         AddKey(KeyDetails(Keys::Colon, ":"));
-
         // clang-format on
-
-        KeyMapManager::GetInstance();
-
     }
 
     void Keys::AddKey(const KeyDetails& aKeyDetails)
@@ -463,29 +460,28 @@ namespace soge
 
         const Key& key = aKeyDetails.GetKey();
         key.m_keyDetails = eastl::shared_ptr<KeyDetails>(new KeyDetails(aKeyDetails));
-        m_inputKeys.insert(eastl::pair<const Key, SharedPtr<KeyDetails>>(key, key.m_keyDetails));
+        s_inputKeys.insert(eastl::pair<const Key, SharedPtr<KeyDetails>>(key, key.m_keyDetails));
     }
 
-    SharedPtr<KeyDetails> Keys::GetKeyDetails(const Key aKey)
+    SharedPtr<KeyDetails> Keys::GetKeyDetails(const Key& aKey)
     {
-        SharedPtr<KeyDetails> keyDetails = m_inputKeys[aKey];
+        SharedPtr<KeyDetails> keyDetails = s_inputKeys[aKey];
         // TODO: Add assertion
         return keyDetails;
     }
 
-    bool Keys::IsModifierKey(Key aKey)
+    bool Keys::IsModifierKey(const Key& aKey)
     {
         return aKey.IsModifierKey();
     }
 
-    bool Keys::IsGamepadKey(Key aKey)
+    bool Keys::IsGamepadKey(const Key& aKey)
     {
         return aKey.IsGamepadKey();
     }
 
-    bool Keys::IsMouseButton(Key aKey)
+    bool Keys::IsMouseButton(const Key& aKey)
     {
         return aKey.IsMouseButton();
     }
-
 }

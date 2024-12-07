@@ -1,10 +1,11 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Input/Device/InputDevice.hpp"
 
 
 namespace soge
 {
-    InputDevice::InputDevice(eastl::string_view aDeviceName, DeviceType aDeviceType)
+    InputDevice::InputDevice(const eastl::string_view aDeviceName, const DeviceType aDeviceType)
         : m_deviceName(aDeviceName), m_deviceType(aDeviceType)
     {
     }

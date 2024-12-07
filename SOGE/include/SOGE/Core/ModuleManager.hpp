@@ -6,6 +6,7 @@
 #include "SOGE/Utils/Lazy.hpp"
 
 #include <EASTL/hash_map.h>
+#include <EASTL/list.h>
 
 
 namespace soge
@@ -23,15 +24,18 @@ namespace soge
         using Modules = eastl::hash_map<TypeKeyPtr, UniqueModule>;
         Modules m_modules;
 
+        using ModulesOrder = eastl::list<TypeKeyPtr>;
+        ModulesOrder m_modulesOrder;
+
     public:
         class Iterator;
         class ConstIterator;
 
         template <DerivedFromModule T, typename... Args>
-        std::pair<T&, bool> CreateModule(Args&&... args);
+        eastl::pair<T&, bool> CreateModule(Args&&... args);
 
         template <DerivedFromModule T, typename... Args>
-        std::pair<T&, UniquePtr<T>> RecreateModule(Args&&... args);
+        eastl::pair<T&, UniquePtr<T>> RecreateModule(Args&&... args);
 
         template <DerivedFromModule T>
         UniquePtr<T> RemoveModule();
@@ -50,18 +54,23 @@ namespace soge
     };
 
     template <DerivedFromModule T, typename... Args>
-    std::pair<T&, bool> ModuleManager::CreateModule(Args&&... args)
+    eastl::pair<T&, bool> ModuleManager::CreateModule(Args&&... args)
     {
         const auto key = TypeKey<T>;
         LazyConvertInvoke lazyModule(
             [&args...]() -> UniqueModule { return CreateUnique<T>(std::forward<Args>(args)...); });
 
         auto [iter, created] = m_modules.try_emplace(key, lazyModule);
+        if (created)
+        {
+            m_modulesOrder.push_back(key);
+        }
+
         return {dynamic_cast<T&>(*iter->second), created};
     }
 
     template <DerivedFromModule T, typename... Args>
-    std::pair<T&, UniquePtr<T>> ModuleManager::RecreateModule(Args&&... args)
+    eastl::pair<T&, UniquePtr<T>> ModuleManager::RecreateModule(Args&&... args)
     {
         const auto key = TypeKey<T>;
 
@@ -77,6 +86,7 @@ namespace soge
         else
         {
             m_modules[key] = std::move(newModule);
+            m_modulesOrder.push_back(key);
         }
 
         return {*newModulePtr, std::move(oldModule)};
@@ -94,6 +104,7 @@ namespace soge
 
         auto module = std::move(iter->second);
         m_modules.erase(iter);
+        m_modulesOrder.remove(key);
 
         T* valuePtr = dynamic_cast<T*>(module.release());
         return UniquePtr<T>{valuePtr};
@@ -116,20 +127,24 @@ namespace soge
     class ModuleManager::Iterator
     {
     private:
-        using Base = Modules::iterator;
-        Base m_iter;
+        friend ModuleManager;
+        using KeyIter = ModulesOrder::iterator;
+
+        explicit Iterator(KeyIter aKeyIter, ModuleManager* aManager) noexcept;
+
+        KeyIter m_keyIter;
+        ModuleManager* m_manager;
 
     public:
         // NOLINTBEGIN(readability-identifier-naming)
-        using difference_type = Base::difference_type;
+        using difference_type = KeyIter::difference_type;
         using value_type = Module;
         using pointer = Module*;
         using reference = Module&;
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::bidirectional_iterator_tag;
         // NOLINTEND(readability-identifier-naming)
 
         explicit Iterator() noexcept = default;
-        explicit Iterator(Base aIter) noexcept;
 
         reference operator*() const noexcept;
         pointer operator->() const noexcept;
@@ -137,26 +152,33 @@ namespace soge
         Iterator& operator++() noexcept;
         Iterator operator++(int) noexcept;
 
+        Iterator& operator--() noexcept;
+        Iterator operator--(int) noexcept;
+
         friend bool operator==(const Iterator&, const Iterator&) noexcept = default;
     };
 
     class ModuleManager::ConstIterator
     {
     private:
-        using Base = Modules::const_iterator;
-        Base m_iter;
+        friend ModuleManager;
+        using KeyIter = ModulesOrder::const_iterator;
+
+        explicit ConstIterator(KeyIter aKeyIter, const ModuleManager* aManager) noexcept;
+
+        KeyIter m_keyIter;
+        const ModuleManager* m_manager;
 
     public:
         // NOLINTBEGIN(readability-identifier-naming)
-        using difference_type = Base::difference_type;
+        using difference_type = KeyIter::difference_type;
         using value_type = Module;
         using pointer = const Module*;
         using reference = const Module&;
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::bidirectional_iterator_tag;
         // NOLINTEND(readability-identifier-naming)
 
         explicit ConstIterator() noexcept = default;
-        explicit ConstIterator(Base aIter) noexcept;
 
         reference operator*() const noexcept;
         pointer operator->() const noexcept;
@@ -164,14 +186,17 @@ namespace soge
         ConstIterator& operator++() noexcept;
         ConstIterator operator++(int) noexcept;
 
+        ConstIterator& operator--() noexcept;
+        ConstIterator operator--(int) noexcept;
+
         friend bool operator==(const ConstIterator&, const ConstIterator&) noexcept = default;
     };
 
 
-    static_assert(std::forward_iterator<ModuleManager::Iterator>);
-    static_assert(std::forward_iterator<ModuleManager::ConstIterator>);
+    static_assert(std::bidirectional_iterator<ModuleManager::Iterator>);
+    static_assert(std::bidirectional_iterator<ModuleManager::ConstIterator>);
 
-    static_assert(std::ranges::forward_range<ModuleManager>);
+    static_assert(std::ranges::bidirectional_range<ModuleManager>);
 }
 
 #endif // SOGE_CORE_MODULEMANAGER_HPP

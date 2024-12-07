@@ -1,8 +1,13 @@
 #ifndef SOGE_CORE_MODULE_HPP
 #define SOGE_CORE_MODULE_HPP
 
-#include "SOGE/Core/DI/Container.hpp"
+#include "SOGE/DI/Dependency.hpp"
 
+
+namespace soge::di
+{
+    class Container;
+}
 
 namespace soge
 {
@@ -10,6 +15,8 @@ namespace soge
 
     template <typename T>
     concept DerivedFromModule = std::derived_from<T, Module>;
+
+    class ModuleManager;
 
     class Module
     {
@@ -23,8 +30,8 @@ namespace soge
         explicit Module(Module&&) = default;
         Module& operator=(Module&&) = default;
 
-        constexpr virtual void Load(di::Container& aContainer) = 0;
-        constexpr virtual void Unload(di::Container& aContainer) = 0;
+        constexpr virtual void Load(di::Container& aContainer, ModuleManager& aModuleManager) = 0;
+        constexpr virtual void Unload(di::Container& aContainer, ModuleManager& aModuleManager) = 0;
     };
 
     namespace di

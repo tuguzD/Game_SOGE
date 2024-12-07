@@ -1,8 +1,9 @@
-#ifndef SOGE_CORE_EVENTMANAGER_HPP
-#define SOGE_CORE_EVENTMANAGER_HPP
+#ifndef SOGE_EVENT_EVENTMODULE_HPP
+#define SOGE_EVENT_EVENTMODULE_HPP
 
-#include "SOGE/Core/Event/Event.hpp"
+#include "SOGE/Core/Module.hpp"
 #include "SOGE/Event/CoreEvents.hpp"
+#include "SOGE/Event/InputEvents.hpp"
 
 #include <eventpp/eventqueue.h>
 #include <eventpp/utilities/anydata.h>
@@ -10,7 +11,7 @@
 
 namespace soge
 {
-    class EventManager
+    class EventModule : public Module
     {
     private:
         class Policies
@@ -31,7 +32,9 @@ namespace soge
         class AnyEvent final : public Event
         {
         private:
-            static constexpr std::size_t s_anyEventMaxSize = eventpp::maxSizeOf<Event, UpdateEvent>();
+            static constexpr std::size_t s_anyEventMaxSize =
+                eventpp::maxSizeOf<Event, UpdateEvent, KeyPressedEvent, KeyReleasedEvent, MouseButtonPressedEvent,
+                                   MouseButtonReleasedEvent, MouseMovedEvent, MouseWheelEvent>();
             eventpp::AnyData<s_anyEventMaxSize> m_data;
 
         public:
@@ -63,14 +66,14 @@ namespace soge
         using Function = EventQueue::Callback;
         class FunctionHandle;
 
-        explicit EventManager() noexcept = default;
-        ~EventManager() = default;
+        explicit EventModule() noexcept = default;
+        ~EventModule() override = default;
 
-        explicit EventManager(const EventManager&) = default;
-        EventManager& operator=(const EventManager&) = default;
+        explicit EventModule(const EventModule&) = delete;
+        EventModule& operator=(const EventModule&) = delete;
 
-        explicit EventManager(EventManager&&) noexcept = default;
-        EventManager& operator=(EventManager&&) noexcept = default;
+        explicit EventModule(EventModule&&) noexcept = default;
+        EventModule& operator=(EventModule&&) noexcept = default;
 
         template <DerivedFromStaticEvent E, typename F>
         requires std::is_invocable_v<F, E&>
@@ -127,47 +130,52 @@ namespace soge
 
         void DispatchQueue(const EventType& aEventType);
         void DispatchQueue();
+
+        void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
+        void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
     };
 
-    class EventManager::FunctionHandle : public EventQueue::Handle
+    class EventModule::FunctionHandle : public EventQueue::Handle
     {
     private:
         using Parent = EventQueue::Handle;
-        friend EventManager;
+        friend EventModule;
 
         explicit FunctionHandle(Parent&& aHandle, const EventType& aEventType) noexcept;
 
         EventType m_eventType;
 
     public:
+        explicit FunctionHandle() noexcept;
+
         [[nodiscard]]
         const EventType& GetEventType() const noexcept;
     };
 
-    constexpr EventType EventManager::Policies::getEvent(const Event& aEvent)
+    constexpr EventType EventModule::Policies::getEvent(const Event& aEvent)
     {
         return aEvent.GetEventType();
     }
 
-    constexpr bool EventManager::Policies::canContinueInvoking(const Event& aEvent)
+    constexpr bool EventModule::Policies::canContinueInvoking(const Event& aEvent)
     {
         return !aEvent.IsHandled();
     }
 
     template <DerivedFromEvent E>
-    EventManager::AnyEvent::AnyEvent(E&& aEvent) : m_data(std::forward<E>(aEvent))
+    EventModule::AnyEvent::AnyEvent(E&& aEvent) : m_data(std::forward<E>(aEvent))
     {
     }
 
     template <DerivedFromEvent E>
-    EventManager::AnyEvent::operator E&() const
+    EventModule::AnyEvent::operator E&() const
     {
         return static_cast<E&>(m_data);
     }
 
     template <DerivedFromStaticEvent E, typename F>
     requires std::is_invocable_v<F, E&>
-    auto EventManager::PushBack(F&& aFunction) -> FunctionHandle
+    auto EventModule::PushBack(F&& aFunction) -> FunctionHandle
     {
         const EventType eventType = E::GetStaticEventType();
 
@@ -177,7 +185,7 @@ namespace soge
 
     template <typename F>
     requires std::is_invocable_v<F, Event&>
-    auto EventManager::PushBack(const EventType& aEventType, F&& aFunction) -> FunctionHandle
+    auto EventModule::PushBack(const EventType& aEventType, F&& aFunction) -> FunctionHandle
     {
         FunctionHandle::Parent handle = m_eventQueue.appendListener(aEventType, std::forward<F>(aFunction));
         return FunctionHandle{std::move(handle), aEventType};
@@ -185,7 +193,7 @@ namespace soge
 
     template <DerivedFromStaticEvent E, typename F>
     requires std::is_invocable_v<F, E&>
-    auto EventManager::PushFront(F&& aFunction) -> FunctionHandle
+    auto EventModule::PushFront(F&& aFunction) -> FunctionHandle
     {
         const EventType eventType = E::GetStaticEventType();
 
@@ -195,7 +203,7 @@ namespace soge
 
     template <typename F>
     requires std::is_invocable_v<F, Event&>
-    auto EventManager::PushFront(const EventType& aEventType, F&& aFunction) -> FunctionHandle
+    auto EventModule::PushFront(const EventType& aEventType, F&& aFunction) -> FunctionHandle
     {
         FunctionHandle::Parent handle = m_eventQueue.prependListener(aEventType, std::forward<F>(aFunction));
         return FunctionHandle{std::move(handle), aEventType};
@@ -203,7 +211,7 @@ namespace soge
 
     template <DerivedFromStaticEvent E, typename F>
     requires std::is_invocable_v<F, E&>
-    auto EventManager::Insert(F&& aFunction, const FunctionHandle& aBefore) -> FunctionHandle
+    auto EventModule::Insert(F&& aFunction, const FunctionHandle& aBefore) -> FunctionHandle
     {
         const EventType eventType = E::GetStaticEventType();
 
@@ -216,7 +224,7 @@ namespace soge
 
     template <typename F>
     requires std::is_invocable_v<F, Event&>
-    auto EventManager::Insert(const EventType& aEventType, F&& aFunction, const FunctionHandle& aBefore)
+    auto EventModule::Insert(const EventType& aEventType, F&& aFunction, const FunctionHandle& aBefore)
         -> FunctionHandle
     {
         FunctionHandle::Parent handle =
@@ -227,7 +235,7 @@ namespace soge
     }
 
     template <DerivedFromStaticEvent E>
-    bool EventManager::IsEmpty() const
+    bool EventModule::IsEmpty() const
     {
         const EventType eventType = E::GetStaticEventType();
         return IsEmpty(eventType);
@@ -235,7 +243,7 @@ namespace soge
 
     template <DerivedFromEvent E, typename... Args>
     requires std::is_constructible_v<E, Args...>
-    void EventManager::Dispatch(Args&&... args)
+    void EventModule::Dispatch(Args&&... args)
     {
         AnyEvent event{E{std::forward<Args>(args)...}};
         m_eventQueue.dispatch(event);
@@ -243,18 +251,20 @@ namespace soge
 
     template <DerivedFromEvent E, typename... Args>
     requires std::is_constructible_v<E, Args...>
-    void EventManager::Enqueue(Args&&... args)
+    void EventModule::Enqueue(Args&&... args)
     {
         AnyEvent event{E{std::forward<Args>(args)...}};
         m_eventQueue.enqueue(std::move(event));
     }
 
     template <DerivedFromStaticEvent E>
-    void EventManager::DispatchQueue()
+    void EventModule::DispatchQueue()
     {
         const EventType eventType = E::GetStaticEventType();
         DispatchQueue(eventType);
     }
 }
 
-#endif // SOGE_CORE_EVENTMANAGER_HPP
+SOGE_DI_REGISTER_MODULE_NS(soge, EventModule)
+
+#endif // SOGE_EVENT_EVENTMODULE_HPP

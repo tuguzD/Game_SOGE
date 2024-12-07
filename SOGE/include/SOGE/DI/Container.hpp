@@ -1,7 +1,7 @@
-#ifndef SOGE_CORE_DI_CONTAINER_HPP
-#define SOGE_CORE_DI_CONTAINER_HPP
+#ifndef SOGE_DI_CONTAINER_HPP
+#define SOGE_DI_CONTAINER_HPP
 
-#include "SOGE/Core/DI/Provider.hpp"
+#include "SOGE/DI/Provider.hpp"
 
 
 namespace soge::di
@@ -33,4 +33,4 @@ namespace soge::di
     }
 }
 
-#endif // SOGE_CORE_DI_CONTAINER_HPP
+#endif // SOGE_DI_CONTAINER_HPP
