@@ -3,7 +3,6 @@
 
 #include "SOGE/Input/Device/Gamepad.hpp"
 #include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
-#include "SOGE/Input/InputTypes.hpp"
 
 
 namespace soge
@@ -11,13 +10,13 @@ namespace soge
     class SDLGamepad final : public Gamepad
     {
     private:
-        SharedPtr<SDLInputCore> m_inputCoreSDL;
+        SDLInputCore* m_inputCoreSDL;
 
     public:
-        explicit SDLGamepad(const SharedPtr<SDLInputCore>& aInputCore);
+        explicit SDLGamepad(SDLInputCore& aInputCore);
     };
 
-    typedef SDLGamepad ImplGamepad;
+    using ImplGamepad = SDLGamepad;
 }
 
 #endif // SOGE_INPUT_IMPL_SDL_SDLGAMEPAD_HPP

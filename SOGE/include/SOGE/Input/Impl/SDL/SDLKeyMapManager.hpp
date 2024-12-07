@@ -6,19 +6,13 @@
 
 namespace soge
 {
-    namespace impl
+    class SDLKeyMapManager final : public KeyMapManager
     {
-        class SDLKeyMapManager final : public KeyMapManagerImpl
-        {
-        public:
-            SDLKeyMapManager() = default;
-            ~SDLKeyMapManager() = default;
+    public:
+        explicit SDLKeyMapManager();
+    };
 
-            void SetupKeyMappings() override;
-        };
-    }
-
-    typedef impl::SDLKeyMapManager ImplKeyMapManager;
+    using ImplKeyMapManager = SDLKeyMapManager;
 }
 
-#endif // !SOGE_INPUT_IMPL_SDL_SDLKEYMAPMANAGER_HPP
+#endif // SOGE_INPUT_IMPL_SDL_SDLKEYMAPMANAGER_HPP

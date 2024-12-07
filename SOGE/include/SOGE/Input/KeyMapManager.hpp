@@ -6,49 +6,25 @@
 
 namespace soge
 {
-    namespace impl
-    {
-        class KeyMapManagerImpl
-        {
-        private:
-            using KeyValuePair = eastl::pair<SGScanCode, const Key>;
-
-            eastl::map<SGScanCode, const Key> m_keyMap;
-
-        protected:
-            void SetScanCode(SGScanCode aScanCode, const Key& aKey);
-
-        public:
-            virtual ~KeyMapManagerImpl() = default;
-
-            virtual void SetupKeyMappings() = 0;
-            SGScanCode GetScanCodeFromKey(const Key& aKey);
-            const Key& GetKeyFromScanCode(SGScanCode aScanCode);
-        };
-    }
-
     class KeyMapManager
     {
     private:
-        SharedPtr<impl::KeyMapManagerImpl> m_keyMapManagerImpl;
+        eastl::map<SGScanCode, Key> m_keyMap;
 
     protected:
-        static SharedPtr<KeyMapManager> s_instance;
-
-        KeyMapManager();
+        void SetScanCode(SGScanCode aScanCode, const Key& aKey);
 
     public:
-        static KeyMapManager* GetInstance();
+        explicit KeyMapManager() = default;
 
-        KeyMapManager(const KeyMapManager&) = delete;
+        explicit KeyMapManager(const KeyMapManager&) = delete;
         KeyMapManager& operator=(const KeyMapManager&) = delete;
 
-        KeyMapManager(KeyMapManager&&) = delete;
-        KeyMapManager& operator=(KeyMapManager&&) = delete;
+        explicit KeyMapManager(KeyMapManager&&) noexcept = default;
+        KeyMapManager& operator=(KeyMapManager&&) noexcept = default;
 
-        ~KeyMapManager() = default;
+        virtual ~KeyMapManager() = default;
 
-        void SetupKeyMappings();
         SGScanCode GetScanCodeFromKey(const Key& aKey);
         const Key& GetKeyFromScanCode(SGScanCode aScanCode);
     };

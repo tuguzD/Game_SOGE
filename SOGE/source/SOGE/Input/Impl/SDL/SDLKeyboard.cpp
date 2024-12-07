@@ -15,14 +15,15 @@
 
 namespace soge
 {
-    SDLKeyboard::SDLKeyboard(const SharedPtr<SDLInputCore>& aInputCore)
-        : Keyboard("SDL Portable Keyboard"), m_inputCoreSDL(aInputCore), m_repeatCounter(0)
+    SDLKeyboard::SDLKeyboard(SDLInputCore& aInputCore)
+        : Keyboard("SDL Portable Keyboard"), m_inputCoreSDL(&aInputCore), m_repeatCounter(0)
     {
     }
 
     void SDLKeyboard::Update()
     {
-        auto& eventManager = Engine::GetInstance()->GetDependencyProvider().Provide<EventModule>();
+        auto& keyMap = *m_inputCoreSDL->m_keyMapManager;
+        auto& events = *m_inputCoreSDL->GetEventModule();
 
         for (const auto& sdlEvent : m_inputCoreSDL->m_sdlEventList)
         {
@@ -33,7 +34,7 @@ namespace soge
                 m_inputCoreSDL->m_isAnyButtonPressed = true;
 
                 const SGScanCode sdlKeyCode = sdlEvent.key.key;
-                const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+                const Key& sogeKey = keyMap.GetKeyFromScanCode(sdlKeyCode);
 
                 KeyDetails* keyDetails = sogeKey.GetDetails();
                 FriendFuncAccessor accessor(KeyDetails::FriendlySetKeyState());
@@ -44,7 +45,7 @@ namespace soge
                 else
                     m_repeatCounter = 0;
 
-                eventManager.Enqueue<KeyPressedEvent>(sogeKey, m_repeatCounter);
+                events.Enqueue<KeyPressedEvent>(sogeKey, m_repeatCounter);
                 break;
             }
 
@@ -52,13 +53,13 @@ namespace soge
                 m_inputCoreSDL->m_isAnyButtonPressed = false;
 
                 const SGScanCode sdlKeyCode = sdlEvent.key.key;
-                const Key& sogeKey = KeyMapManager::GetInstance()->GetKeyFromScanCode(sdlKeyCode);
+                const Key& sogeKey = keyMap.GetKeyFromScanCode(sdlKeyCode);
 
                 KeyDetails* keyDetails = sogeKey.GetDetails();
                 FriendFuncAccessor accessor(KeyDetails::FriendlySetKeyState());
                 accessor.Call(*keyDetails, KeyState_KeyReleased);
 
-                eventManager.Enqueue<KeyReleasedEvent>(sogeKey);
+                events.Enqueue<KeyReleasedEvent>(sogeKey);
                 break;
             }
 
@@ -67,8 +68,8 @@ namespace soge
             }
         }
 
-        eventManager.DispatchQueue<KeyPressedEvent>();
-        eventManager.DispatchQueue<KeyReleasedEvent>();
+        events.DispatchQueue<KeyPressedEvent>();
+        events.DispatchQueue<KeyReleasedEvent>();
     }
 
     bool SDLKeyboard::IsKeyPressed(const Key aKeyName)

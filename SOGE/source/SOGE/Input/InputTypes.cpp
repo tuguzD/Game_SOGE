@@ -1,12 +1,13 @@
 #include "sogepch.hpp"
 
 #include "SOGE/Input/InputTypes.hpp"
-#include "SOGE/Input/KeyMapManager.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
+// clang-format off
 #include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, InputCore.hpp)
 #include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Keyboard.hpp)
 #include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Mouse.hpp)
+// clang-format on
 
 
 namespace soge
@@ -251,8 +252,8 @@ namespace soge
     // KeyDetails class
     ////////////////////////
 
-    KeyDetails::KeyDetails(const Key& aKey, const LWString& aAlternateName, const std::uint32_t aKeyFlags = 0)
-        : m_keyObj(aKey), m_alternateName(aAlternateName), m_keyState(KeyState::KeyState_KeyReleased)
+    KeyDetails::KeyDetails(Key aKey, const LWString& aAlternateName, const std::uint32_t aKeyFlags = 0)
+        : m_keyObj(std::move(aKey)), m_alternateName(aAlternateName), m_keyState(KeyState::KeyState_KeyReleased)
     {
         CommonInit(aKeyFlags);
     }
@@ -308,9 +309,10 @@ namespace soge
 
     void Keys::Initialize()
     {
-        // clang-format off
-        if (s_isInitialized) return;
-        // clang-format on
+        if (s_isInitialized)
+        {
+            return;
+        }
         s_isInitialized = true;
 
         // clang-format off
@@ -449,10 +451,7 @@ namespace soge
         AddKey(KeyDetails(Keys::Dollar, "$"));
         AddKey(KeyDetails(Keys::Exclamation, "!"));
         AddKey(KeyDetails(Keys::Colon, ":"));
-
         // clang-format on
-
-        KeyMapManager::GetInstance();
     }
 
     void Keys::AddKey(const KeyDetails& aKeyDetails)

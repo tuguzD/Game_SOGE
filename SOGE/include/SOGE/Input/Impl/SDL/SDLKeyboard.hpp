@@ -10,18 +10,18 @@ namespace soge
     class SDLKeyboard final : public Keyboard
     {
     private:
-        SharedPtr<SDLInputCore> m_inputCoreSDL;
+        SDLInputCore* m_inputCoreSDL;
         std::uint32_t m_repeatCounter;
 
     public:
-        explicit SDLKeyboard(const SharedPtr<SDLInputCore>& aInputCore);
+        explicit SDLKeyboard(SDLInputCore& aInputCore);
 
         void Update() override;
         bool IsKeyPressed(Key aKeyName) override;
         bool IsKeyReleased(Key aKeyName) override;
     };
 
-    typedef SDLKeyboard ImplKeyboard;
+    using ImplKeyboard = SDLKeyboard;
 }
 
 #endif // SOGE_INPUT_IMPL_SDL_SDLKEYBOARD_HPP

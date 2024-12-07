@@ -8,22 +8,22 @@
 
 namespace soge
 {
-    class SDLInputCore final : public InputCore, public eastl::enable_shared_from_this<SDLInputCore>
+    class SDLInputCore final : public InputCore
     {
     private:
         friend class SDLKeyboard;
         friend class SDLGamepad;
         friend class SDLMouse;
+        friend class SDLKeyMapManager;
+
+        eastl::list<SDL_Event> m_sdlEventList;
 
         bool m_isPauseUpdateRequested;
         bool m_isEndUpdateRequested;
-
-    protected:
-        eastl::list<SDL_Event> m_sdlEventList;
         bool m_isAnyButtonPressed;
 
     public:
-        SDLInputCore();
+        explicit SDLInputCore(EventModule* aEventModule);
 
         void LockInput(bool aLockInput) override;
         void UseRelativeMouseMode(bool aRelMouse) override;
@@ -32,13 +32,9 @@ namespace soge
         void BeginUpdateInput() override;
         void EndUpdateInput() override;
         void SetPauseUpdate(bool aIsPauseNeeded) override;
-
-        Mouse* CreateMouse() override;
-        Gamepad* CreateGamepad() override;
-        Keyboard* CreateKeyboard() override;
     };
 
-    typedef SDLInputCore ImplInputCore;
+    using ImplInputCore = SDLInputCore;
 }
 
 #endif // SOGE_INPUT_IMPL_SDL_SDLINPUTCORE_HPP

@@ -9,7 +9,7 @@
 
 namespace soge
 {
-    void impl::SDLKeyMapManager::SetupKeyMappings()
+    SDLKeyMapManager::SDLKeyMapManager()
     {
         SetScanCode(SDL_BUTTON_LEFT, Keys::LeftMouseButton);
         SetScanCode(SDL_BUTTON_MIDDLE, Keys::MiddleMouseButton);

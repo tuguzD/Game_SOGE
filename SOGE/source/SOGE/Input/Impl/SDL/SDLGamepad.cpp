@@ -5,8 +5,7 @@
 
 namespace soge
 {
-    SDLGamepad::SDLGamepad(const SharedPtr<SDLInputCore>& aInputCore)
-        : Gamepad("SDL Portable Gamepad"), m_inputCoreSDL(aInputCore)
+    SDLGamepad::SDLGamepad(SDLInputCore& aInputCore) : Gamepad("SDL Portable Gamepad"), m_inputCoreSDL(&aInputCore)
     {
     }
 }

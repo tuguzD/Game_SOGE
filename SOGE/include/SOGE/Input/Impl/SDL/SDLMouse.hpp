@@ -11,11 +11,11 @@ namespace soge
     class SDLMouse final : public Mouse
     {
     private:
-        SharedPtr<SDLInputCore> m_inputCoreSDL;
+        SDLInputCore* m_inputCoreSDL;
         std::uint32_t m_repeatCounter;
 
     public:
-        explicit SDLMouse(const SharedPtr<SDLInputCore>& aInputCore);
+        explicit SDLMouse(SDLInputCore& aInputCore);
 
         void Update() override;
 
@@ -23,7 +23,7 @@ namespace soge
         bool IsButtonReleased(Key aMouseButton) override;
     };
 
-    typedef SDLMouse ImplMouse;
+    using ImplMouse = SDLMouse;
 }
 
 #endif // SOGE_INPUT_IMPL_SDL_SDLMOUSE_HPP

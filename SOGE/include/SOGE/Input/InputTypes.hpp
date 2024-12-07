@@ -78,7 +78,7 @@ namespace soge
             // NOLINTEND(readability-identifier-naming) reason: naming errors can occur
         };
 
-        KeyDetails(const Key& aKey, const LWString& aAlternateName, std::uint32_t aKeyFlags);
+        KeyDetails(Key aKey, const LWString& aAlternateName, std::uint32_t aKeyFlags);
 
         bool IsModifierKey() const;
         bool IsGamepadKey() const;

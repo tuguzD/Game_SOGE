@@ -1,5 +1,5 @@
-#ifndef SOGE_INPUT_KEYBOARD_HPP
-#define SOGE_INPUT_KEYBOARD_HPP
+#ifndef SOGE_INPUT_DEVICE_KEYBOARD_HPP
+#define SOGE_INPUT_DEVICE_KEYBOARD_HPP
 
 #include "SOGE/Input/Device/InputDevice.hpp"
 #include "SOGE/Input/InputTypes.hpp"
@@ -18,4 +18,4 @@ namespace soge
     };
 }
 
-#endif // !SOGE_INPUT_KEYBOARD_HPP
+#endif // SOGE_INPUT_DEVICE_KEYBOARD_HPP

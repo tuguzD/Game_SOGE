@@ -22,8 +22,8 @@ namespace soge
     public:
         InputDevice(eastl::string_view aDeviceName, DeviceType aDeviceType);
 
-        explicit InputDevice(const InputDevice&) = default;
-        InputDevice& operator=(const InputDevice&) = default;
+        explicit InputDevice(const InputDevice&) = delete;
+        InputDevice& operator=(const InputDevice&) = delete;
 
         explicit InputDevice(InputDevice&&) noexcept = default;
         InputDevice& operator=(InputDevice&&) noexcept = default;

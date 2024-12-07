@@ -7,10 +7,6 @@
 
 namespace soge
 {
-    class Mouse;
-    class Keyboard;
-    class Gamepad;
-    class InputDevice;
     class InputCore;
 
     class InputModule : public Module
@@ -21,15 +17,10 @@ namespace soge
         EventModule* m_eventModule;
         EventModule::FunctionHandle m_updateEventHandle;
 
-        SharedPtr<Keyboard> m_keyboard;
-        SharedPtr<Mouse> m_mouse;
-
-        eastl::list<SharedPtr<Gamepad>> m_gamepadList;
-        eastl::list<SharedPtr<InputDevice>> m_deviceList;
-        SharedPtr<InputCore> m_inputCore;
+        UniquePtr<InputCore> m_inputCore;
 
     public:
-        InputModule();
+        explicit InputModule();
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
