@@ -14,6 +14,8 @@ namespace soge::di
 
         template <Dependency T, typename... Args>
         void Recreate(Args&&... args);
+
+        void Clear();
     };
 
     template <Dependency T, typename... Args>
@@ -30,6 +32,11 @@ namespace soge::di
         using Service = DependencyDefinition<T>;
 
         m_container.replace<Service>(std::forward<Args>(args)...);
+    }
+
+    inline void Container::Clear()
+    {
+        m_container.clear();
     }
 }
 

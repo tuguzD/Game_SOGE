@@ -86,6 +86,7 @@ namespace soge
         }
         m_isRunning = false;
         m_removedModules.clear();
+        m_container.Clear();
     }
 
     bool Engine::IsRunning() const

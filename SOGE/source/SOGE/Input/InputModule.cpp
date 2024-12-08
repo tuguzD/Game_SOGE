@@ -1,7 +1,10 @@
 #include "sogepch.hpp"
 
-#include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/Input/InputModule.hpp"
+
+#include "SOGE/Core/ModuleManager.hpp"
+#include "SOGE/DI/Container.hpp"
+#include "SOGE/System/Impl/SDL/SDLContext.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 // clang-format off
@@ -22,6 +25,9 @@ namespace soge
         if (m_eventModule)
         {
             m_inputCore = CreateUnique<ImplInputCore>(m_eventModule);
+
+            // TODO: move this into impl input core
+            aContainer.Create<SDLContext>();
         }
 
         SOGE_INFO_LOG("Input module loaded...");
