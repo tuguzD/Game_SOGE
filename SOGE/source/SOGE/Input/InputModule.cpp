@@ -6,11 +6,7 @@
 
 // clang-format off
 #include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, InputCore.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Keyboard.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Gamepad.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Mouse.hpp)
 // clang-format on
-
 
 
 namespace soge
@@ -25,8 +21,6 @@ namespace soge
         m_eventModule = aModuleManager.GetModule<EventModule>();
         if (m_eventModule)
         {
-            auto update = [this](const UpdateEvent&) { this->Update(); };
-            m_updateEventHandle = m_eventModule->PushBack<UpdateEvent>(update);
             m_inputCore = CreateUnique<ImplInputCore>(m_eventModule);
         }
 
@@ -37,8 +31,6 @@ namespace soge
     {
         if (m_eventModule)
         {
-            m_eventModule->Remove(m_updateEventHandle);
-
             m_inputCore.reset();
         }
 

@@ -69,10 +69,12 @@ namespace soge
             Timestep::StartFrame();
             Timestep::CalculateDelta();
 
+            GetModule<InputModule>()->Update();
+
             const auto eventModule = GetModule<EventModule>();
             eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
 
-            for (auto layer : m_renderLayers)
+            for (const auto layer : m_renderLayers)
             {
                 layer->OnUpdate();
             }
