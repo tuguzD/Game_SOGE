@@ -3,7 +3,6 @@
 
 #include "SOGE/Input/Device/Mouse.hpp"
 #include "SOGE/Input/Impl/SDL/SDLInputCore.hpp"
-#include "SOGE/Input/InputTypes.hpp"
 
 
 namespace soge
@@ -11,14 +10,13 @@ namespace soge
     class SDLMouse final : public Mouse
     {
     private:
-        SDLInputCore* m_inputCoreSDL;
+        eastl::reference_wrapper<SDLInputCore> m_inputCoreSDL;
         std::uint32_t m_repeatCounter;
 
     public:
         explicit SDLMouse(SDLInputCore& aInputCore);
 
         void Update() override;
-
     };
 
     using ImplMouse = SDLMouse;
