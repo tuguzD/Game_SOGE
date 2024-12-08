@@ -15,16 +15,17 @@
 namespace soge
 {
     SDLMouse::SDLMouse(SDLInputCore& aInputCore)
-        : Mouse("SDL Portable Mouse"), m_inputCoreSDL(&aInputCore), m_repeatCounter(0)
+        : Mouse("SDL Portable Mouse"), m_inputCoreSDL(aInputCore), m_repeatCounter(0)
     {
     }
 
     void SDLMouse::Update()
     {
-        auto& keyMap = *m_inputCoreSDL->m_keyMapManager;
-        auto& events = *m_inputCoreSDL->GetEventModule();
+        auto& inputCore = m_inputCoreSDL.get();
+        auto& keyMap = *inputCore.m_keyMapManager;
+        auto& events = inputCore.GetEventModule();
 
-        for (const auto& sdlEvent : m_inputCoreSDL->m_sdlEventList)
+        for (const auto& sdlEvent : inputCore.m_sdlEventList)
         {
             switch (sdlEvent.type)
             {

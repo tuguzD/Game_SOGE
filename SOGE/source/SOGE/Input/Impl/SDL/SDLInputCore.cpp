@@ -10,7 +10,7 @@
 
 namespace soge
 {
-    SDLInputCore::SDLInputCore(EventModule* aEventModule)
+    SDLInputCore::SDLInputCore(EventModule& aEventModule, SDLContext&)
         : InputCore(aEventModule), m_isPauseUpdateRequested(false), m_isEndUpdateRequested(false),
           m_isAnyButtonPressed(false)
     {

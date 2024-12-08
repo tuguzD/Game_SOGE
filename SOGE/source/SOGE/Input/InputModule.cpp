@@ -4,7 +4,6 @@
 
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
-#include "SOGE/System/Impl/SDL/SDLContext.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 // clang-format off
@@ -14,31 +13,22 @@
 
 namespace soge
 {
-    InputModule::InputModule() : m_eventModule(nullptr)
+    InputModule::InputModule() : m_inputCore(nullptr)
     {
         Keys::Initialize();
     }
 
     void InputModule::Load(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        m_eventModule = aModuleManager.GetModule<EventModule>();
-        if (m_eventModule)
-        {
-            m_inputCore = CreateUnique<ImplInputCore>(m_eventModule);
-
-            // TODO: move this into impl input core
-            aContainer.Create<SDLContext>();
-        }
+        aModuleManager.CreateModule<EventModule>();
+        m_inputCore = &aContainer.Provide<ImplInputCore>();
 
         SOGE_INFO_LOG("Input module loaded...");
     }
 
     void InputModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        if (m_eventModule)
-        {
-            m_inputCore.reset();
-        }
+        m_inputCore = nullptr;
 
         SOGE_INFO_LOG("Input module unloaded...");
     }

@@ -10,7 +10,7 @@ namespace soge
     class SDLGamepad final : public Gamepad
     {
     private:
-        SDLInputCore* m_inputCoreSDL;
+        eastl::reference_wrapper<SDLInputCore> m_inputCoreSDL;
 
     public:
         explicit SDLGamepad(SDLInputCore& aInputCore);

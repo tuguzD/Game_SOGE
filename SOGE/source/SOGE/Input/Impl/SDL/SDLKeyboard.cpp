@@ -16,22 +16,23 @@
 namespace soge
 {
     SDLKeyboard::SDLKeyboard(SDLInputCore& aInputCore)
-        : Keyboard("SDL Portable Keyboard"), m_inputCoreSDL(&aInputCore), m_repeatCounter(0)
+        : Keyboard("SDL Portable Keyboard"), m_inputCoreSDL(aInputCore), m_repeatCounter(0)
     {
     }
 
     void SDLKeyboard::Update()
     {
-        auto& keyMap = *m_inputCoreSDL->m_keyMapManager;
-        auto& events = *m_inputCoreSDL->GetEventModule();
+        auto& inputCore = m_inputCoreSDL.get();
+        auto& keyMap = *inputCore.m_keyMapManager;
+        auto& events = inputCore.GetEventModule();
 
-        for (const auto& sdlEvent : m_inputCoreSDL->m_sdlEventList)
+        for (const auto& sdlEvent : inputCore.m_sdlEventList)
         {
             switch (sdlEvent.type)
             {
 
             case SDL_EVENT_KEY_DOWN: {
-                m_inputCoreSDL->m_isAnyButtonPressed = true;
+                inputCore.m_isAnyButtonPressed = true;
 
                 const SGScanCode sdlKeyCode = sdlEvent.key.key;
                 const Key& sogeKey = keyMap.GetKeyFromScanCode(sdlKeyCode);
@@ -50,7 +51,7 @@ namespace soge
             }
 
             case SDL_EVENT_KEY_UP: {
-                m_inputCoreSDL->m_isAnyButtonPressed = false;
+                inputCore.m_isAnyButtonPressed = false;
 
                 const SGScanCode sdlKeyCode = sdlEvent.key.key;
                 const Key& sogeKey = keyMap.GetKeyFromScanCode(sdlKeyCode);
