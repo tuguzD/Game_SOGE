@@ -83,13 +83,4 @@ namespace soge
         events.DispatchQueue<MouseWheelEvent>();
     }
 
-    bool SDLMouse::IsButtonPressed(const Key aMouseButton)
-    {
-        return aMouseButton.GetKeyState() == KeyState_KeyPressed;
-    }
-
-    bool SDLMouse::IsButtonReleased(const Key aMouseButton)
-    {
-        return aMouseButton.GetKeyState() != KeyState_KeyPressed;
-    }
 }

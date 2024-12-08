@@ -17,8 +17,7 @@ namespace soge
         explicit SDLKeyboard(SDLInputCore& aInputCore);
 
         void Update() override;
-        bool IsKeyPressed(Key aKeyName) override;
-        bool IsKeyReleased(Key aKeyName) override;
+
     };
 
     using ImplKeyboard = SDLKeyboard;

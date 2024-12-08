@@ -13,8 +13,7 @@ namespace soge
         explicit Mouse(eastl::string_view aMouseName);
 
         virtual void Update() = 0;
-        virtual bool IsButtonPressed(Key aMouseButton) = 0;
-        virtual bool IsButtonReleased(Key aMouseButton) = 0;
+
     };
 }
 

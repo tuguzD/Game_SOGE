@@ -32,6 +32,14 @@ namespace soge
         void BeginUpdateInput() override;
         void EndUpdateInput() override;
         void SetPauseUpdate(bool aIsPauseNeeded) override;
+
+        bool IsKeyPressed(const Key& aKey) const override;
+        bool IsKeyReleased(const Key& aKey) const override;
+
+        Keyboard* GetKeyboard() const override;
+        Gamepad* GetGamepad() const override;
+        Mouse* GetMouse() const override;
+
     };
 
     using ImplInputCore = SDLInputCore;

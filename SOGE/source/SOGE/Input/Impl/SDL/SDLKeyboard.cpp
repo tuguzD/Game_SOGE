@@ -71,14 +71,4 @@ namespace soge
         events.DispatchQueue<KeyPressedEvent>();
         events.DispatchQueue<KeyReleasedEvent>();
     }
-
-    bool SDLKeyboard::IsKeyPressed(const Key aKeyName)
-    {
-        return aKeyName.GetKeyState() == KeyState_KeyPressed;
-    }
-
-    bool SDLKeyboard::IsKeyReleased(const Key aKeyName)
-    {
-        return aKeyName.GetKeyState() != KeyState_KeyPressed;
-    }
 }

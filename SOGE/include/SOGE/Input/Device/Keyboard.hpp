@@ -13,8 +13,7 @@ namespace soge
         explicit Keyboard(eastl::string_view aKeyboardName);
 
         virtual void Update() = 0;
-        virtual bool IsKeyPressed(Key aKeyName) = 0;
-        virtual bool IsKeyReleased(Key aKeyName) = 0;
+
     };
 }
 

@@ -3,9 +3,10 @@
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
+#include "GAME/Layers/MainGameLayer.hpp"
 
 
-namespace game
+namespace soge_game
 {
     Game::Game()
     {
@@ -13,27 +14,28 @@ namespace game
 
         auto& eventManager = GetDependencyProvider().Provide<soge::EventModule>();
 
-        eventManager.PushBack<soge::KeyPressedEvent>([](const soge::KeyPressedEvent& aEvent) {
-            SOGE_APP_INFO_LOG(R"(Key "{}" pressed {} times)", aEvent.GetKey().ToCString(), aEvent.GetRepeatCount());
-        });
-        eventManager.PushBack<soge::KeyReleasedEvent>([](const soge::KeyReleasedEvent& aEvent) {
-            SOGE_APP_INFO_LOG(R"(Key "{}" released)", aEvent.GetKey().ToCString());
-        });
+        //eventManager.PushBack<soge::KeyPressedEvent>([](const soge::KeyPressedEvent& aEvent) {
+        //    SOGE_APP_INFO_LOG(R"(Key "{}" pressed {} times)", aEvent.GetKey().ToCString(), aEvent.GetRepeatCount());
+        //});
+        //eventManager.PushBack<soge::KeyReleasedEvent>([](const soge::KeyReleasedEvent& aEvent) {
+        //    SOGE_APP_INFO_LOG(R"(Key "{}" released)", aEvent.GetKey().ToCString());
+        //});
 
-        eventManager.PushBack<soge::MouseButtonPressedEvent>([](const soge::MouseButtonPressedEvent& aEvent) {
-            const auto key = aEvent.GetKey();
-            SOGE_APP_INFO_LOG(R"(Mouse button "{}" pressed {} times)", key.ToCString(), aEvent.GetRepeatCount());
-        });
-        eventManager.PushBack<soge::MouseButtonReleasedEvent>([](const soge::MouseButtonReleasedEvent& aEvent) {
-            SOGE_APP_INFO_LOG(R"(Mouse button "{}" released)", aEvent.GetKey().ToCString());
-        });
+        //eventManager.PushBack<soge::MouseButtonPressedEvent>([](const soge::MouseButtonPressedEvent& aEvent) {
+        //    const auto key = aEvent.GetKey();
+        //    SOGE_APP_INFO_LOG(R"(Mouse button "{}" pressed {} times)", key.ToCString(), aEvent.GetRepeatCount());
+        //});
+        //eventManager.PushBack<soge::MouseButtonReleasedEvent>([](const soge::MouseButtonReleasedEvent& aEvent) {
+        //    SOGE_APP_INFO_LOG(R"(Mouse button "{}" released)", aEvent.GetKey().ToCString());
+        //});
 
-        eventManager.PushBack<soge::MouseMovedEvent>([](const soge::MouseMovedEvent& aEvent) {
-            SOGE_APP_INFO_LOG(R"(Mouse position is ({}, {}))", aEvent.GetRelativeX(), aEvent.GetRelativeY());
-        });
-        eventManager.PushBack<soge::MouseWheelEvent>([](const soge::MouseWheelEvent& aEvent) {
-            SOGE_APP_INFO_LOG(R"(Mouse wheel changed by ({}, {}))", aEvent.GetXOffset(), aEvent.GetYOffset());
-        });
+        //eventManager.PushBack<soge::MouseMovedEvent>([](const soge::MouseMovedEvent& aEvent) {
+        //    SOGE_APP_INFO_LOG(R"(Mouse position is ({}, {}))", aEvent.GetRelativeX(), aEvent.GetRelativeY());
+        //});
+        //eventManager.PushBack<soge::MouseWheelEvent>([](const soge::MouseWheelEvent& aEvent) {
+        //    SOGE_APP_INFO_LOG(R"(Mouse wheel changed by ({}, {}))", aEvent.GetXOffset(), aEvent.GetYOffset());
+        //});
+        parentClass::PushLayer(new MainGameLayer());
     }
 
     Game::~Game()
@@ -46,5 +48,5 @@ namespace game
 
 soge::Engine* soge::CreateApplication()
 {
-    return Engine::Reset<game::Game>();
+    return Engine::Reset<soge_game::Game>();
 }

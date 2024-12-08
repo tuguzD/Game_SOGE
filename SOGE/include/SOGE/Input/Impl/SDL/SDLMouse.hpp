@@ -19,8 +19,6 @@ namespace soge
 
         void Update() override;
 
-        bool IsButtonPressed(Key aMouseButton) override;
-        bool IsButtonReleased(Key aMouseButton) override;
     };
 
     using ImplMouse = SDLMouse;
