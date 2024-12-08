@@ -26,13 +26,14 @@ namespace soge
 
     public:
         explicit InputCore(EventModule& aEventModule) noexcept;
-        constexpr virtual ~InputCore() noexcept = default;
 
         constexpr explicit InputCore(const InputCore&) noexcept = delete;
         constexpr InputCore& operator=(const InputCore&) noexcept = delete;
 
         constexpr explicit InputCore(InputCore&&) noexcept = default;
         constexpr InputCore& operator=(InputCore&&) noexcept = default;
+
+        constexpr virtual ~InputCore() noexcept = default;
 
         virtual void LockInput(bool aLockInput) = 0;
         virtual void UseRelativeMouseMode(bool aLockMouse) = 0;
