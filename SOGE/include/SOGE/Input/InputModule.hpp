@@ -2,11 +2,11 @@
 #define SOGE_INPUT_INPUTMODULE_HPP
 
 #include "SOGE/Event/EventModule.hpp"
-#include "SOGE/System/Memory.hpp"
-#include "SOGE/Input/InputCore.hpp"
-#include "SOGE/Input/Device/Keyboard.hpp"
 #include "SOGE/Input/Device/Gamepad.hpp"
+#include "SOGE/Input/Device/Keyboard.hpp"
 #include "SOGE/Input/Device/Mouse.hpp"
+#include "SOGE/Input/InputCore.hpp"
+#include "SOGE/System/Memory.hpp"
 
 
 namespace soge
@@ -14,10 +14,7 @@ namespace soge
     class InputModule : public Module
     {
     private:
-        void Update() const;
-
         EventModule* m_eventModule;
-        EventModule::FunctionHandle m_updateEventHandle;
 
         UniquePtr<InputCore> m_inputCore;
 
@@ -34,6 +31,7 @@ namespace soge
         Gamepad* GetGamepad() const;
         Mouse* GetMouse() const;
 
+        void Update() const;
     };
 }
 

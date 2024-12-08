@@ -7,24 +7,31 @@
 
 #include <EASTL/hash_map.h>
 #include <EASTL/list.h>
+#include <typeindex>
 
+
+template <>
+struct eastl::hash<std::type_index>
+{
+    std::size_t operator()(const std::type_index& aIndex) const
+    {
+        constexpr std::hash<std::type_index> hash;
+        return hash(aIndex);
+    }
+};
 
 namespace soge
 {
     class ModuleManager
     {
     private:
-        template <typename T>
-        static constexpr void TypeKey() noexcept
-        {
-        }
-        using TypeKeyPtr = std::add_pointer_t<constexpr void() noexcept>;
+        using Key = std::type_index;
         using UniqueModule = UniquePtr<Module>;
 
-        using Modules = eastl::hash_map<TypeKeyPtr, UniqueModule>;
+        using Modules = eastl::hash_map<Key, UniqueModule>;
         Modules m_modules;
 
-        using ModulesOrder = eastl::list<TypeKeyPtr>;
+        using ModulesOrder = eastl::list<Key>;
         ModulesOrder m_modulesOrder;
 
     public:
@@ -56,7 +63,8 @@ namespace soge
     template <DerivedFromModule T, typename... Args>
     eastl::pair<T&, bool> ModuleManager::CreateModule(Args&&... args)
     {
-        const auto key = TypeKey<T>;
+        const Key key = typeid(T);
+
         LazyConvertInvoke lazyModule(
             [&args...]() -> UniqueModule { return CreateUnique<T>(std::forward<Args>(args)...); });
 
@@ -72,13 +80,13 @@ namespace soge
     template <DerivedFromModule T, typename... Args>
     eastl::pair<T&, UniquePtr<T>> ModuleManager::RecreateModule(Args&&... args)
     {
-        const auto key = TypeKey<T>;
+        const Key key = typeid(T);
 
         UniquePtr<T> oldModule;
         UniquePtr<T> newModule = CreateUnique<T>(std::forward<Args>(args)...);
         T* newModulePtr = newModule.get();
 
-        if (auto iter = m_modules.find(key); iter != m_modules.end())
+        if (const auto iter = m_modules.find(key); iter != m_modules.end())
         {
             oldModule.reset(dynamic_cast<T*>(iter->second.release()));
             iter->second = std::move(newModule);
@@ -95,8 +103,9 @@ namespace soge
     template <DerivedFromModule T>
     UniquePtr<T> ModuleManager::RemoveModule()
     {
-        const auto key = TypeKey<T>;
-        auto iter = m_modules.find(key);
+        const Key key = typeid(T);
+
+        const auto iter = m_modules.find(key);
         if (iter == m_modules.end())
         {
             return UniquePtr<T>{};
@@ -113,8 +122,9 @@ namespace soge
     template <DerivedFromModule T>
     T* ModuleManager::GetModule() const
     {
-        const auto key = TypeKey<T>;
-        auto iter = m_modules.find(key);
+        const Key key = typeid(T);
+
+        const auto iter = m_modules.find(key);
         if (iter == m_modules.end())
         {
             return nullptr;
