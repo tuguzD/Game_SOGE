@@ -71,6 +71,11 @@ namespace soge
 
             const auto eventModule = GetModule<EventModule>();
             eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
+
+            for (auto layer : m_renderLayers)
+            {
+                layer->OnUpdate();
+            }
         }
 
         for (Module& module : m_moduleManager | std::views::reverse)
@@ -89,6 +94,18 @@ namespace soge
     void Engine::RequestShutdown()
     {
         m_shutdownRequested = true;
+    }
+
+    void Engine::PushLayer(Layer* aLayer)
+    {
+        m_renderLayers.PushLayer(aLayer);
+        aLayer->OnAttach();
+    }
+
+    void Engine::PushOverlay(Layer* aOverlayLayer)
+    {
+        m_renderLayers.PushOverlay(aOverlayLayer);
+        aOverlayLayer->OnAttach();
     }
 
     di::Container& Engine::GetDependencyContainer()

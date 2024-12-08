@@ -42,6 +42,14 @@ namespace soge
         virtual void BeginUpdateInput() = 0;
         virtual void EndUpdateInput() = 0;
         virtual void SetPauseUpdate(bool aIsPauseNeeded) = 0;
+
+        virtual bool IsKeyPressed(const Key& aKey) const = 0;
+        virtual bool IsKeyReleased(const Key& aKey) const = 0;
+
+        virtual Keyboard* GetKeyboard() const   = 0;
+        virtual Gamepad* GetGamepad() const     = 0;
+        virtual Mouse* GetMouse() const         = 0;
+
     };
 
     constexpr InputCore::InputCore(EventModule* aEventModule) noexcept : m_eventModule(aEventModule)

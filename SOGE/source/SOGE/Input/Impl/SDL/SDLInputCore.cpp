@@ -68,4 +68,29 @@ namespace soge
     {
         m_isPauseUpdateRequested = aIsPauseNeeded;
     }
+
+    bool SDLInputCore::IsKeyPressed(const Key& aKey) const
+    {
+        return aKey.GetKeyState() == KeyState_KeyPressed;
+    }
+
+    bool SDLInputCore::IsKeyReleased(const Key& aKey) const
+    {
+        return aKey.GetKeyState() != KeyState_KeyPressed;
+    }
+
+    Keyboard* SDLInputCore::GetKeyboard() const
+    {
+        return m_keyboard.get();
+    }
+
+    Gamepad* SDLInputCore::GetGamepad() const
+    {
+        return m_gamepad.get();
+    }
+
+    Mouse* SDLInputCore::GetMouse() const
+    {
+        return m_mouse.get();
+    }
 }

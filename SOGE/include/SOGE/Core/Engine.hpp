@@ -5,6 +5,7 @@
 #include "SOGE/DI/Container.hpp"
 #include "SOGE/System/Memory.hpp"
 #include "SOGE/System/Window.hpp"
+#include "SOGE/Core/LayerStack.hpp"
 
 
 namespace soge
@@ -20,6 +21,7 @@ namespace soge
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
 
+        LayerStack m_renderLayers;
         bool m_isRunning;
         bool m_shutdownRequested;
 
@@ -72,6 +74,9 @@ namespace soge
         template <DerivedFromModule T>
         [[nodiscard]]
         T* GetModule() const;
+
+        void PushLayer(Layer* aLayer);
+        void PushOverlay(Layer* aOverlayLayer);
     };
 
     template <DerivedFromEngine T, typename... Args>
