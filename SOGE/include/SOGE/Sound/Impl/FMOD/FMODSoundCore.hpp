@@ -5,20 +5,26 @@
 #include "SOGE/Utils/UUID.hpp"
 
 #include <FMOD/fmod.hpp>
-#include <FMODStudio/fmod_studio.hpp>
+#include <FMOD/fmod_studio.hpp>
 
 
 namespace soge
 {
+    struct FMODConfig
+    {
+        const float DISTANCE_FACTOR             = 1.0f;
+        const unsigned int MAX_AUDIO_CHANNELS   = 255;
+        const int AUDIO_SAMPLE_RATE             = 44100;
+    };
+
     class FMODSoundCore : public SoundCore
     {
     private:
         FMOD::Studio::System* m_fmodStudioSystem;
         FMOD::System* m_fmodSystem;
         FMOD::ChannelGroup* m_masterGroup;
-        int m_maxAudioChannels = 1024;
+        FMODConfig m_config;
 
-        float m_distanceFactor;
         FMOD_VECTOR m_listenerHeadPosition;
         FMOD_VECTOR m_listenerForwardVector;
         FMOD_VECTOR m_listenerUpVector;

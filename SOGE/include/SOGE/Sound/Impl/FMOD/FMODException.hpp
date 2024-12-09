@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <FMOD/fmod.hpp>
+#include <FMOD/fmod_errors.h>
 
 
 namespace soge

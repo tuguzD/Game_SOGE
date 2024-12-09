@@ -11,7 +11,7 @@ namespace soge
     const char* FMODException::what() const noexcept
     {
         static char s_str[64] = {};
-        sprintf_s(s_str, "Failure with FMOD error code %d", static_cast<unsigned int>(m_fmodResult));
+        sprintf_s(s_str, FMOD_ErrorString(m_fmodResult));
         return s_str;
     }
 }

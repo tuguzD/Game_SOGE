@@ -51,10 +51,7 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_FSBANK}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_STUDIO}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}/FMOD" -- For FMOD Studio
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}"
         }
 
         defines
@@ -192,10 +189,7 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_FSBANK}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_STUDIO}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}/FMOD" -- For FMOD Studio
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}"
         }
 
         links

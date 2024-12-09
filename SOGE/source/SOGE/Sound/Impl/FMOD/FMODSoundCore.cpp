@@ -2,25 +2,33 @@
 #include "SOGE/Sound/Impl/FMOD/FMODSoundCore.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODException.hpp"
 
+#ifdef SOGE_WINDOWS
+#include <combaseapi.h>
+#endif
+
 
 namespace soge
 {
     FMODSoundCore::FMODSoundCore(EventModule* aEventModule)
         : SoundCore(aEventModule), m_fmodStudioSystem(nullptr), m_fmodSystem(nullptr)
     {
-        m_distanceFactor = 1.0f;
+        #ifdef SOGE_WINDOWS
+        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+        #endif
 
-        FMODThrowIfFailed(FMOD::Studio::System::create(&m_fmodStudioSystem));
-        FMODThrowIfFailed(m_fmodStudioSystem->getCoreSystem(&m_fmodSystem));
-        FMODThrowIfFailed(m_fmodSystem->set3DSettings(1.0f, m_distanceFactor, 0.5f));
-        FMODThrowIfFailed(m_fmodSystem->setSoftwareFormat(1024, FMOD_SPEAKERMODE_STEREO, 0));
-        FMODThrowIfFailed(m_fmodSystem->getMasterChannelGroup(&m_masterGroup));
+        FMOD::Studio::System::create(&m_fmodStudioSystem);
+        m_fmodStudioSystem->getCoreSystem(&m_fmodSystem);
+        m_fmodSystem->setSoftwareFormat(m_config.AUDIO_SAMPLE_RATE, FMOD_SPEAKERMODE_STEREO, 0);
+        m_fmodSystem->set3DSettings(1.0f, m_config.DISTANCE_FACTOR, 0.5f);
 
-        FMODThrowIfFailed(m_fmodStudioSystem->initialize(m_maxAudioChannels, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0));
+        m_fmodStudioSystem->initialize(m_config.MAX_AUDIO_CHANNELS, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr);
+        m_fmodSystem->getMasterChannelGroup(&m_masterGroup);
     }
 
     FMODSoundCore::~FMODSoundCore()
     {
+        m_fmodSystem->close();
+        m_fmodStudioSystem->release();
     }
 
     void FMODSoundCore::BeginUpdateSound()
@@ -60,7 +68,7 @@ namespace soge
 
             FMODThrowIfFailed(m_fmodSystem->createSound(aSoundResource.GetFullPath().c_str(), _3dMode, nullptr, &sound));
             FMODThrowIfFailed(sound->setMode(loopFlag));
-            FMODThrowIfFailed(sound->set3DMinMaxDistance(0.5f * m_distanceFactor, 5000.0f * m_distanceFactor));
+            FMODThrowIfFailed(sound->set3DMinMaxDistance(0.5f * m_config.DISTANCE_FACTOR, 5000.0f * m_config.DISTANCE_FACTOR));
 
         }
     }
