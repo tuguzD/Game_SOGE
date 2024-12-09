@@ -4,10 +4,11 @@
 
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
-#include "SOGE/Utils/PreprocessorHelpers.hpp"
+#include "SOGE/Input/InputCompilePreproc.hpp"
+
 
 // clang-format off
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, InputCore.hpp)
+#include SOGE_ABS_COMPILED_INPUTSYSTEM_HEADER(SOGE/Input, InputCore.hpp)
 // clang-format on
 
 
