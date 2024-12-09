@@ -43,7 +43,7 @@ namespace soge
 
         CreateModule<EventModule>();
         CreateModule<InputModule>();
-        CreateModule<SoundModule>();
+        //CreateModule<SoundModule>();
         CreateModule<WindowModule>();
     }
 

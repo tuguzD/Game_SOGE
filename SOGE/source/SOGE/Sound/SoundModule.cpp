@@ -3,7 +3,7 @@
 #include "SOGE/Sound/SoundModule.hpp"
 #include "SOGE/Sound/SoundCompilePreproc.hpp"
 
-#include SOGE_ABS_COMPILED_SOUNDSYSTEM_HEADER(SOGE/Sound, SoundCore.hpp);
+#include SOGE_ABS_COMPILED_SOUNDSYSTEM_IMPL_HEADER(SOGE/Sound, SoundCore.hpp);
 
 
 namespace soge

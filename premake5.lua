@@ -63,6 +63,7 @@ workspace "SOGE"
             "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
 
             "SOGE_INPUT_IMPL=SDL", -- SDL
+            "SOGE_WINDOW_IMPL=SDL",
             "SOGE_SOUND_IMPL=FMOD" -- FMOD/OAL
         }
 
