@@ -19,6 +19,7 @@ workspace "SOGE"
 
         include "3rdparty/SDL/premake5.lua"
         include "3rdparty/NRI/premake5.lua"
+        include "3rdparty/NVRHI/premake5.lua"
     group ""
 
     project "SOGE"
@@ -52,7 +53,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
         }
 
         defines
@@ -105,7 +107,14 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.NRI_VK_D}",
                 "%{wks.location}/%{Libraries.NRI_D}",
                 "%{wks.location}/%{Libraries.NRI_DLL_D}",
-                "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D}"
+                "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D}",
+
+                -- NVRHI
+
+                "%{wks.location}/%{Libraries.NVRHI_D3D11_D}",
+                "%{wks.location}/%{Libraries.NVRHI_D3D12_D}",
+                "%{wks.location}/%{Libraries.NVRHI_VK_D}",
+                "%{wks.location}/%{Libraries.NVRHI_D}"
             }
 
             postbuildcommands
@@ -139,7 +148,14 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.NRI_VK_R}",
                 "%{wks.location}/%{Libraries.NRI_R}",
                 "%{wks.location}/%{Libraries.NRI_DLL_R}",
-                "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R}"
+                "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R}",
+
+                -- NVRHI
+
+                "%{wks.location}/%{Libraries.NVRHI_D3D11_R}",
+                "%{wks.location}/%{Libraries.NVRHI_D3D12_R}",
+                "%{wks.location}/%{Libraries.NVRHI_VK_R}",
+                "%{wks.location}/%{Libraries.NVRHI_R}"
             }
 
             postbuildcommands
@@ -184,7 +200,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
         }
 
         links

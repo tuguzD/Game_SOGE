@@ -8,6 +8,7 @@
 #include "SOGE/Window/WindowModule.hpp"
 
 #include <ranges>
+#include <nvrhi/nvrhi.h>
 
 #undef CreateWindow
 
@@ -39,6 +40,9 @@ namespace soge
     Engine::Engine() : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
+
+        nvrhi::Color a = {1, 1, 1, 1};
+        SOGE_INFO_LOG("Color: {}", a.a);
 
         CreateModule<EventModule>();
         CreateModule<InputModule>();

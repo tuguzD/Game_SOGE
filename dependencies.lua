@@ -10,6 +10,7 @@ IncludeThirdpartyDirs["eventpp"] = "3rdparty/eventpp/eventpp/include"
 IncludeThirdpartyDirs["kangaru"] = "3rdparty/kangaru/kangaru/include"
 IncludeThirdpartyDirs["SDL3"] = "3rdparty/SDL/SDL/include"
 IncludeThirdpartyDirs["NRI"] = "3rdparty/NRI/NRI/Include"
+IncludeThirdpartyDirs["NVRHI"] = "3rdparty/NVRHI/NVRHI/include"
 
 -- Include libs
 Libraries = {}
@@ -42,3 +43,15 @@ Libraries["NRI_VK_R"] = "3rdparty/NRI/lib/Frameworks/Release/NRI_VK.lib"
 Libraries["NRI_R"] = "3rdparty/NRI/lib/NRI/Release/NRI.lib"
 Libraries["NRI_DLL_R"] = "3rdparty/NRI/lib/NRI/Release/NRI.dll"
 Libraries["NRI_AMDAGS_DLL_R"] = "3rdparty/NRI/lib/NRI/Release/amd_ags_x64.dll"
+
+-- NVRHI
+
+Libraries["NVRHI_D3D11_D"] = "3rdparty/NVRHI/lib/Debug/nvrhi_d3d11.lib"
+Libraries["NVRHI_D3D12_D"] = "3rdparty/NVRHI/lib/Debug/nvrhi_d3d12.lib"
+Libraries["NVRHI_VK_D"] = "3rdparty/NVRHI/lib/Debug/nvrhi_vk.lib"
+Libraries["NVRHI_D"] = "3rdparty/NVRHI/lib/Debug/nvrhi.lib"
+
+Libraries["NVRHI_D3D11_R"] = "3rdparty/NVRHI/lib/Release/nvrhi_d3d11.lib"
+Libraries["NVRHI_D3D12_R"] = "3rdparty/NVRHI/lib/Release/nvrhi_d3d12.lib"
+Libraries["NVRHI_VK_R"] = "3rdparty/NVRHI/lib/Release/nvrhi_vk.lib"
+Libraries["NVRHI_R"] = "3rdparty/NVRHI/lib/Release/nvrhi.lib"
