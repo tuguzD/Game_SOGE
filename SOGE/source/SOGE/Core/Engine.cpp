@@ -6,6 +6,7 @@
 #include "SOGE/Input/InputModule.hpp"
 #include "SOGE/Utils/StringHelpers.hpp"
 #include "SOGE/Window/WindowModule.hpp"
+#include "SOGE/Graphics/GraphicsModule.hpp"
 
 #include <ranges>
 
@@ -43,6 +44,8 @@ namespace soge
         CreateModule<EventModule>();
         CreateModule<InputModule>();
         CreateModule<WindowModule>();
+        CreateModule<GraphicsModule>();
+
     }
 
     Engine::~Engine()

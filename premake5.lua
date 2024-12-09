@@ -64,7 +64,8 @@ workspace "SOGE"
 
             "SOGE_INPUT_IMPL=SDL",
             "SOGE_WINDOW_IMPL=SDL",
-            "SOGE_SYSTEM_IMPL=SDL"
+            "SOGE_SYSTEM_IMPL=SDL",
+            "SOGE_GRAPHICS_IMPL=NVDA"
         }
 
         links
