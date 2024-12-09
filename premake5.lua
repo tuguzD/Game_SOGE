@@ -56,6 +56,7 @@ workspace "SOGE"
             "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
 
             "SOGE_INPUT_IMPL=SDL",
+            "SOGE_WINDOW_IMPL=SDL",
             "SOGE_SYSTEM_IMPL=SDL"
         }
 
