@@ -2,9 +2,10 @@
 #define SOGE_SOUND_IMPL_FMOD_FMODSOUNDCORE_HPP
 
 #include "SOGE/Sound/SoundCore.hpp"
-#include "SOGE/System/Memory.hpp"
+#include "SOGE/Utils/UUID.hpp"
 
 #include <FMOD/fmod.hpp>
+#include <FMODStudio/fmod_studio.hpp>
 
 
 namespace soge
@@ -12,20 +13,47 @@ namespace soge
     class FMODSoundCore : public SoundCore
     {
     private:
-        SharedPtr<FMOD::System> m_fmodSystem;
+        FMOD::System* m_fmodSystem;
+        FMOD::ChannelGroup* m_masterGroup;
+        FMOD::Studio::System* m_fmodStudioSystem;
+        int m_maxAudioChannels = 1024;
+
+        float m_distanceFactor;
+        FMOD_VECTOR m_listenerHeadPosition;
+        FMOD_VECTOR m_listenerForwardVector;
+        FMOD_VECTOR m_listenerUpVector;
+
+        eastl::map<UUID, FMOD::Sound*> m_sounds;
+        eastl::map<UUID, FMOD::Channel*> m_loopsPlaying;
+
 
     public:
-        explicit FMODSoundCore(EventModule* aEventModule);
+        FMODSoundCore(EventModule* aEventModule);
+        ~FMODSoundCore();
 
-        virtual void BeginUpdateSound() override;
-        virtual void EndUpdateSound() override;
-        virtual void SetPauseUpdate() override;
+        void BeginUpdateSound() override;
+        void EndUpdateSound() override;
+        void SetPauseUpdate(float aPauseRequested) override;
 
-        void SetVolume(float aVolume) override;
+        void Set3DListenerPosition(float aPosX,     float aPosY,     float aPosZ,
+                                   float aForwardX, float aForwardY, float aForwardZ,
+                                   float aUpX,      float aUpY,      float aUpZ) override;
+
+        void LoadSoundResource(const SoundResource& aSoundResource) override;
+        void UnloadSoundResource(const SoundResource& aSoundResource) override;
+        void ReloadSoundResource(const SoundResource& aSoundResource) override;
+
+        void PlaySoundResource(const SoundResource& aSoundResource) override;
+        void StopSoundResource(const SoundResource& aSoundResource) override;
+
+        bool IsSoundPlaying(const SoundResource& aSoundResource) override;
+
+        void SetVolume(float aVolume);
+        float GetVolume() const override;
 
     };
 
     using ImplSoundCore = FMODSoundCore;
 }
 
-#endif // SOGE_SOUND_IMPL_FMOD_FMODSOUNDCORE_HPP
+#endif // !SOGE_SOUND_IMPL_FMOD_FMODSOUNDCORE_HPP

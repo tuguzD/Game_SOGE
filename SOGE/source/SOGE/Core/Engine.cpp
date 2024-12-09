@@ -4,6 +4,7 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
+#include "SOGE/Sound/SoundModule.hpp"
 
 #include <ranges>
 
@@ -38,6 +39,7 @@ namespace soge
 
         CreateModule<EventModule>();
         CreateModule<InputModule>();
+        CreateModule<SoundModule>();
 
         m_systemWindow = UniquePtr<Window>(Window::Create());
     }

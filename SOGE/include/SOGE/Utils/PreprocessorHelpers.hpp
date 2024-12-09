@@ -29,15 +29,20 @@
 //////////////////////////////////
 
 // clang-format off
+#define SOGE_REL_COMPILED_IMPL_HEADER_BASE(Libname, Suffix)                                                             \
+    UE_STRINGIZE(UE_JOIN(Impl/Libname/Libname, Suffix))
+#define SOGE_ABS_COMPILED_IMPL_HEADER_BASE(Libname, IncludeDir, Suffix)                                                 \
+    UE_STRINGIZE(UE_JOIN(IncludeDir, /UE_JOIN(Impl/Libname/Libname, Suffix)))
+
 #define REL_COMPILED_PLATFORM_HEADER(Suffix)                                                                           \
     UE_STRINGIZE(UE_JOIN(Platform/PLATFORM_HEADER_NAME/PLATFORM_HEADER_NAME, Suffix))
 #define ABS_COMPILED_PLATFORM_HEADER(IncludeDir, Suffix)                                                               \
     UE_STRINGIZE(UE_JOIN(IncludeDir, /UE_JOIN(PLATFORM_HEADER_NAME, Suffix)))
 
-#define SG_REL_COMPILED_IMPL_HEADER(Suffix)                                                                            \
-    UE_STRINGIZE(UE_JOIN(Impl/SOGE_INPUT_IMPL/SOGE_INPUT_IMPL, Suffix))
-#define SG_ABS_COMPILED_IMPL_HEADER(IncludeDir, Suffix)                                                                \
-    UE_STRINGIZE(UE_JOIN(IncludeDir, /UE_JOIN(Impl/SOGE_INPUT_IMPL/SOGE_INPUT_IMPL, Suffix)))
+//#define SG_REL_COMPILED_IMPL_HEADER(Suffix)                                                                            \
+//    UE_STRINGIZE(UE_JOIN(Impl/SOGE_INPUT_IMPL/SOGE_INPUT_IMPL, Suffix))
+//#define SG_ABS_COMPILED_IMPL_HEADER(IncludeDir, Suffix)                                                                \
+//    UE_STRINGIZE(UE_JOIN(IncludeDir, /UE_JOIN(Impl/SOGE_INPUT_IMPL/SOGE_INPUT_IMPL, Suffix)))
 // clang-format on
 
 #endif // SOGE_UTILS_PREPROCESSORHELPERS_HPP

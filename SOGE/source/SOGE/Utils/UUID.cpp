@@ -4,9 +4,9 @@
 
 namespace soge
 {
-    UUIDv4::UUIDGenerator<std::mt19937_64> UUID::s_uuidGenerator;
+    UUIDv4::UUIDGenerator<std::mt19937_64> UUIDGenerator::s_uuidGenerator;
 
-    UUIDv4::UUID UUID::Generate()
+    UUIDv4::UUID UUIDGenerator::Generate()
     {
         return s_uuidGenerator.getUUID();
     }

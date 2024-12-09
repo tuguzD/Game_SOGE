@@ -1,6 +1,8 @@
 #ifndef SOGE_SOUND_SOUNDCORE_HPP
 #define SOGE_SOUND_SOUNDCORE_HPP
 
+#include "SOGE/Sound/SoundResource.hpp"
+
 
 namespace soge
 {
@@ -17,7 +19,6 @@ namespace soge
 
         bool m_isPauseUpdateRequested;
         bool m_isEndUpdateRequested;
-        float m_volume;
 
     public:
         constexpr explicit SoundCore(EventModule* aEventModule) noexcept;
@@ -29,12 +30,25 @@ namespace soge
         constexpr explicit SoundCore(SoundCore&&) noexcept = default;
         constexpr SoundCore& operator=(SoundCore&&) noexcept = default;
 
-        virtual void BeginUpdateSound() = 0;
-        virtual void EndUpdateSound()   = 0;
-        virtual void SetPauseUpdate()   = 0;
+        virtual void BeginUpdateSound()                         = 0;
+        virtual void EndUpdateSound()                           = 0;
+        virtual void SetPauseUpdate(float aPauseRequested)      = 0;
+
+        virtual void Set3DListenerPosition(float aPosX,     float aPosY,     float aPosZ,
+                                           float aForwardX, float aForwardY, float aForwardZ,
+                                           float aUpX,      float aUpY,      float aUpZ) = 0;
+
+        virtual void LoadSoundResource(const SoundResource& aSoundResource)     = 0;
+        virtual void UnloadSoundResource(const SoundResource& aSoundResource)   = 0;
+        virtual void ReloadSoundResource(const SoundResource& aSoundResource)   = 0;
+
+        virtual void PlaySoundResource(const SoundResource& aSoundResource) = 0;
+        virtual void StopSoundResource(const SoundResource& aSoundResource) = 0;
+
+        virtual bool IsSoundPlaying(const SoundResource& aSoundResource) = 0;
 
         virtual void SetVolume(float aVolume) = 0;
-        float GetVolume() const;
+        virtual float GetVolume() const = 0;
 
     };
 

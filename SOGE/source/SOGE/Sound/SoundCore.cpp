@@ -4,8 +4,5 @@
 
 namespace soge
 {
-    float SoundCore::GetVolume() const
-    {
-        return m_volume;
-    }
+
 }

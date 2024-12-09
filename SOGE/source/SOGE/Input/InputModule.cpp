@@ -2,13 +2,13 @@
 
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/Input/InputModule.hpp"
-#include "SOGE/Utils/PreprocessorHelpers.hpp"
+#include "SOGE/Input/InputCompilePreproc.hpp"
 
 // clang-format off
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, InputCore.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Keyboard.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Gamepad.hpp)
-#include SG_ABS_COMPILED_IMPL_HEADER(SOGE/Input, Mouse.hpp)
+#include SOGE_ABS_COMPILED_INPUTSYSTEM_HEADER(SOGE/Input, InputCore.hpp)
+#include SOGE_ABS_COMPILED_INPUTSYSTEM_HEADER(SOGE/Input, Keyboard.hpp)
+#include SOGE_ABS_COMPILED_INPUTSYSTEM_HEADER(SOGE/Input, Gamepad.hpp)
+#include SOGE_ABS_COMPILED_INPUTSYSTEM_HEADER(SOGE/Input, Mouse.hpp)
 // clang-format on
 
 

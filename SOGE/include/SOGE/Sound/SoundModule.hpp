@@ -3,6 +3,7 @@
 
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/System/Memory.hpp"
+#include "SOGE/Sound/SoundCore.hpp"
 
 
 namespace soge
@@ -15,6 +16,8 @@ namespace soge
         EventModule* m_eventModule;
         EventModule::FunctionHandle m_updateEventHandle;
 
+        UniquePtr<SoundCore> m_soundCore;
+
     public:
         explicit SoundModule();
 
@@ -23,5 +26,7 @@ namespace soge
 
     };
 }
+
+SOGE_DI_REGISTER_MODULE_NS(soge, SoundModule)
 
 #endif // !SOGE_SOUND_SOUNDMODULE_HPP

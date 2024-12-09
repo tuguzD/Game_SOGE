@@ -15,6 +15,7 @@ workspace "SOGE"
         include "3rdparty/EASTL/premake5.lua"
         include "3rdparty/kangaru/premake5.lua"
         include "3rdparty/SDL/premake5.lua"
+        include "3rdparty/cppfs/premake5.lua"
     group ""
 
     project "SOGE"
@@ -22,6 +23,7 @@ workspace "SOGE"
         kind "StaticLib"
         language "C++"
         cppdialect "C++20"
+        characterset "MBCS"
         staticruntime "on"
 
         targetdir("build/bin/" .. buildpattern .. "/%{prj.name}")
@@ -48,9 +50,11 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
             "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}",
             "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_FSBANK}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_STUDIO}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_STUDIO}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}/FMOD" -- For FMOD Studio
         }
 
         defines
@@ -58,14 +62,15 @@ workspace "SOGE"
             "_CRT_SECURE_NO_WARNINGS",
             "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
 
-            "SOGE_INPUT_IMPL=SDL",
-            "SOGE_SOUND_IMPL=FMOD"
+            "SOGE_INPUT_IMPL=SDL", -- SDL
+            "SOGE_SOUND_IMPL=FMOD" -- FMOD/OAL
         }
 
         links
         {
             "EASTL",
             "kangaru",
+            "cppfs",
 
             "%{wks.location}/%{Libraries.FMOD_WIN64_FSBANK_DLL}",
             "%{wks.location}/%{Libraries.FMOD_WIN64_FSBANK}",
@@ -158,6 +163,7 @@ workspace "SOGE"
         language "C++"
         cppdialect "C++20"
         staticruntime "on"
+        characterset "MBCS"
 
         -- Executable will be placed in the root of application folder
         -- to have easier eaccess to game resources.
@@ -183,9 +189,11 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
             "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}",
             "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_FSBANK}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_STUDIO}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_STUDIO}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD_CORE}/FMOD" -- For FMOD Studio
         }
 
         links
