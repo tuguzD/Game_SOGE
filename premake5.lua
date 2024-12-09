@@ -14,7 +14,11 @@ workspace "SOGE"
     group "Dependencies"
         include "3rdparty/EASTL/premake5.lua"
         include "3rdparty/kangaru/premake5.lua"
+
+        -- Doesn't shown as subproject in MSVC solution
+
         include "3rdparty/SDL/premake5.lua"
+        include "3rdparty/NRI/premake5.lua"
     group ""
 
     project "SOGE"
@@ -47,7 +51,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}"
         }
 
         defines
@@ -88,12 +93,26 @@ workspace "SOGE"
             {
                 "%{wks.location}/%{Libraries.SDL_UCLIB_D}",
                 "%{wks.location}/%{Libraries.SDL3_DLL_D}",
-                "%{wks.location}/%{Libraries.SDL3_LIB_D}"
+                "%{wks.location}/%{Libraries.SDL3_LIB_D}",
+
+                -- NRI
+
+                "%{wks.location}/%{Libraries.NRI_D3D11_D}",
+                "%{wks.location}/%{Libraries.NRI_D3D12_D}",
+                "%{wks.location}/%{Libraries.NRI_NONE_D}",
+                "%{wks.location}/%{Libraries.NRI_SHARED_D}",
+                "%{wks.location}/%{Libraries.NRI_VALIDATION_D}",
+                "%{wks.location}/%{Libraries.NRI_VK_D}",
+                "%{wks.location}/%{Libraries.NRI_D}",
+                "%{wks.location}/%{Libraries.NRI_DLL_D}",
+                "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D}"
             }
 
             postbuildcommands
             {
-                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_D} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D} %{wks.location}/GAME"
             }
 
         filter "configurations:Release"
@@ -108,12 +127,26 @@ workspace "SOGE"
             {
                 "%{wks.location}/%{Libraries.SDL_UCLIB_R}",
                 "%{wks.location}/%{Libraries.SDL3_DLL_R}",
-                "%{wks.location}/%{Libraries.SDL3_LIB_R}"
+                "%{wks.location}/%{Libraries.SDL3_LIB_R}",
+
+                -- NRI
+
+                "%{wks.location}/%{Libraries.NRI_D3D11_R}",
+                "%{wks.location}/%{Libraries.NRI_D3D12_R}",
+                "%{wks.location}/%{Libraries.NRI_NONE_R}",
+                "%{wks.location}/%{Libraries.NRI_SHARED_R}",
+                "%{wks.location}/%{Libraries.NRI_VALIDATION_R}",
+                "%{wks.location}/%{Libraries.NRI_VK_R}",
+                "%{wks.location}/%{Libraries.NRI_R}",
+                "%{wks.location}/%{Libraries.NRI_DLL_R}",
+                "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R}"
             }
 
             postbuildcommands
             {
-                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_R} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R} %{wks.location}/GAME"
             }
 
 -----------------------
@@ -150,7 +183,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}"
         }
 
         links

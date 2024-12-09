@@ -19,3 +19,9 @@
 [submodule "3rdparty/SDL/SDL"]
 	path = 3rdparty/SDL/SDL
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "3rdparty/NVRHI/NVRHI"]
+	path = 3rdparty/NVRHI/NVRHI
+	url = https://github.com/NVIDIAGameWorks/nvrhi.git
+[submodule "3rdparty/NRI/NRI"]
+	path = 3rdparty/NRI/NRI
+	url = https://github.com/NVIDIAGameWorks/NRI.git
