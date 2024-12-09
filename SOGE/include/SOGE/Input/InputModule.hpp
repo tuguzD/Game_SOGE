@@ -2,24 +2,19 @@
 #define SOGE_INPUT_INPUTMODULE_HPP
 
 #include "SOGE/Event/EventModule.hpp"
-#include "SOGE/System/Memory.hpp"
 #include "SOGE/Input/InputCore.hpp"
-#include "SOGE/Input/Device/Keyboard.hpp"
-#include "SOGE/Input/Device/Gamepad.hpp"
-#include "SOGE/Input/Device/Mouse.hpp"
 
 
 namespace soge
 {
+    class Keyboard;
+    class Gamepad;
+    class Mouse;
+
     class InputModule : public Module
     {
     private:
-        void Update() const;
-
-        EventModule* m_eventModule;
-        EventModule::FunctionHandle m_updateEventHandle;
-
-        UniquePtr<InputCore> m_inputCore;
+        InputCore* m_inputCore;
 
     public:
         explicit InputModule();
@@ -27,13 +22,19 @@ namespace soge
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
 
+        [[nodiscard]]
         bool IsKeyPressed(const Key& aKey) const;
+        [[nodiscard]]
         bool IsKeyReleased(const Key& aKey) const;
 
+        [[nodiscard]]
         Keyboard* GetKeyboard() const;
+        [[nodiscard]]
         Gamepad* GetGamepad() const;
+        [[nodiscard]]
         Mouse* GetMouse() const;
 
+        void Update() const;
     };
 }
 

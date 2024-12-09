@@ -3,11 +3,15 @@
 #include "SOGE/Utils/Logger.hpp"
 #include "SOGE/Utils/StackTrace.hpp"
 
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+
 
 namespace soge
 {
     Logger::LoggerPtr Logger::s_engineSideLogger;
     Logger::LoggerPtr Logger::s_applicationSideLogger;
+
     bool Logger::s_isStackTraceOnErrorEnabled = true;
     bool Logger::s_isStackTraceOnWarnEnabled = false;
 
@@ -22,21 +26,21 @@ namespace soge
         s_applicationSideLogger->set_level(spdlog::level::trace);
     }
 
-    Logger::LoggerRef Logger::GetEngineSideLogger()
+    auto Logger::GetEngineSideLogger() -> LoggerPtr
     {
         return s_engineSideLogger;
     }
 
-    Logger::LoggerRef Logger::GetApplicationSideLogger()
+    auto Logger::GetApplicationSideLogger() -> LoggerPtr
     {
         return s_applicationSideLogger;
     }
 
     void Logger::PrintStackTrace()
     {
-        if (s_isStackTraceOnErrorEnabled)
+        if (s_isStackTraceOnErrorEnabled && s_engineSideLogger != nullptr)
         {
-            const StackTrace stackTraceInfo;
+            const StackTrace stackTraceInfo{};
             s_engineSideLogger->debug(stackTraceInfo.Get());
         }
     }

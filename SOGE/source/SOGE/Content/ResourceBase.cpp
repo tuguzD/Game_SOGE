@@ -8,7 +8,7 @@ namespace soge
     ResourceBase::ResourceBase(const eastl::string& aName, const cppfs::FilePath& aFullPath)
         : m_name(aName), m_fullPath(aFullPath)
     {
-        m_resourceUUID = UUIDGenerator::Generate();
+        m_resourceUUID = UUID::Generate();
     }
 
     ResourceBase::~ResourceBase()
@@ -40,7 +40,7 @@ namespace soge
         return m_loaded;
     }
 
-    UUID ResourceBase::GetUUID() const
+    UUIDv4::UUID ResourceBase::GetUUID() const
     {
         return m_resourceUUID;
     }

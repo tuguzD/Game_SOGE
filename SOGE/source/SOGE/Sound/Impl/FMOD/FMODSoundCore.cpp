@@ -5,13 +5,17 @@
 
 namespace soge
 {
-    FMODSoundCore::FMODSoundCore(EventModule* aEventModule) : SoundCore(aEventModule)
+    FMODSoundCore::FMODSoundCore(EventModule* aEventModule)
+        : SoundCore(aEventModule), m_fmodStudioSystem(nullptr), m_fmodSystem(nullptr)
     {
-        FMOD::Studio::System::create(&m_fmodStudioSystem);
+        m_distanceFactor = 1.0f;
+
+        FMODThrowIfFailed(FMOD::Studio::System::create(&m_fmodStudioSystem));
         FMODThrowIfFailed(m_fmodStudioSystem->getCoreSystem(&m_fmodSystem));
-        FMODThrowIfFailed(m_fmodSystem->setSoftwareFormat(m_maxAudioChannels, FMOD_SPEAKERMODE_STEREO, 0));
         FMODThrowIfFailed(m_fmodSystem->set3DSettings(1.0f, m_distanceFactor, 0.5f));
+        FMODThrowIfFailed(m_fmodSystem->setSoftwareFormat(1024, FMOD_SPEAKERMODE_STEREO, 0));
         FMODThrowIfFailed(m_fmodSystem->getMasterChannelGroup(&m_masterGroup));
+
         FMODThrowIfFailed(m_fmodStudioSystem->initialize(m_maxAudioChannels, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, 0));
     }
 

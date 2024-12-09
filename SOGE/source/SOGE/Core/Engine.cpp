@@ -4,9 +4,13 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
+#include "SOGE/Utils/StringHelpers.hpp"
+#include "SOGE/Window/WindowModule.hpp"
 #include "SOGE/Sound/SoundModule.hpp"
 
 #include <ranges>
+
+#undef CreateWindow
 
 
 namespace soge
@@ -40,8 +44,7 @@ namespace soge
         CreateModule<EventModule>();
         CreateModule<InputModule>();
         CreateModule<SoundModule>();
-
-        m_systemWindow = UniquePtr<Window>(Window::Create());
+        CreateModule<WindowModule>();
     }
 
     Engine::~Engine()
@@ -65,16 +68,22 @@ namespace soge
             module.Load(m_container, m_moduleManager);
         }
 
+        const auto [window, uuid] = GetModule<WindowModule>()->CreateWindow();
+        SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
+                      EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(), uuid.str());
+
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
 
+            GetModule<InputModule>()->Update();
+
             const auto eventModule = GetModule<EventModule>();
             eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
 
-            for (auto layer : m_renderLayers)
+            for (const auto layer : m_renderLayers)
             {
                 layer->OnUpdate();
             }
@@ -86,6 +95,7 @@ namespace soge
         }
         m_isRunning = false;
         m_removedModules.clear();
+        m_container.Clear();
     }
 
     bool Engine::IsRunning() const

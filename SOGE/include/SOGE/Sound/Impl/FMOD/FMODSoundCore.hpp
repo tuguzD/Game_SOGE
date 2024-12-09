@@ -13,9 +13,9 @@ namespace soge
     class FMODSoundCore : public SoundCore
     {
     private:
+        FMOD::Studio::System* m_fmodStudioSystem;
         FMOD::System* m_fmodSystem;
         FMOD::ChannelGroup* m_masterGroup;
-        FMOD::Studio::System* m_fmodStudioSystem;
         int m_maxAudioChannels = 1024;
 
         float m_distanceFactor;

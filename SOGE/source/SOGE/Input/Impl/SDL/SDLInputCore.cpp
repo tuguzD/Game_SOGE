@@ -7,21 +7,13 @@
 #include "SOGE/Input/Impl/SDL/SDLKeyboard.hpp"
 #include "SOGE/Input/Impl/SDL/SDLMouse.hpp"
 
-#include <SDL3/SDL_init.h>
-
 
 namespace soge
 {
-    SDLInputCore::SDLInputCore(EventModule* aEventModule)
+    SDLInputCore::SDLInputCore(EventModule& aEventModule, SDLContext&)
         : InputCore(aEventModule), m_isPauseUpdateRequested(false), m_isEndUpdateRequested(false),
           m_isAnyButtonPressed(false)
     {
-        if (!SDL_Init(SDL_INIT_EVENTS))
-        {
-            SOGE_ERROR_LOG("Failed to initialize SDL event subsystem...");
-            return;
-        }
-
         m_keyMapManager = CreateUnique<SDLKeyMapManager>();
         m_keyboard = CreateUnique<SDLKeyboard>(*this);
         m_gamepad = CreateUnique<SDLGamepad>(*this);

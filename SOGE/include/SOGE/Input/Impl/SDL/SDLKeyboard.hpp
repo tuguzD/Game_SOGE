@@ -10,14 +10,13 @@ namespace soge
     class SDLKeyboard final : public Keyboard
     {
     private:
-        SDLInputCore* m_inputCoreSDL;
+        eastl::reference_wrapper<SDLInputCore> m_inputCoreSDL;
         std::uint32_t m_repeatCounter;
 
     public:
         explicit SDLKeyboard(SDLInputCore& aInputCore);
 
         void Update() override;
-
     };
 
     using ImplKeyboard = SDLKeyboard;

@@ -6,16 +6,16 @@
 
 namespace soge
 {
-    class UUIDGenerator final
+    class UUID final
     {
     private:
         static UUIDv4::UUIDGenerator<std::mt19937_64> s_uuidGenerator;
 
     public:
+        explicit UUID() = delete;
+
         static UUIDv4::UUID Generate();
     };
-
-    using UUID = UUIDv4::UUID;
 }
 
 #endif // SOGE_UTILS_UUID_HPP

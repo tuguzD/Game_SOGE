@@ -11,7 +11,7 @@ namespace soge
     class ResourceBase
     {
     private:
-        UUID m_resourceUUID;
+        UUIDv4::UUID m_resourceUUID;
         cppfs::FilePath m_fullPath;
 
     protected:
@@ -38,7 +38,7 @@ namespace soge
         const eastl::string& GetFullPath() const;
 
         bool IsLoaded() const;
-        UUID GetUUID() const;
+        UUIDv4::UUID GetUUID() const;
 
     };
 }

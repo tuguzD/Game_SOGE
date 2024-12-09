@@ -1,11 +1,10 @@
 #ifndef SOGE_CORE_ENGINE_HPP
 #define SOGE_CORE_ENGINE_HPP
 
+#include "SOGE/Core/LayerStack.hpp"
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
 #include "SOGE/System/Memory.hpp"
-#include "SOGE/System/Window.hpp"
-#include "SOGE/Core/LayerStack.hpp"
 
 
 namespace soge
@@ -24,8 +23,6 @@ namespace soge
         LayerStack m_renderLayers;
         bool m_isRunning;
         bool m_shutdownRequested;
-
-        UniquePtr<Window> m_systemWindow;
 
         di::Container m_container;
         ModuleManager m_moduleManager;
