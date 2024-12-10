@@ -38,14 +38,14 @@ namespace soge
                                            float aForwardX, float aForwardY, float aForwardZ,
                                            float aUpX,      float aUpY,      float aUpZ) = 0;
 
-        virtual void LoadSoundResource(const SoundResource& aSoundResource)     = 0;
-        virtual void UnloadSoundResource(const SoundResource& aSoundResource)   = 0;
-        virtual void ReloadSoundResource(const SoundResource& aSoundResource)   = 0;
+        virtual void LoadSoundResource(SoundResource& aSoundResource)     = 0;
+        virtual void UnloadSoundResource(SoundResource& aSoundResource)   = 0;
+        virtual void ReloadSoundResource(SoundResource& aSoundResource)   = 0;
 
-        virtual void PlaySoundResource(const SoundResource& aSoundResource) = 0;
-        virtual void StopSoundResource(const SoundResource& aSoundResource) = 0;
+        virtual void PlaySoundResource(SoundResource& aSoundResource) = 0;
+        virtual void StopSoundResource(SoundResource& aSoundResource) = 0;
 
-        virtual bool IsSoundPlaying(const SoundResource& aSoundResource) = 0;
+        virtual bool IsSoundPlaying(SoundResource& aSoundResource) = 0;
 
         virtual void SetVolume(float aVolume) = 0;
         virtual float GetVolume() const = 0;

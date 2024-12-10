@@ -25,6 +25,11 @@ namespace soge
         m_fullPath.setPath(aFullPath.fullPath());
     }
 
+    void ResourceBase::SetLoaded(bool aLoaded)
+    {
+        m_loaded = aLoaded;
+    }
+
     const eastl::string& ResourceBase::GetName() const
     {
         return m_name;
