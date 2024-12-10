@@ -1,5 +1,7 @@
 #include "sogepch.hpp"
 #include "SOGE/Core/ModuleManager.hpp"
+#include "SOGE/DI/Container.hpp"
+
 #include "SOGE/Sound/SoundModule.hpp"
 #include "SOGE/Sound/SoundCompilePreproc.hpp"
 
@@ -14,30 +16,30 @@ namespace soge
 
     void SoundModule::Load(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        m_eventModule = aModuleManager.GetModule<EventModule>();
-        if (m_eventModule)
-        {
-            auto update = [this](const UpdateEvent&) { this->Update(); };
-            m_updateEventHandle = m_eventModule->PushBack<UpdateEvent>(update);
-            m_soundCore = CreateUnique<ImplSoundCore>(m_eventModule);
-        }
+        aModuleManager.CreateModule<EventModule>();
+        m_soundCore = &aContainer.Provide<ImplSoundCore>();
 
         SOGE_INFO_LOG("Sound module loaded...");
     }
 
     void SoundModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        if (m_eventModule)
-        {
-            m_eventModule->Remove(m_updateEventHandle);
-            m_soundCore.reset();
-        }
-
+        m_soundCore = nullptr;
         SOGE_INFO_LOG("Sound module unloaded...");
+    }
+
+    void SoundModule::LoadSoundResource(SoundResource& aSoundResource) const
+    {
+        m_soundCore->LoadSoundResource(aSoundResource);
+    }
+
+    void SoundModule::PlaySoundResource(SoundResource& aSoundResource) const
+    {
+        m_soundCore->PlaySoundResource(aSoundResource);
     }
 
     void SoundModule::Update() const
     {
-
+        m_soundCore->BeginUpdateSound();
     }
 }

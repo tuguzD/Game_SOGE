@@ -10,9 +10,11 @@
 
 namespace soge
 {
-    FMODSoundCore::FMODSoundCore(EventModule* aEventModule)
+    FMODSoundCore::FMODSoundCore(EventModule& aEventModule)
         : SoundCore(aEventModule), m_fmodStudioSystem(nullptr), m_fmodSystem(nullptr)
     {
+        SOGE_INFO_LOG("Initializing FMOD...");
+
         #ifdef SOGE_WINDOWS
         CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
         #endif
@@ -92,6 +94,7 @@ namespace soge
             m_sounds.insert({aSoundResource.GetUUID(), sound});
             FriendFuncAccessor loadStateAccessor(SoundResource::FriendlySetLoadState());
             actualLenAccessor.Call(aSoundResource, true);
+
         }
         else
         {
@@ -111,6 +114,23 @@ namespace soge
 
     void FMODSoundCore::PlaySoundResource(SoundResource& aSoundResource)
     {
+        if (!aSoundResource.IsLoaded())
+        {
+            FMOD::Channel* channel;
+            FMODThrowIfFailed(m_fmodSystem->playSound(m_sounds[aSoundResource.GetUUID()], nullptr, true, &channel)); // Pause on start
+
+            // TODO: Add 3d if 3d
+
+            // TODO: Add looping if loop
+
+            FMODThrowIfFailed(channel->setVolume(aSoundResource.GetVolume()));
+            FMODThrowIfFailed(channel->setReverbProperties(0, aSoundResource.GetReverbAmount()));
+            FMODThrowIfFailed(channel->setPaused(false)); // Start playback
+        }
+        else
+        {
+            SOGE_WARN_LOG("Sound resource {0} doesn't load yet", aSoundResource.GetName().c_str());
+        }
     }
 
     void FMODSoundCore::StopSoundResource(SoundResource& aSoundResource)

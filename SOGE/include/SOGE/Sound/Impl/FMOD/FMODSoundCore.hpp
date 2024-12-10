@@ -53,7 +53,7 @@ namespace soge
         void InitReverb();
 
     public:
-        FMODSoundCore(EventModule* aEventModule);
+        explicit FMODSoundCore(EventModule& aEventModule);
         ~FMODSoundCore();
 
         void BeginUpdateSound() override;
@@ -68,6 +68,8 @@ namespace soge
         void UnloadSoundResource(SoundResource& aSoundResource) override;
         void ReloadSoundResource(SoundResource& aSoundResource) override;
 
+        void Dummy(){return;}
+
         void PlaySoundResource(SoundResource& aSoundResource) override;
         void StopSoundResource(SoundResource& aSoundResource) override;
 
@@ -80,5 +82,7 @@ namespace soge
 
     using ImplSoundCore = FMODSoundCore;
 }
+
+SOGE_DI_REGISTER_NS(soge, FMODSoundCore, df::Single<FMODSoundCore, EventModule>, tag::Overrides<SoundCore>)
 
 #endif // !SOGE_SOUND_IMPL_FMOD_FMODSOUNDCORE_HPP

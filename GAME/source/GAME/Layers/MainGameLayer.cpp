@@ -1,10 +1,15 @@
 #include "GAME/Layers/MainGameLayer.hpp"
+#include "GAME/AppEntryPoint.hpp"
 
 
 namespace soge_game
 {
     MainGameLayer::MainGameLayer() : soge::Layer("MainGameLayer")
     {
+        SOGE_APP_INFO_LOG("Test audio path: {}", test.GetFullPath().c_str());
+        SOGE_APP_INFO_LOG("Test audio resource name: {}", test.GetName().c_str());
+        SOGE_APP_INFO_LOG("Test audio resource uuid: {}", test.GetUUID().str());
+        test.SetVolume(100);
     }
 
     MainGameLayer::~MainGameLayer()
@@ -27,6 +32,10 @@ namespace soge_game
         {
             SOGE_APP_INFO_LOG("Key W pressed");
         }
+
+        auto soundModule = Game::GetInstance()->GetModule<soge::SoundModule>();
+        soundModule->LoadSoundResource(test);
+        soundModule->PlaySoundResource(test);
     }
 
     void MainGameLayer::OnFixedUpdate(float aDeltaTime)

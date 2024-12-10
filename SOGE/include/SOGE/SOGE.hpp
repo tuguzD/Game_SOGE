@@ -6,5 +6,6 @@
 #include "SOGE/Core/CoreIncludeHeader.hpp"
 #include "SOGE/Input/InputIncludeHeader.hpp"
 #include "SOGE/Utils/UtilsIncludeHeader.hpp"
+#include "SOGE/Sound/SoundIncludeHeader.hpp"
 
 #endif // SOGE_SOGE_HPP

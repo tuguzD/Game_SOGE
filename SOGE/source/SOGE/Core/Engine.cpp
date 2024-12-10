@@ -79,6 +79,7 @@ namespace soge
             Timestep::CalculateDelta();
 
             GetModule<InputModule>()->Update();
+            GetModule<SoundModule>()->Update();
 
             const auto eventModule = GetModule<EventModule>();
             eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());

@@ -11,18 +11,22 @@ namespace soge
     class SoundModule : public Module
     {
     private:
-        void Update() const;
-
-        EventModule* m_eventModule;
-        EventModule::FunctionHandle m_updateEventHandle;
-
-        UniquePtr<SoundCore> m_soundCore;
+        SoundCore* m_soundCore;
 
     public:
         explicit SoundModule();
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
+
+        void LoadSoundResource(SoundResource& aSoundResource) const;
+        //void UnloadSoundResource(SoundResource& aSoundResource) const;
+        //void ReloadSoundResource(SoundResource& aSoundResource) const;
+
+        void PlaySoundResource(SoundResource& aSoundResource) const;
+        //void StopSoundResource(SoundResource& aSoundResource)
+
+        void Update() const;
 
     };
 }

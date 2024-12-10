@@ -9,7 +9,7 @@ namespace soge_game
     class MainGameLayer final : public soge::Layer
     {
     private:
-
+        soge::SoundResource test = soge::SoundResource("Test", "C:/test.wav");
 
     public:
         MainGameLayer();

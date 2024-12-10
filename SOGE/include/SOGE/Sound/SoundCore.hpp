@@ -2,26 +2,25 @@
 #define SOGE_SOUND_SOUNDCORE_HPP
 
 #include "SOGE/Sound/SoundResource.hpp"
+#include "SOGE/Event/EventModule.hpp"
 
 
 namespace soge
 {
-    class EventModule;
-
     class SoundCore
     {
     private:
-        EventModule* m_eventModule;
+        eastl::reference_wrapper<EventModule> m_eventModule;
 
     protected:
         [[nodiscard]]
-        constexpr EventModule* GetEventModule() const noexcept;
+        EventModule& GetEventModule() const noexcept;
 
         bool m_isPauseUpdateRequested;
         bool m_isEndUpdateRequested;
 
     public:
-        constexpr explicit SoundCore(EventModule* aEventModule) noexcept;
+        explicit SoundCore(EventModule& aEventModule) noexcept;
         constexpr virtual ~SoundCore() noexcept = default;
 
         constexpr explicit SoundCore(const SoundCore&) noexcept = delete;
@@ -52,14 +51,16 @@ namespace soge
 
     };
 
-    constexpr SoundCore::SoundCore(EventModule* aEventModule) noexcept : m_eventModule(aEventModule)
+    inline SoundCore::SoundCore(EventModule& aEventModule) noexcept : m_eventModule(aEventModule)
     {
     }
 
-    constexpr EventModule* SoundCore::GetEventModule() const noexcept
+    inline EventModule& SoundCore::GetEventModule() const noexcept
     {
-        return m_eventModule;
+        return m_eventModule.get();
     }
 }
+
+SOGE_DI_REGISTER_NS(soge, SoundCore, df::Abstract<SoundCore>)
 
 #endif // !SOGE_SOUND_SOUNDCORE_HPP
