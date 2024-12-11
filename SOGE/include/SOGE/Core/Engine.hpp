@@ -19,6 +19,25 @@ namespace soge
     private:
         static UniquePtr<Engine> s_instance;
         static std::mutex s_mutex;
+        // Used to work around UB when trying to lock a mutex by a thread that already locked it
+        // https://en.cppreference.com/w/cpp/thread/mutex/lock#:~:text=If%20lock%20is%20called%20by%20a%20thread%20that%20already%20owns%20the%20mutex%2C%20the%20behavior%20is%20undefined
+        thread_local static std::atomic_bool s_mutexLocked;
+
+        class MutexLockedGuard
+        {
+        public:
+            explicit MutexLockedGuard() noexcept;
+
+            explicit MutexLockedGuard(const MutexLockedGuard&) = delete;
+            MutexLockedGuard& operator=(const MutexLockedGuard&) = delete;
+
+            explicit MutexLockedGuard(MutexLockedGuard&&) noexcept = delete;
+            MutexLockedGuard& operator=(MutexLockedGuard&&) noexcept = delete;
+
+            ~MutexLockedGuard() noexcept;
+        };
+
+        static void AssertMutexIsNotLocked();
 
         LayerStack m_renderLayers;
         bool m_isRunning;
@@ -99,17 +118,18 @@ namespace soge
     template <DerivedFromEngine T, typename... Args>
     T* Engine::Reset(Args&&... args)
     {
+        AssertMutexIsNotLocked();
+        std::lock_guard lock(s_mutex);
+        MutexLockedGuard mutexLockedGuard;
+
         // Replicating `make_unique` here because the constructor is protected
         UniquePtr<T> newInstance(new T(AccessTag{}, std::forward<Args>(args)...));
         // Save pointer to `T` to avoid dynamic cast later
         T* pNewInstance = newInstance.get();
 
-        // Acquire lock just before moving the new instance
-        // (this allows to allocate new instance in parallel compared to acquiring at the beginning of the function)
-        std::lock_guard lock(s_mutex);
-        // Move new instance to the static instance
+        // Move new instance into the static member variable
         s_instance = std::move(newInstance);
-        // Return previously saved pointer
+        // Return correctly typed pointer saved earlier
         return pNewInstance;
     }
 
