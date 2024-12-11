@@ -36,8 +36,6 @@ namespace soge_game
         // eventManager.PushBack<soge::MouseWheelEvent>([](const soge::MouseWheelEvent& aEvent) {
         //     SOGE_APP_INFO_LOG(R"(Mouse wheel changed by ({}, {}))", aEvent.GetXOffset(), aEvent.GetYOffset());
         // });
-
-        PushLayer(new MainGameLayer());
     }
 
     Game::~Game()
@@ -49,6 +47,7 @@ namespace soge_game
 
     void Game::Load(AccessTag)
     {
+        PushLayer(new MainGameLayer());
     }
 }
 
