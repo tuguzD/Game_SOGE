@@ -30,14 +30,13 @@ namespace soge
         // Additional check to ensure we are creating new instance exactly once
         if (s_instance == nullptr)
         {
-            constexpr AccessTag tag;
             // Replicating `make_unique` here because the constructor is protected
-            s_instance = UniquePtr<Engine>(new Engine(tag));
+            s_instance = UniquePtr<Engine>(new Engine(AccessTag{}));
         }
         return s_instance.get();
     }
 
-    Engine::Engine(AccessTag) : m_isRunning(false), m_shutdownRequested(false)
+    Engine::Engine([[maybe_unused]] AccessTag&& aTag) : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
 
@@ -68,14 +67,13 @@ namespace soge
 
         // Prevent users from resetting engine while it is running
         std::lock_guard lock(s_mutex);
-        constexpr AccessTag tag;
 
         m_isRunning = true;
         for (Module& module : m_moduleManager)
         {
             module.Load(m_container, m_moduleManager);
         }
-        Load(tag);
+        Load(AccessTag{});
 
         const auto [window, uuid] = GetModule<WindowModule>()->CreateWindow();
         SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
@@ -98,7 +96,7 @@ namespace soge
             }
         }
 
-        Unload(tag);
+        Unload(AccessTag{});
         for (Module& module : m_moduleManager | std::views::reverse)
         {
             module.Unload(m_container, m_moduleManager);

@@ -39,9 +39,18 @@ namespace soge
             friend Engine;
 
             explicit AccessTag() = default;
+
+        public:
+            explicit AccessTag(const AccessTag&) = delete;
+            AccessTag& operator=(const AccessTag&) = delete;
+
+            explicit AccessTag(AccessTag&&) noexcept = default;
+            AccessTag& operator=(AccessTag&&) noexcept = default;
+
+            ~AccessTag() = default;
         };
 
-        explicit Engine(AccessTag);
+        explicit Engine(AccessTag&& aTag);
 
         virtual void Load(AccessTag);
         virtual void Unload(AccessTag);
@@ -90,9 +99,8 @@ namespace soge
     template <DerivedFromEngine T, typename... Args>
     T* Engine::Reset(Args&&... args)
     {
-        constexpr AccessTag tag;
         // Replicating `make_unique` here because the constructor is protected
-        UniquePtr<T> newInstance(new T(tag, std::forward<Args>(args)...));
+        UniquePtr<T> newInstance(new T(AccessTag{}, std::forward<Args>(args)...));
         // Save pointer to `T` to avoid dynamic cast later
         T* pNewInstance = newInstance.get();
 
