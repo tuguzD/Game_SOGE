@@ -22,7 +22,7 @@ namespace soge
 
         LayerStack m_renderLayers;
         bool m_isRunning;
-        bool m_shutdownRequested;
+        std::atomic_bool m_shutdownRequested;
 
         di::Container m_container;
         ModuleManager m_moduleManager;
@@ -33,7 +33,18 @@ namespace soge
         RemovedModules m_removedModules;
 
     protected:
-        explicit Engine();
+        class AccessTag
+        {
+        private:
+            friend Engine;
+
+            explicit AccessTag() = default;
+        };
+
+        explicit Engine(AccessTag);
+
+        virtual void Load(AccessTag);
+        virtual void Unload(AccessTag);
 
         di::Container& GetDependencyContainer();
 
@@ -79,8 +90,9 @@ namespace soge
     template <DerivedFromEngine T, typename... Args>
     T* Engine::Reset(Args&&... args)
     {
+        constexpr AccessTag tag;
         // Replicating `make_unique` here because the constructor is protected
-        UniquePtr<T> newInstance(new T(std::forward<Args>(args)...));
+        UniquePtr<T> newInstance(new T(tag, std::forward<Args>(args)...));
         // Save pointer to `T` to avoid dynamic cast later
         T* pNewInstance = newInstance.get();
 
