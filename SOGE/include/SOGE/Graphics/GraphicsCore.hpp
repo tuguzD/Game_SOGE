@@ -1,17 +1,15 @@
 #ifndef SOGE_GRAPHICS_GRAPHICSCORE_HPP
 #define SOGE_GRAPHICS_GRAPHICSCORE_HPP
 
-#include "SOGE/Event/EventModule.hpp"
+#include "SOGE/DI/Dependency.hpp"
+
 
 namespace soge
 {
     class GraphicsCore
     {
-    private:
-        eastl::reference_wrapper<EventModule> m_eventModule;
-
     public:
-        explicit GraphicsCore(EventModule& aEventModule) noexcept;
+        constexpr explicit GraphicsCore() noexcept = default;
 
         constexpr explicit GraphicsCore(const GraphicsCore&) noexcept = delete;
         constexpr GraphicsCore& operator=(const GraphicsCore&) noexcept = delete;
@@ -22,7 +20,6 @@ namespace soge
         constexpr virtual ~GraphicsCore() noexcept = default;
 
         virtual void Update(float aDeltaTime) = 0;
-
     };
 }
 
