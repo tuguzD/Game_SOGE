@@ -3,7 +3,7 @@
 
 
 #define SOGE_REL_COMPILED_GRAPHICS_IMPL_HEADER(Suffix) SOGE_REL_COMPILED_IMPL_HEADER(SOGE_GRAPHICS_IMPL, Suffix)
-#define SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(IncludeDir, Suffix)                                              \
+#define SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(IncludeDir, Suffix)                                                     \
     SOGE_ABS_COMPILED_IMPL_HEADER(SOGE_GRAPHICS_IMPL, IncludeDir, Suffix)
 
-#endif // !SOGE_GRAPHICS_GRAPHICSCOMPILEPREPROC_HPP
+#endif // SOGE_GRAPHICS_GRAPHICSCOMPILEPREPROC_HPP

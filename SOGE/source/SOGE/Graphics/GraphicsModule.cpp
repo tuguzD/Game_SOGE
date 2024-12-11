@@ -1,11 +1,12 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Graphics/GraphicsModule.hpp"
 
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
 #include "SOGE/Graphics/GraphicsCompilePreproc.hpp"
 
-#include SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(SOGE/Graphics, GraphicsCore.hpp);
+#include SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(SOGE/Graphics, GraphicsCore.hpp)
 
 
 namespace soge
@@ -25,6 +26,7 @@ namespace soge
     void GraphicsModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
         m_graphicsCore = nullptr;
+
         SOGE_INFO_LOG("Graphics module unloaded...");
     }
 }
