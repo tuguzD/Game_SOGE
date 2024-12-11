@@ -17,8 +17,9 @@ namespace soge
 
     void GraphicsModule::Load(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        aModuleManager.CreateModule<EventModule>();
         m_graphicsCore = &aContainer.Provide<ImplGraphicsCore>();
+
+        aModuleManager.CreateModule<EventModule>();
 
         SOGE_INFO_LOG("Graphics module loaded...");
     }

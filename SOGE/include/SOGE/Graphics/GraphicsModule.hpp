@@ -17,10 +17,9 @@ namespace soge
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
-
     };
 }
 
 SOGE_DI_REGISTER_MODULE_NS(soge, GraphicsModule)
 
-#endif // !SOGE_GRAPHICS_GRAPHICSMODULE_HPP
+#endif // SOGE_GRAPHICS_GRAPHICSMODULE_HPP
