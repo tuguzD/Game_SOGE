@@ -1,38 +1,55 @@
-#ifndef SOGE_GRAPHICS_IMPL_D3D12_NVDAGRAPHICSCORE_HPP
-#define SOGE_GRAPHICS_IMPL_D3D12_NVDAGRAPHICSCORE_HPP
+#ifndef SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSCORE_HPP
+#define SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSCORE_HPP
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
-#include "SOGE/System/Memory.hpp"
 
 #include <NRI.h>
+
+#include <Extensions/NRIDeviceCreation.h>
 #include <Extensions/NRIHelper.h>
 #include <Extensions/NRIStreamer.h>
 #include <Extensions/NRISwapChain.h>
-#include <Extensions/NRIDeviceCreation.h>
 
-#include <nvrhi/nvrhi.h>
 #include <nvrhi/d3d12.h>
+
 
 namespace soge
 {
     class D3D12GraphicsCore : public GraphicsCore
     {
     private:
-        class MessageCallback;
+        class MessageCallback final : public nvrhi::IMessageCallback
+        {
+        public:
+            explicit MessageCallback() = default;
 
-        nri::CoreInterface* m_nriCoreInterface;
-        nri::SwapChainInterface* m_nriSwapChainInterface;
-        nri::HelperInterface* m_nriHelperInterface;
-        nri::StreamerInterface* m_nriStreamerInterface;
+            explicit MessageCallback(const MessageCallback&) = delete;
+            MessageCallback& operator=(const MessageCallback&) = delete;
+
+            explicit MessageCallback(MessageCallback&&) noexcept;
+            MessageCallback& operator=(MessageCallback&&) noexcept;
+
+            ~MessageCallback() override = default;
+
+            void message(nvrhi::MessageSeverity aSeverity, const char* aMessageText) override;
+        };
+
+        class NRIInterface final : public nri::CoreInterface,
+                                   public nri::HelperInterface,
+                                   public nri::StreamerInterface,
+                                   public nri::SwapChainInterface
+        {
+        };
 
         nri::Device* m_device;
         nri::SwapChain* m_swapChain;
         nri::CommandQueue* m_commandQueue;
         nri::Fence* m_frameFence;
 
-        nri::AllocationCallbacks m_allocationCallbacks = {};
-        UniquePtr<MessageCallback> m_messageCallback;
+        NRIInterface m_nriInterface;
+        nri::AllocationCallbacks m_allocationCallbacks{};
 
+        MessageCallback m_messageCallback;
         nvrhi::DeviceHandle m_deviceWrapper;
 
     public:
@@ -54,4 +71,4 @@ namespace soge
 
 SOGE_DI_REGISTER_NS(soge, D3D12GraphicsCore, df::Single<D3D12GraphicsCore>, tag::Overrides<GraphicsCore>)
 
-#endif // SOGE_GRAPHICS_IMPL_D3D12_NVDAGRAPHICSCORE_HPP
+#endif // SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSCORE_HPP
