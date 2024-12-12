@@ -1,23 +1,34 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 
 
+namespace
+{
+    constexpr std::array g_exceptionWhat{
+        "Render failure occurred",
+        "Invalid argument were passed",
+        "Out of memory",
+        "Unsupported function",
+        "Device has been lost",
+        "Vulkan swapchain is out of date", // Documentation says this is Vulkan only
+    };
+}
+
 namespace soge
 {
-    NRIException::NRIException(nri::Result aNriResult) : m_nriResult(aNriResult)
+    NRIException::NRIException(const nri::Result aNriResult) : m_nriResult(aNriResult)
     {
-        m_exceptionInfo[0] = "Render failure occurred";
-        m_exceptionInfo[1] = "Invalid argument were passed";
-        m_exceptionInfo[2] = "Out of memory";
-        m_exceptionInfo[3] = "Unsupported function";
-        m_exceptionInfo[4] = "Device has been lost";
-        m_exceptionInfo[5] = "Vulkan swapchain is out of date"; // Documentation says it's Vulkan only
     }
 
     const char* NRIException::what() const noexcept
     {
-        unsigned int num = static_cast<unsigned int>(m_nriResult);
-        if (num != 0 && num != 7) // Just in case this used outside of NRIThrowIfFailed
-            return m_exceptionInfo[num + 1];
+        if (m_nriResult == nri::Result::SUCCESS || m_nriResult == nri::Result::MAX_NUM)
+        {
+            return nullptr;
+        }
+
+        const auto index = static_cast<std::uint8_t>(m_nriResult);
+        return g_exceptionWhat[index + 1];
     }
 }

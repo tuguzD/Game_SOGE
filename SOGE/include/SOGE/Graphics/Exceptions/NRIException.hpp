@@ -1,47 +1,49 @@
 #ifndef SOGE_GRAPHICS_EXCEPTIONS_NRIEXCEPTION_HPP
 #define SOGE_GRAPHICS_EXCEPTIONS_NRIEXCEPTION_HPP
 
-#include <exception>
 #include "SOGE/Utils/Logger.hpp"
+
 #include <NRI.h>
+#include <exception>
+
 
 namespace soge
 {
     class NRIException : public std::exception
     {
     private:
-        // Only for error info
-        const char* m_exceptionInfo[6];
         nri::Result m_nriResult;
 
     public:
-        NRIException(nri::Result aNriResult);
-        ~NRIException() = default;
+        explicit NRIException(nri::Result aNriResult);
+
+        [[nodiscard]]
         const char* what() const noexcept override;
-
     };
 
-    inline void NRIThrowIfFailed(nri::Result aNriResult)
+    inline void NRIThrowIfFailed(const nri::Result aNriResult)
     {
-        auto except = NRIException(aNriResult);
-        unsigned int num = static_cast<unsigned int>(aNriResult);
-        if (num != 0 && num != 7)
+        if (aNriResult == nri::Result::SUCCESS || aNriResult == nri::Result::MAX_NUM)
         {
-            SOGE_ERROR_LOG("NRI Exception: {}", except.what());
-            throw except;
+            return;
         }
-    };
 
-    inline void NRIThrowIfFailed(nri::Result aNriResult, const eastl::string_view aContext)
+        NRIException exception(aNriResult);
+        SOGE_ERROR_LOG("NRI Exception: {}", exception.what());
+        throw std::move(exception);
+    }
+
+    inline void NRIThrowIfFailed(const nri::Result aNriResult, const eastl::string_view aContext)
     {
-        auto except = NRIException(aNriResult);
-        unsigned int num = static_cast<unsigned int>(aNriResult);
-        if (num != 0 && num != 7)
+        if (aNriResult == nri::Result::SUCCESS || aNriResult == nri::Result::MAX_NUM)
         {
-            SOGE_ERROR_LOG("NRI Exception: {0} while {1}", except.what(), aContext.data());
-            throw except;
+            return;
         }
-    };
+
+        NRIException exception(aNriResult);
+        SOGE_ERROR_LOG("NRI Exception: {} while {}", exception.what(), aContext.data());
+        throw std::move(exception);
+    }
 }
 
 #endif // SOGE_GRAPHICS_EXCEPTIONS_NRIEXCEPTION_HPP
