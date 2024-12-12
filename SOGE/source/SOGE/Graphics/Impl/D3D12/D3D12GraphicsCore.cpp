@@ -1,6 +1,7 @@
 #include "sogepch.hpp"
 
-#include "SOGE/Graphics/Impl/NVDA/NVDAGraphicsCore.hpp"
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
+#include "SOGE/Graphics/Exceptions/NRIException.hpp"
 
 #include <Extensions/NRIDeviceCreation.h>
 #include <nvrhi/d3d12.h>
@@ -53,7 +54,7 @@ namespace
 
 namespace soge
 {
-    class NVDAGraphicsCore::MessageCallback final : public nvrhi::IMessageCallback
+    class D3D12GraphicsCore::MessageCallback final : public nvrhi::IMessageCallback
     {
     public:
         explicit MessageCallback() = default;
@@ -88,47 +89,61 @@ namespace soge
         }
     };
 
-    NVDAGraphicsCore::NVDAGraphicsCore() : m_messageCallback(CreateUnique<MessageCallback>())
+    D3D12GraphicsCore::D3D12GraphicsCore() : m_messageCallback(CreateUnique<MessageCallback>())
     {
         SOGE_INFO_LOG("Creating render device...");
 
-        nri::AdapterDesc bestAdapterDesc;
+        m_nriCoreInterface      = new nri::CoreInterface();
+        m_nriSwapChainInterface = new nri::SwapChainInterface();
+        m_nriHelperInterface    = new nri::HelperInterface();
+        m_nriStreamerInterface  = new nri::StreamerInterface();
+
+        nri::AdapterDesc bestAdapterDesc = {};
         std::uint32_t adapterDescNum = 1;
-        if (const auto result = nri::nriEnumerateAdapters(&bestAdapterDesc, adapterDescNum);
-            !CheckResult(result, "choosing the best device out there"))
-        {
-            return;
-        }
+        NRIThrowIfFailed(nri::nriEnumerateAdapters(&bestAdapterDesc, adapterDescNum), "Choosing device");
         SOGE_INFO_LOG(R"(Rendering device "{}" was chosen...)", bestAdapterDesc.name);
 
-        constexpr nri::DeviceCreationDesc deviceCreationDesc{
-            .graphicsAPI = nri::GraphicsAPI::D3D12,
-            .enableNRIValidation = true,
-            .enableGraphicsAPIValidation = true,
-        }; // NOLINT(clang-diagnostic-missing-designated-field-initializers)
-        if (const auto result = nri::nriCreateDevice(deviceCreationDesc, m_device);
-            !CheckResult(result, "creating rendering device"))
-        {
-            return;
-        }
+        nri::DeviceCreationDesc deviceCreationDesc = {};
+        deviceCreationDesc.graphicsAPI = nri::GraphicsAPI::D3D12;
+        deviceCreationDesc.enableGraphicsAPIValidation = true;
+        deviceCreationDesc.enableNRIValidation = true;
+        deviceCreationDesc.adapterDesc = &bestAdapterDesc;
+        deviceCreationDesc.allocationCallbacks = m_allocationCallbacks;
+
+        NRIThrowIfFailed(nri::nriCreateDevice(
+            deviceCreationDesc, m_device), "Creating render device");
+        NRIThrowIfFailed(nri::nriGetInterface(
+            *m_device, NRI_INTERFACE(nri::CoreInterface), m_nriCoreInterface));
+        NRIThrowIfFailed(nri::nriGetInterface(
+            *m_device, NRI_INTERFACE(nri::SwapChainInterface), m_nriSwapChainInterface));
+        NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::HelperInterface), m_nriHelperInterface));
+        NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::StreamerInterface), m_nriStreamerInterface));
+
+        NRIThrowIfFailed(m_nriCoreInterface->GetCommandQueue(*m_device, nri::CommandQueueType::GRAPHICS, m_commandQueue));
+        NRIThrowIfFailed(m_nriCoreInterface->CreateFence(*m_device, 0, m_frameFence), "Creating frame fence");
 
         // TODO: uncomment to get linker error
-        // const nvrhi::d3d12::DeviceDesc deviceDesc{
-        //     .errorCB = m_messageCallback.get(),
-        // };
-        // m_deviceWrapper = nvrhi::d3d12::createDevice(deviceDesc);
+         //const nvrhi::d3d12::DeviceDesc deviceDesc{
+         //    .errorCB = m_messageCallback.get(),
+         //    .pDevice = nri::nriGetInterface(),
+         //    .pGraphicsCommandQueue = 
+         //};
+         //m_deviceWrapper = nvrhi::d3d12::createDevice(deviceDesc);
     }
 
-    NVDAGraphicsCore::~NVDAGraphicsCore()
+    D3D12GraphicsCore::~D3D12GraphicsCore()
     {
         if (m_device != nullptr)
         {
             SOGE_INFO_LOG("Destroying render device...");
+            m_nriCoreInterface->DestroyFence(*m_frameFence);
+            //m_nriSwapChainInterface->DestroySwapChain(*m_swapChain); // Not initialize SwapChain for now...
+
             nri::nriDestroyDevice(*m_device);
         }
     }
 
-    void NVDAGraphicsCore::Update(float aDeltaTime)
+    void D3D12GraphicsCore::Update(float aDeltaTime)
     {
     }
 }

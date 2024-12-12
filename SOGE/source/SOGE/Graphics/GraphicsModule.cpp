@@ -5,6 +5,7 @@
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
 #include "SOGE/Graphics/GraphicsCompilePreproc.hpp"
+#include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 #include SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(SOGE/Graphics, GraphicsCore.hpp)
 
@@ -17,8 +18,9 @@ namespace soge
 
     void GraphicsModule::Load(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        m_graphicsCore = &aContainer.Provide<ImplGraphicsCore>();
+        SOGE_LOG_TITLE_DIVIDER(GRAPHICS MODULE)
 
+        m_graphicsCore = &aContainer.Provide<ImplGraphicsCore>();
         aModuleManager.CreateModule<EventModule>();
 
         SOGE_INFO_LOG("Graphics module loaded...");

@@ -65,13 +65,17 @@ workspace "SOGE"
             "SOGE_INPUT_IMPL=SDL",
             "SOGE_WINDOW_IMPL=SDL",
             "SOGE_SYSTEM_IMPL=SDL",
-            "SOGE_GRAPHICS_IMPL=NVDA"
+            "SOGE_GRAPHICS_IMPL=D3D12" -- D3D11/D3D12/VK
         }
 
         links
         {
             "EASTL",
-            "kangaru"
+            "kangaru",
+            "nvrhi",
+            "nvrhi_d3d11",
+            "nvrhi_d3d12",
+            "nvrhi_vk",
         }
 
         filter "system:windows"
@@ -89,7 +93,8 @@ workspace "SOGE"
             defines
             {
                 "SOGE_DEBUG",
-                "SOGE_ENABLE_ASSERT"
+                "SOGE_ENABLE_ASSERT",
+                "TRACEDESIGNTIME=true"
             }
 
             links 
@@ -109,13 +114,6 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.NRI_D}",
                 "%{wks.location}/%{Libraries.NRI_DLL_D}",
                 "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D}",
-
-                -- NVRHI
-
-                "%{wks.location}/%{Libraries.NVRHI_D3D11_D}",
-                "%{wks.location}/%{Libraries.NVRHI_D3D12_D}",
-                "%{wks.location}/%{Libraries.NVRHI_VK_D}",
-                "%{wks.location}/%{Libraries.NVRHI_D}"
             }
 
             postbuildcommands
@@ -150,13 +148,6 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.NRI_R}",
                 "%{wks.location}/%{Libraries.NRI_DLL_R}",
                 "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R}",
-
-                -- NVRHI
-
-                "%{wks.location}/%{Libraries.NVRHI_D3D11_R}",
-                "%{wks.location}/%{Libraries.NVRHI_D3D12_R}",
-                "%{wks.location}/%{Libraries.NVRHI_VK_R}",
-                "%{wks.location}/%{Libraries.NVRHI_R}"
             }
 
             postbuildcommands
