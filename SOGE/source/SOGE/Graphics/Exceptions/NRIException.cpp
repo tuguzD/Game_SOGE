@@ -5,7 +5,8 @@
 
 namespace
 {
-    constexpr std::array g_exceptionWhat{
+    constexpr std::array<const char*, static_cast<std::uint8_t>(nri::Result::MAX_NUM)> g_exceptionWhat{
+        "Success",
         "Render failure occurred",
         "Invalid argument were passed",
         "Out of memory",
@@ -29,6 +30,30 @@ namespace soge
         }
 
         const auto index = static_cast<std::uint8_t>(m_nriResult);
-        return g_exceptionWhat[index + 1];
+        return g_exceptionWhat[index];
+    }
+
+    void NRIThrowIfFailed(const nri::Result aNriResult)
+    {
+        if (aNriResult == nri::Result::SUCCESS || aNriResult == nri::Result::MAX_NUM)
+        {
+            return;
+        }
+
+        NRIException exception(aNriResult);
+        SOGE_ERROR_LOG("NRI Exception: {}", exception.what());
+        throw std::move(exception);
+    }
+
+    void NRIThrowIfFailed(const nri::Result aNriResult, const eastl::string_view aContext)
+    {
+        if (aNriResult == nri::Result::SUCCESS || aNriResult == nri::Result::MAX_NUM)
+        {
+            return;
+        }
+
+        NRIException exception(aNriResult);
+        SOGE_ERROR_LOG("NRI Exception: {} while {}", exception.what(), aContext.data());
+        throw std::move(exception);
     }
 }

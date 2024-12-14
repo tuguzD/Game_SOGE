@@ -42,12 +42,12 @@ namespace soge
         };
 
         nri::Device* m_device;
-        nri::SwapChain* m_swapChain;
-        nri::CommandQueue* m_commandQueue;
-        nri::Fence* m_frameFence;
-
         NRIInterface m_nriInterface;
         nri::AllocationCallbacks m_allocationCallbacks{};
+
+        nri::CommandQueue* m_commandQueue;
+        nri::Fence* m_frameFence;
+        nri::SwapChain* m_swapChain;
 
         MessageCallback m_messageCallback;
         nvrhi::DeviceHandle m_deviceWrapper;
