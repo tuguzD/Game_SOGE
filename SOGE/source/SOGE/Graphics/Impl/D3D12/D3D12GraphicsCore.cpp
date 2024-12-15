@@ -4,6 +4,8 @@
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 
+#include <nvrhi/validation.h>
+
 
 namespace soge
 {
@@ -54,6 +56,7 @@ namespace soge
             // .pGraphicsCommandQueue = static_cast<CommandQueueD3D12*>(m_commandQueue),
         };
         m_deviceWrapper = nvrhi::d3d12::createDevice(deviceDesc);
+        m_deviceWrapper = nvrhi::validation::createValidationLayer(m_deviceWrapper);
     }
 
     D3D12GraphicsCore::~D3D12GraphicsCore()
