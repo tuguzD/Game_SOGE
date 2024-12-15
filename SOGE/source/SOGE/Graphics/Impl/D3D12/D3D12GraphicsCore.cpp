@@ -9,9 +9,10 @@
 
 namespace soge
 {
-    D3D12GraphicsCore::D3D12GraphicsCore() : m_swapChain(nullptr)
+    D3D12GraphicsCore::D3D12GraphicsCore() : m_callbackInterface(), m_allocationCallbacks(), m_swapChain(nullptr)
     {
         SOGE_INFO_LOG("Creating D3D12 render backend...");
+        m_callbackInterface.MessageCallback = NRIMessageCallback;
 
         SOGE_INFO_LOG("Choosing best rendering device...");
         nri::AdapterDesc bestAdapterDesc{};
@@ -25,6 +26,7 @@ namespace soge
         deviceCreationDesc.enableGraphicsAPIValidation = true;
         deviceCreationDesc.enableNRIValidation = true;
         deviceCreationDesc.adapterDesc = &bestAdapterDesc;
+        deviceCreationDesc.callbackInterface = m_callbackInterface;
         deviceCreationDesc.allocationCallbacks = m_allocationCallbacks;
         NRIThrowIfFailed(nri::nriCreateDevice(deviceCreationDesc, m_device), "creating render device");
 
@@ -118,6 +120,27 @@ namespace soge
             level = Logger::Level::critical;
             break;
         }
-        Logger::EngineLog(level, "{}", aMessageText);
+        Logger::EngineLog(level, "[NVRHI] {}", aMessageText);
+    }
+
+    void D3D12GraphicsCore::NRIMessageCallback(const nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
+                                               const char* aMessage, [[maybe_unused]] void* aUserArg)
+    {
+        Logger::Level level{Logger::Level::trace};
+        switch (aMessageType)
+        {
+        case nri::Message::INFO:
+            level = Logger::Level::info;
+            break;
+        case nri::Message::WARNING:
+            level = Logger::Level::warn;
+            break;
+        case nri::Message::ERROR:
+            level = Logger::Level::err;
+            break;
+        case nri::Message::MAX_NUM:
+            break;
+        }
+        Logger::EngineLog(level, "[NRI] ({}:{}) {}", aFile, aLine, aMessage);
     }
 }

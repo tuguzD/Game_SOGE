@@ -41,9 +41,13 @@ namespace soge
         {
         };
 
+        static void NRIMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
+                                       const char* aMessage, void* aUserArg);
+
         nri::Device* m_device;
         NRIInterface m_nriInterface;
-        nri::AllocationCallbacks m_allocationCallbacks{};
+        nri::CallbackInterface m_callbackInterface;
+        nri::AllocationCallbacks m_allocationCallbacks;
 
         nri::CommandQueue* m_commandQueue;
         nri::Fence* m_frameFence;
