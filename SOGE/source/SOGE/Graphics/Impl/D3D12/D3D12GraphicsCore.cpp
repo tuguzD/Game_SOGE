@@ -33,38 +33,44 @@ namespace
 
 namespace soge
 {
-    D3D12GraphicsCore::D3D12GraphicsCore() : m_callbackInterface(), m_allocationCallbacks()
+    D3D12GraphicsCore::D3D12GraphicsCore() : m_nriCallbackInterface(), m_nriAllocationCallbacks()
     {
         SOGE_INFO_LOG("Creating D3D12 render backend...");
-        m_callbackInterface.MessageCallback = NRIMessageCallback;
+        m_nriCallbackInterface.MessageCallback = NriMessageCallback;
 
-        SOGE_INFO_LOG("Choosing best rendering device...");
+        SOGE_INFO_LOG("Choosing best render device...");
         nri::AdapterDesc bestAdapterDesc{};
         std::uint32_t adapterDescNum = 1;
-        NRIThrowIfFailed(nri::nriEnumerateAdapters(&bestAdapterDesc, adapterDescNum), "choosing best device");
+        NRIThrowIfFailed(nri::nriEnumerateAdapters(&bestAdapterDesc, adapterDescNum), "choosing best render device");
         SOGE_INFO_LOG(R"(Rendering device "{}" was chosen...)", bestAdapterDesc.name);
 
-        SOGE_INFO_LOG("Creating render device...");
+        SOGE_INFO_LOG("Creating NRI render device...");
         nri::DeviceCreationDesc deviceCreationDesc{};
         deviceCreationDesc.graphicsAPI = nri::GraphicsAPI::D3D12;
         deviceCreationDesc.enableGraphicsAPIValidation = true;
         deviceCreationDesc.enableNRIValidation = true;
         deviceCreationDesc.adapterDesc = &bestAdapterDesc;
-        deviceCreationDesc.callbackInterface = m_callbackInterface;
-        deviceCreationDesc.allocationCallbacks = m_allocationCallbacks;
-        NRIThrowIfFailed(nri::nriCreateDevice(deviceCreationDesc, m_device), "creating render device");
+        deviceCreationDesc.callbackInterface = m_nriCallbackInterface;
+        deviceCreationDesc.allocationCallbacks = m_nriAllocationCallbacks;
+        NRIThrowIfFailed(nri::nriCreateDevice(deviceCreationDesc, m_nriDevice), "creating render device");
 
         SOGE_INFO_LOG("Retrieving NRI interfaces...");
-        const auto coreInterface = static_cast<nri::CoreInterface*>(&m_nriInterface);
-        NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::CoreInterface), coreInterface));
-        m_nriInterface.SetDeviceDebugName(*m_device, "SOGE D3D12 GPU device");
+        const auto nriCoreInterface = static_cast<nri::CoreInterface*>(&m_nriInterface);
+        NRIThrowIfFailed(nri::nriGetInterface(*m_nriDevice, NRI_INTERFACE(nri::CoreInterface), nriCoreInterface),
+                         "retrieving NRI core interface");
+        m_nriInterface.SetDeviceDebugName(*m_nriDevice, "SOGE D3D12 GPU device");
 
-        const auto helperInterface = static_cast<nri::HelperInterface*>(&m_nriInterface);
-        NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::HelperInterface), helperInterface));
-        const auto streamerInterface = static_cast<nri::StreamerInterface*>(&m_nriInterface);
-        NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::StreamerInterface), streamerInterface));
-        const auto swapChainInterface = static_cast<nri::SwapChainInterface*>(&m_nriInterface);
-        NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::SwapChainInterface), swapChainInterface));
+        const auto nriHelperInterface = static_cast<nri::HelperInterface*>(&m_nriInterface);
+        NRIThrowIfFailed(nri::nriGetInterface(*m_nriDevice, NRI_INTERFACE(nri::HelperInterface), nriHelperInterface),
+                         "retrieving NRI helper interface");
+        const auto nriStreamerInterface = static_cast<nri::StreamerInterface*>(&m_nriInterface);
+        NRIThrowIfFailed(
+            nri::nriGetInterface(*m_nriDevice, NRI_INTERFACE(nri::StreamerInterface), nriStreamerInterface),
+            "retrieving NRI streamer interface");
+        const auto nriSwapChainInterface = static_cast<nri::SwapChainInterface*>(&m_nriInterface);
+        NRIThrowIfFailed(
+            nri::nriGetInterface(*m_nriDevice, NRI_INTERFACE(nri::SwapChainInterface), nriSwapChainInterface),
+            "retrieving NRI swap chain interface");
 
         SOGE_INFO_LOG("Creating graphics command queue...");
         D3D12_COMMAND_QUEUE_DESC graphicsCommandQueueDesc{};
@@ -72,34 +78,34 @@ namespace soge
         graphicsCommandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
         graphicsCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
         nvrhi::RefCountPtr<ID3D12CommandQueue> graphicsCommandQueue;
-        const auto d3d12Device = static_cast<ID3D12Device*>(m_nriInterface.GetDeviceNativeObject(*m_device));
+        const auto d3d12Device = static_cast<ID3D12Device*>(m_nriInterface.GetDeviceNativeObject(*m_nriDevice));
         NRIThrowIfFailed(ConvertResult(d3d12Device->CreateCommandQueue(&graphicsCommandQueueDesc,
                                                                        IID_PPV_ARGS(&graphicsCommandQueue))),
                          "creating graphics command queue");
         NRIThrowIfFailed(ConvertResult(graphicsCommandQueue->SetName(L"SOGE graphics command queue")),
                          "setting debug name for graphics command queue");
 
-        SOGE_INFO_LOG("Creating NVRHI device wrapper...");
+        SOGE_INFO_LOG("Creating NVRHI render device...");
         const nvrhi::d3d12::DeviceDesc deviceDesc{
-            .errorCB = &m_messageCallback,
+            .errorCB = &m_nvrhiMessageCallback,
             .pDevice = d3d12Device,
             .pGraphicsCommandQueue = graphicsCommandQueue.Detach(),
         };
-        m_deviceWrapper = nvrhi::d3d12::createDevice(deviceDesc);
-        m_deviceWrapper = nvrhi::validation::createValidationLayer(m_deviceWrapper);
+        m_nvrhiDevice = nvrhi::d3d12::createDevice(deviceDesc);
+        m_nvrhiDevice = nvrhi::validation::createValidationLayer(m_nvrhiDevice);
     }
 
     D3D12GraphicsCore::~D3D12GraphicsCore()
     {
         SOGE_INFO_LOG("Destroying D3D12 render backend...");
 
-        SOGE_INFO_LOG("Destroying NVRHI device wrapper...");
-        m_deviceWrapper = nullptr;
+        SOGE_INFO_LOG("Destroying NVRHI render device...");
+        m_nvrhiDevice = nullptr;
 
-        if (m_device != nullptr)
+        if (m_nriDevice != nullptr)
         {
-            SOGE_INFO_LOG("Destroying render device...");
-            nri::nriDestroyDevice(*m_device);
+            SOGE_INFO_LOG("Destroying NRI render device...");
+            nri::nriDestroyDevice(*m_nriDevice);
         }
     }
 
@@ -107,16 +113,17 @@ namespace soge
     {
     }
 
-    D3D12GraphicsCore::MessageCallback::MessageCallback(MessageCallback&&) noexcept
+    D3D12GraphicsCore::NvrhiMessageCallback::NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept
     {
     }
 
-    auto D3D12GraphicsCore::MessageCallback::operator=(MessageCallback&&) noexcept -> MessageCallback&
+    auto D3D12GraphicsCore::NvrhiMessageCallback::operator=(NvrhiMessageCallback&&) noexcept -> NvrhiMessageCallback&
     {
         return *this;
     }
 
-    void D3D12GraphicsCore::MessageCallback::message(const nvrhi::MessageSeverity aSeverity, const char* aMessageText)
+    void D3D12GraphicsCore::NvrhiMessageCallback::message(const nvrhi::MessageSeverity aSeverity,
+                                                          const char* aMessageText)
     {
         Logger::Level level{Logger::Level::trace};
         switch (aSeverity)
@@ -137,7 +144,7 @@ namespace soge
         Logger::EngineLog(level, "[NVRHI] {}", aMessageText);
     }
 
-    void D3D12GraphicsCore::NRIMessageCallback(const nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
+    void D3D12GraphicsCore::NriMessageCallback(const nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
                                                const char* aMessage, [[maybe_unused]] void* aUserArg)
     {
         Logger::Level level{Logger::Level::trace};

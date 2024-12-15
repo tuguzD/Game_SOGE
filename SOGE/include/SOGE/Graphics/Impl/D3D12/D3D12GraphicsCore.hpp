@@ -18,39 +18,39 @@ namespace soge
     class D3D12GraphicsCore : public GraphicsCore
     {
     private:
-        class MessageCallback final : public nvrhi::IMessageCallback
+        class NvrhiMessageCallback final : public nvrhi::IMessageCallback
         {
         public:
-            explicit MessageCallback() = default;
+            explicit NvrhiMessageCallback() = default;
 
-            explicit MessageCallback(const MessageCallback&) = delete;
-            MessageCallback& operator=(const MessageCallback&) = delete;
+            explicit NvrhiMessageCallback(const NvrhiMessageCallback&) = delete;
+            NvrhiMessageCallback& operator=(const NvrhiMessageCallback&) = delete;
 
-            explicit MessageCallback(MessageCallback&&) noexcept;
-            MessageCallback& operator=(MessageCallback&&) noexcept;
+            explicit NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept;
+            NvrhiMessageCallback& operator=(NvrhiMessageCallback&&) noexcept;
 
-            ~MessageCallback() override = default;
+            ~NvrhiMessageCallback() override = default;
 
             void message(nvrhi::MessageSeverity aSeverity, const char* aMessageText) override;
         };
 
-        class NRIInterface final : public nri::CoreInterface,
+        class NriInterface final : public nri::CoreInterface,
                                    public nri::HelperInterface,
                                    public nri::StreamerInterface,
                                    public nri::SwapChainInterface
         {
         };
 
-        static void NRIMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
+        static void NriMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
                                        const char* aMessage, void* aUserArg);
 
-        nri::Device* m_device;
-        NRIInterface m_nriInterface;
-        nri::CallbackInterface m_callbackInterface;
-        nri::AllocationCallbacks m_allocationCallbacks;
+        nri::Device* m_nriDevice;
+        NriInterface m_nriInterface;
+        nri::CallbackInterface m_nriCallbackInterface;
+        nri::AllocationCallbacks m_nriAllocationCallbacks;
 
-        MessageCallback m_messageCallback;
-        nvrhi::DeviceHandle m_deviceWrapper;
+        NvrhiMessageCallback m_nvrhiMessageCallback;
+        nvrhi::DeviceHandle m_nvrhiDevice;
 
     public:
         explicit D3D12GraphicsCore();
@@ -58,8 +58,8 @@ namespace soge
         explicit D3D12GraphicsCore(const D3D12GraphicsCore&) = delete;
         D3D12GraphicsCore& operator=(const D3D12GraphicsCore&) = delete;
 
-        explicit D3D12GraphicsCore(D3D12GraphicsCore&&) noexcept = default;
-        D3D12GraphicsCore& operator=(D3D12GraphicsCore&&) noexcept = default;
+        explicit D3D12GraphicsCore(D3D12GraphicsCore&&) noexcept = delete;
+        D3D12GraphicsCore& operator=(D3D12GraphicsCore&&) noexcept = delete;
 
         ~D3D12GraphicsCore() override;
 
