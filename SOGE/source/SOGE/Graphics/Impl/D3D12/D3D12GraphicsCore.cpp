@@ -7,9 +7,33 @@
 #include <nvrhi/validation.h>
 
 
+namespace
+{
+    // Taken from NRI source code (function `GetResultFromHRESULT`)
+    nri::Result ConvertResult(const HRESULT aResult)
+    {
+        if (SUCCEEDED(aResult))
+            return nri::Result::SUCCESS;
+
+        if (aResult == E_INVALIDARG || aResult == E_POINTER || aResult == E_HANDLE)
+            return nri::Result::INVALID_ARGUMENT;
+
+        if (aResult == DXGI_ERROR_UNSUPPORTED)
+            return nri::Result::UNSUPPORTED;
+
+        if (aResult == DXGI_ERROR_DEVICE_REMOVED || aResult == DXGI_ERROR_DEVICE_RESET)
+            return nri::Result::DEVICE_LOST;
+
+        if (aResult == E_OUTOFMEMORY)
+            return nri::Result::OUT_OF_MEMORY;
+
+        return nri::Result::FAILURE;
+    }
+}
+
 namespace soge
 {
-    D3D12GraphicsCore::D3D12GraphicsCore() : m_callbackInterface(), m_allocationCallbacks(), m_swapChain(nullptr)
+    D3D12GraphicsCore::D3D12GraphicsCore() : m_callbackInterface(), m_allocationCallbacks()
     {
         SOGE_INFO_LOG("Creating D3D12 render backend...");
         m_callbackInterface.MessageCallback = NRIMessageCallback;
@@ -42,20 +66,24 @@ namespace soge
         const auto swapChainInterface = static_cast<nri::SwapChainInterface*>(&m_nriInterface);
         NRIThrowIfFailed(nri::nriGetInterface(*m_device, NRI_INTERFACE(nri::SwapChainInterface), swapChainInterface));
 
-        SOGE_INFO_LOG("Retrieving command queue...");
-        NRIThrowIfFailed(m_nriInterface.GetCommandQueue(*m_device, nri::CommandQueueType::GRAPHICS, m_commandQueue),
-                         "retrieving command queue");
-        m_nriInterface.SetCommandQueueDebugName(*m_commandQueue, "SOGE graphics command queue");
-
-        SOGE_INFO_LOG("Creating frame fence...");
-        NRIThrowIfFailed(m_nriInterface.CreateFence(*m_device, 0, m_frameFence), "creating frame fence");
-        m_nriInterface.SetFenceDebugName(*m_frameFence, "SOGE graphics frame fence");
+        SOGE_INFO_LOG("Creating graphics command queue...");
+        D3D12_COMMAND_QUEUE_DESC graphicsCommandQueueDesc{};
+        graphicsCommandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+        graphicsCommandQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
+        graphicsCommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+        nvrhi::RefCountPtr<ID3D12CommandQueue> graphicsCommandQueue;
+        const auto d3d12Device = static_cast<ID3D12Device*>(m_nriInterface.GetDeviceNativeObject(*m_device));
+        NRIThrowIfFailed(ConvertResult(d3d12Device->CreateCommandQueue(&graphicsCommandQueueDesc,
+                                                                       IID_PPV_ARGS(&graphicsCommandQueue))),
+                         "creating graphics command queue");
+        NRIThrowIfFailed(ConvertResult(graphicsCommandQueue->SetName(L"SOGE graphics command queue")),
+                         "setting debug name for graphics command queue");
 
         SOGE_INFO_LOG("Creating NVRHI device wrapper...");
         const nvrhi::d3d12::DeviceDesc deviceDesc{
             .errorCB = &m_messageCallback,
-            .pDevice = static_cast<ID3D12Device*>(m_nriInterface.GetDeviceNativeObject(*m_device)),
-            // .pGraphicsCommandQueue = static_cast<CommandQueueD3D12*>(m_commandQueue),
+            .pDevice = d3d12Device,
+            .pGraphicsCommandQueue = graphicsCommandQueue.Detach(),
         };
         m_deviceWrapper = nvrhi::d3d12::createDevice(deviceDesc);
         m_deviceWrapper = nvrhi::validation::createValidationLayer(m_deviceWrapper);
@@ -67,20 +95,6 @@ namespace soge
 
         SOGE_INFO_LOG("Destroying NVRHI device wrapper...");
         m_deviceWrapper = nullptr;
-
-        if (m_commandQueue != nullptr)
-        {
-            SOGE_INFO_LOG("Waiting for command queue to be idle...");
-            NRIThrowIfFailed(m_nriInterface.WaitForIdle(*m_commandQueue), "waiting for command queue to be idle");
-        }
-
-        // m_nriSwapChainInterface->DestroySwapChain(*m_swapChain); // Do not initialize swapchain for now...
-
-        if (m_frameFence != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying frame fence...");
-            m_nriInterface.DestroyFence(*m_frameFence);
-        }
 
         if (m_device != nullptr)
         {

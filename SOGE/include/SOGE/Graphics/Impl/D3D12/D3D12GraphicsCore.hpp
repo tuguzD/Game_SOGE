@@ -49,10 +49,6 @@ namespace soge
         nri::CallbackInterface m_callbackInterface;
         nri::AllocationCallbacks m_allocationCallbacks;
 
-        nri::CommandQueue* m_commandQueue;
-        nri::Fence* m_frameFence;
-        nri::SwapChain* m_swapChain;
-
         MessageCallback m_messageCallback;
         nvrhi::DeviceHandle m_deviceWrapper;
 
