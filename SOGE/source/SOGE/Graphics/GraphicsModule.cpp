@@ -32,4 +32,14 @@ namespace soge
 
         SOGE_INFO_LOG("Graphics module unloaded...");
     }
+
+    void GraphicsModule::SetRenderTarget(const Window& aWindow)
+    {
+        if (m_graphicsCore == nullptr)
+        {
+            return;
+        }
+
+        m_graphicsCore->SetRenderTarget(aWindow);
+    }
 }

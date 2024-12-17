@@ -44,6 +44,10 @@ namespace soge
         static void NriMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
                                        const char* aMessage, void* aUserArg);
 
+        void DestroyNriSwapChain();
+        void DestroyNriDevice();
+
+        nri::Device* m_nriInitDevice;
         nri::Device* m_nriDevice;
         NriInterface m_nriInterface;
         nri::CallbackInterface m_nriCallbackInterface;
@@ -51,6 +55,9 @@ namespace soge
 
         NvrhiMessageCallback m_nvrhiMessageCallback;
         nvrhi::DeviceHandle m_nvrhiDevice;
+
+        nri::SwapChain* m_nriSwapChain;
+        eastl::vector<nvrhi::TextureHandle> m_nvrhiSwapChainTextures;
 
     public:
         explicit D3D12GraphicsCore();
@@ -63,6 +70,7 @@ namespace soge
 
         ~D3D12GraphicsCore() override;
 
+        void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;
     };
 

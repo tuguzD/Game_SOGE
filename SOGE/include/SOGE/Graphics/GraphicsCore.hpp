@@ -6,6 +6,8 @@
 
 namespace soge
 {
+    class Window;
+
     class GraphicsCore
     {
     public:
@@ -19,6 +21,7 @@ namespace soge
 
         constexpr virtual ~GraphicsCore() noexcept = default;
 
+        virtual void SetRenderTarget(const Window& aWindow) = 0;
         virtual void Update(float aDeltaTime) = 0;
     };
 }
