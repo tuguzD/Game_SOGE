@@ -4,6 +4,7 @@ print(os.date() .. " Building SDL3 with CMake...")
 module = "SDL"
 if not isdir("./lib") then
     cmake = "cmake"
+    os.execute("mkdir lib")
 
     os.execute(cmake .. " -S ./" .. module .. " -B ./" .. module .. "/auto_build")
 
