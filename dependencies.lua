@@ -9,6 +9,8 @@ IncludeThirdpartyDirs["UUID_v4"] = "3rdparty/uuid_v4/uuid_v4/include"
 IncludeThirdpartyDirs["eventpp"] = "3rdparty/eventpp/eventpp/include"
 IncludeThirdpartyDirs["kangaru"] = "3rdparty/kangaru/kangaru/include"
 IncludeThirdpartyDirs["SDL3"] = "3rdparty/SDL/SDL/include"
+IncludeThirdpartyDirs["glm"] = "3rdparty/glm/glm/include"
+IncludeThirdpartyDirs["XoshiroCpp"] = "3rdparty/XoshiroCpp/XoshiroCpp/include" 
 
 -- Include libs
 Libraries = {}

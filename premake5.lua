@@ -15,6 +15,7 @@ workspace "SOGE"
         include "3rdparty/EASTL/premake5.lua"
         include "3rdparty/kangaru/premake5.lua"
         include "3rdparty/SDL/premake5.lua"
+        include "3rdparty/glm/premake5.lua"
     group ""
 
     project "SOGE"
@@ -47,7 +48,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
 
         defines
@@ -150,7 +153,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
 
         links
