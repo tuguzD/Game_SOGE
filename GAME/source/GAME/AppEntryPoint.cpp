@@ -9,7 +9,7 @@
 
 namespace soge_game
 {
-    Game::Game(const AccessTag aTag) : Engine(aTag)
+    Game::Game(AccessTag&& aTag) : Engine(std::move(aTag))
     {
         SOGE_APP_INFO_LOG("Initialize game...");
     }

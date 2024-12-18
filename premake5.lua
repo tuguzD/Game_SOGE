@@ -18,6 +18,7 @@ workspace "SOGE"
         -- Doesn't shown as subproject in MSVC solution
 
         include "3rdparty/SDL/premake5.lua"
+        include "3rdparty/glm/premake5.lua"
         include "3rdparty/NRI/premake5.lua"
         include "3rdparty/NVRHI/premake5.lua"
     group ""
@@ -52,6 +53,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
@@ -191,6 +195,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
