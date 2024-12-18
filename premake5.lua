@@ -16,6 +16,7 @@ workspace "SOGE"
         include "3rdparty/kangaru/premake5.lua"
         include "3rdparty/SDL/premake5.lua"
         include "3rdparty/cppfs/premake5.lua"
+        include "3rdparty/glm/premake5.lua"
     group ""
 
     project "SOGE"
@@ -52,6 +53,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
             "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
 
         defines
@@ -190,6 +194,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
             "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
 
         links

@@ -17,6 +17,7 @@ namespace soge
 {
     UniquePtr<Engine> Engine::s_instance(nullptr);
     std::mutex Engine::s_mutex;
+    thread_local std::atomic_bool Engine::s_mutexLocked;
 
     Engine* Engine::GetInstance()
     {
@@ -27,17 +28,41 @@ namespace soge
         }
 
         // Safe but slow path: initialize with default class if empty
+        AssertMutexIsNotLocked();
         std::lock_guard lock(s_mutex);
+        MutexLockedGuard mutexLockedGuard;
+
         // Additional check to ensure we are creating new instance exactly once
         if (s_instance == nullptr)
         {
             // Replicating `make_unique` here because the constructor is protected
-            s_instance = UniquePtr<Engine>(new Engine());
+            s_instance = UniquePtr<Engine>(new Engine(AccessTag{}));
         }
         return s_instance.get();
     }
 
-    Engine::Engine() : m_isRunning(false), m_shutdownRequested(false)
+    Engine::MutexLockedGuard::MutexLockedGuard() noexcept
+    {
+        s_mutexLocked = true;
+    }
+
+    Engine::MutexLockedGuard::~MutexLockedGuard() noexcept
+    {
+        s_mutexLocked = false;
+    }
+
+    void Engine::AssertMutexIsNotLocked()
+    {
+        if (!s_mutexLocked.load())
+        {
+            return;
+        }
+
+        SOGE_ERROR_LOG("Engine mutex is already locked by the current thread!");
+        std::exit(EXIT_FAILURE); // NOLINT(concurrency-mt-unsafe)
+    }
+
+    Engine::Engine([[maybe_unused]] AccessTag&& aTag) : m_isRunning(false), m_shutdownRequested(false)
     {
         SOGE_INFO_LOG("Initialize engine...");
 
@@ -45,6 +70,14 @@ namespace soge
         CreateModule<InputModule>();
         CreateModule<SoundModule>();
         CreateModule<WindowModule>();
+    }
+
+    void Engine::Load(AccessTag)
+    {
+    }
+
+    void Engine::Unload(AccessTag)
+    {
     }
 
     Engine::~Engine()
@@ -60,13 +93,16 @@ namespace soge
         }
 
         // Prevent users from resetting engine while it is running
+        AssertMutexIsNotLocked();
         std::lock_guard lock(s_mutex);
+        MutexLockedGuard mutexLockedGuard;
 
         m_isRunning = true;
         for (Module& module : m_moduleManager)
         {
             module.Load(m_container, m_moduleManager);
         }
+        Load(AccessTag{});
 
         const auto [window, uuid] = GetModule<WindowModule>()->CreateWindow();
         SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
@@ -90,6 +126,7 @@ namespace soge
             }
         }
 
+        Unload(AccessTag{});
         for (Module& module : m_moduleManager | std::views::reverse)
         {
             module.Unload(m_container, m_moduleManager);

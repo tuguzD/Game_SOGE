@@ -11,6 +11,8 @@ IncludeThirdpartyDirs["kangaru"] = "3rdparty/kangaru/kangaru/include"
 IncludeThirdpartyDirs["SDL3"] = "3rdparty/SDL/SDL/include"
 IncludeThirdpartyDirs["cppfs"] = "3rdparty/cppfs/cppfs/source/cppfs/include"
 IncludeThirdpartyDirs["FMOD"] = "3rdparty/FMOD/FMOD/include"
+IncludeThirdpartyDirs["glm"] = "3rdparty/glm/glm/include"
+IncludeThirdpartyDirs["XoshiroCpp"] = "3rdparty/XoshiroCpp/XoshiroCpp/include" 
 
 -- Include libs
 Libraries = {}
