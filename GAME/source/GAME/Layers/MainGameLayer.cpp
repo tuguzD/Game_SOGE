@@ -5,6 +5,7 @@ namespace soge_game
 {
     MainGameLayer::MainGameLayer() : Layer("MainGameLayer")
     {
+        SOGE_INFO_LOG("Global engine instance pointer is {}", static_cast<void*>(soge::Engine::GetInstance()));
     }
 
     void MainGameLayer::OnAttach()

@@ -9,7 +9,7 @@ namespace soge_game
     class Game final : public soge::Engine
     {
     public:
-        explicit Game(AccessTag);
+        explicit Game(AccessTag&& aTag);
 
         Game(const Game&) = delete;
         Game& operator=(const Game&) = delete;
