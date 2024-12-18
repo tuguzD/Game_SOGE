@@ -9,7 +9,7 @@ namespace soge_game
     class MainGameLayer final : public soge::Layer
     {
     private:
-        soge::InputModule* inputModule = soge::Engine::GetInstance()->GetModule<soge::InputModule>();
+        soge::InputModule* m_inputModule = soge::Engine::GetInstance()->GetModule<soge::InputModule>();
 
     public:
         explicit MainGameLayer();

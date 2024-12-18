@@ -1,15 +1,15 @@
 #ifndef SOGE_GRAPHICS_GENERIC_VERTEX_HPP
 #define SOGE_GRAPHICS_GENERIC_VERTEX_HPP
 
-#include "SOGE/Math/Vertex4f.hpp"
+#include <glm/vec4.hpp>
 
 
 namespace soge
 {
     struct Vertex
     {
-        Vector4f m_position;
-        Vector4f m_color;
+        glm::vec4 m_position;
+        glm::vec4 m_color;
     };
 }
 

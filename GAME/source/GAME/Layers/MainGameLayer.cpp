@@ -20,11 +20,11 @@ namespace soge_game
 
     void MainGameLayer::OnUpdate()
     {
-        if (inputModule->IsKeyPressed(soge::Keys::W))
+        if (m_inputModule->IsKeyPressed(soge::Keys::W))
         {
             SOGE_APP_INFO_LOG("Key W pressed!");
         }
-        else if (inputModule->IsKeyPressed(soge::Keys::Escape))
+        else if (m_inputModule->IsKeyPressed(soge::Keys::Escape))
         {
             SOGE_APP_INFO_LOG("Key Escape pressed - shutting down!");
             soge::Engine::GetInstance()->RequestShutdown();
