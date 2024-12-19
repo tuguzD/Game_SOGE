@@ -29,25 +29,12 @@ namespace soge
         constexpr explicit SoundCore(SoundCore&&) noexcept = default;
         constexpr SoundCore& operator=(SoundCore&&) noexcept = default;
 
-        virtual void BeginUpdateSound()                         = 0;
-        virtual void EndUpdateSound()                           = 0;
-        virtual void SetPauseUpdate(float aPauseRequested)      = 0;
+        virtual void Update() = 0;
 
-        virtual void Set3DListenerPosition(float aPosX,     float aPosY,     float aPosZ,
-                                           float aForwardX, float aForwardY, float aForwardZ,
-                                           float aUpX,      float aUpY,      float aUpZ) = 0;
-
-        virtual void LoadSoundResource(SoundResource& aSoundResource)     = 0;
-        virtual void UnloadSoundResource(SoundResource& aSoundResource)   = 0;
-        virtual void ReloadSoundResource(SoundResource& aSoundResource)   = 0;
-
+        virtual void LoadSoundResource(SoundResource& aSoundResource) = 0;
         virtual void PlaySoundResource(SoundResource& aSoundResource) = 0;
-        virtual void StopSoundResource(SoundResource& aSoundResource) = 0;
-
-        virtual bool IsSoundPlaying(SoundResource& aSoundResource) = 0;
-
-        virtual void SetVolume(float aVolume) = 0;
-        virtual float GetVolume() const = 0;
+        virtual bool IsSoundResourcePlaying(SoundResource& aSoundResource) = 0;
+        //void Stop(const SoundResource& aSoundResource);
 
     };
 

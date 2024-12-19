@@ -9,6 +9,7 @@
 #include "SOGE/Sound/SoundModule.hpp"
 
 #include <ranges>
+#include "SOGE/Sound/SoundResource.hpp"
 
 #undef CreateWindow
 
@@ -108,11 +109,20 @@ namespace soge
         SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
                       EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(), uuid.str());
 
+        SoundResource sres = SoundResource("TestSoundRes", "C:/test1.wav");
+        GetModule<SoundModule>()->LoadSoundResource(sres);
+        sres.SetLoaded(true);
+
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
         {
             Timestep::StartFrame();
             Timestep::CalculateDelta();
+
+            if (GetModule<InputModule>()->IsKeyPressed(Keys::SpaceBar))
+            {
+                GetModule<SoundModule>()->PlaySoundResource(sres);
+            }
 
             GetModule<InputModule>()->Update();
             GetModule<SoundModule>()->Update();

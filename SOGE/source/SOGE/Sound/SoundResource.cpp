@@ -83,14 +83,4 @@ namespace soge
         return m_userLengthMs;
     }
 
-    FriendFuncPtr<ResourceBase, void, bool> SoundResource::FriendlySetLoadState()
-    {
-        return FriendFuncPtr(&ResourceBase::SetLoaded);
-    }
-
-    FriendFuncPtr<SoundResource, void, unsigned int> SoundResource::FriendlySetInitialLength()
-    {
-        return FriendFuncPtr(&SoundResource::SetActualLengthMs);
-    }
-
 }

@@ -2,8 +2,6 @@
 #define SOGE_SOUND_SOUNDRESOURCE_HPP
 
 #include "SOGE/Content/ResourceBase.hpp"
-#include "SOGE/Containers/FriendFuncPtr.hpp"
-
 #include <cppfs/FilePath.h>
 
 
@@ -42,10 +40,6 @@ namespace soge
         float GetReverbAmount() const;
         unsigned int GetActualLengthMs() const;
         unsigned int GetUserLengthMs() const;
-
-    public:
-        static FriendFuncPtr<ResourceBase, void, bool> FriendlySetLoadState();
-        static FriendFuncPtr<SoundResource, void, unsigned int> FriendlySetInitialLength();
 
     };
 }

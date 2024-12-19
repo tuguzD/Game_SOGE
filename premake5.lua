@@ -52,8 +52,7 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}"
-            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}",
             "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
             "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
@@ -193,8 +192,7 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}"
-            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}",
             "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
             "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }

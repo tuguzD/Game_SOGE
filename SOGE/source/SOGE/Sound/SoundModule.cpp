@@ -40,6 +40,6 @@ namespace soge
 
     void SoundModule::Update() const
     {
-        m_soundCore->BeginUpdateSound();
+        m_soundCore->Update();
     }
 }
