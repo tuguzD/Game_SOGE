@@ -1,6 +1,7 @@
 #ifndef SOGE_SOUND_SOUNDRESOURCE_HPP
 #define SOGE_SOUND_SOUNDRESOURCE_HPP
 
+#include "SOGE/Sound/SoundCompilePreproc.hpp"
 #include "SOGE/Content/ResourceBase.hpp"
 #include <cppfs/FilePath.h>
 
@@ -9,6 +10,8 @@ namespace soge
 {
     class SoundResource : public ResourceBase
     {
+        SOGE_MAKE_SOUNDSYSTEM_CLASS_FRIEND(SoundCore)
+
     private:
         unsigned int m_actualLengthMs;
         unsigned int m_userLengthMs;

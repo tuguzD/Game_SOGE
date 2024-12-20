@@ -33,6 +33,7 @@ namespace soge
         {
             m_loadedSounds.insert({aSoundResource.GetUUID(), sound});
         }
+        aSoundResource.SetLoaded(true);
     }
 
     void FMODSoundCore::PlaySoundResource(SoundResource& aSoundResource)

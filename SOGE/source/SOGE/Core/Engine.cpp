@@ -111,7 +111,6 @@ namespace soge
 
         SoundResource sres = SoundResource("TestSoundRes", "C:/test1.wav");
         GetModule<SoundModule>()->LoadSoundResource(sres);
-        sres.SetLoaded(true);
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)

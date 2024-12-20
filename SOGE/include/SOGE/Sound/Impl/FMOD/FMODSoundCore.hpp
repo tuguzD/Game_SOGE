@@ -31,7 +31,7 @@ namespace soge
         bool IsSoundResourcePlaying(SoundResource& aSoundResource) override;
     };
 
-    using ImplSoundCore = FMODSoundCore;
+    using ImplSoundCore = soge::FMODSoundCore;
 }
 
 SOGE_DI_REGISTER_NS(soge, FMODSoundCore, df::Single<FMODSoundCore, EventModule>, tag::Overrides<SoundCore>)

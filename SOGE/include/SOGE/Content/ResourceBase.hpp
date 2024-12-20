@@ -20,9 +20,9 @@ namespace soge
 
         void SetFilePath(const eastl::string& aFullPath);
         void SetFilePath(const cppfs::FilePath& aFullPath);
+        void SetLoaded(bool aLoaded);
 
     public:
-        void SetLoaded(bool aLoaded);
         ResourceBase(const eastl::string& aName, const cppfs::FilePath& aFullPath);
         ~ResourceBase();
 
