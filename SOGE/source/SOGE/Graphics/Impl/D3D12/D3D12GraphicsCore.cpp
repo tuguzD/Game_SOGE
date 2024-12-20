@@ -3,6 +3,7 @@
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
+#include "SOGE/Graphics/Generic/Vertex.hpp"
 #include "SOGE/Window/Window.hpp"
 
 #include <Extensions/NRIWrapperD3D12.h>
@@ -135,6 +136,15 @@ namespace soge
             return;
         }
 
+        // TODO: move code below into pipeline class
+        SOGE_INFO_LOG("Destroying simple pipeline...");
+        m_nvrhiGraphicsPipeline = nullptr;
+        m_nvrhiBindingLayout = nullptr;
+        m_nvrhiPixelShader = nullptr;
+        m_nvrhiInputLayout = nullptr;
+        m_nvrhiVertexShader = nullptr;
+        // end of TODO
+
         SOGE_INFO_LOG("Destroying NVRHI framebuffer...");
         m_nvrhiFramebuffer = nullptr;
 
@@ -232,6 +242,81 @@ namespace soge
         framebufferDesc.addColorAttachment(m_nvrhiSwapChainTextures[0]);
 
         m_nvrhiFramebuffer = m_nvrhiDevice->createFramebuffer(framebufferDesc);
+
+        // TODO: move code below into pipeline class
+        SOGE_INFO_LOG("Creating simple pipeline...");
+
+        constexpr std::string_view shaderBinary = R"(
+            struct VS_Input
+            {
+                float3 position : POSITION0;
+                float4 color : COLOR0;
+            };
+            
+            struct VS_Output
+            {
+                float4 position : SV_POSITION;
+                float4 color : COLOR0;
+            };
+            
+            VS_Output VSMain(VS_Input input)
+            {
+                VS_Output output = (VS_Output)0;
+            
+                output.position = float4(input.position, 1.0f);
+                output.color = input.color;
+            
+                return output;
+            }
+            
+            typedef VS_Output PS_Input;
+            
+            float4 PSMain(PS_Input input) : SV_Target
+            {
+                float4 color = input.color;
+                return color;
+            }
+        )";
+        const std::array vertexAttributeDescs{
+            nvrhi::VertexAttributeDesc{
+                .name = "position",
+                .format = nvrhi::Format::RGB32_FLOAT,
+                .offset = offsetof(Vertex, m_position),
+                .elementStride = sizeof(Vertex),
+            },
+            nvrhi::VertexAttributeDesc{
+                .name = "color",
+                .format = nvrhi::Format::RG32_FLOAT,
+                .offset = offsetof(Vertex, m_color),
+                .elementStride = sizeof(Vertex),
+            },
+        };
+
+        nvrhi::ShaderDesc vertexShaderDesc{};
+        vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
+        vertexShaderDesc.debugName = "SOGE vertex shader";
+        vertexShaderDesc.entryName = "VSMain";
+        m_nvrhiVertexShader = m_nvrhiDevice->createShader(vertexShaderDesc, shaderBinary.data(), shaderBinary.size());
+
+        m_nvrhiInputLayout = m_nvrhiDevice->createInputLayout(
+            vertexAttributeDescs.data(), static_cast<std::uint32_t>(vertexAttributeDescs.size()), m_nvrhiVertexShader);
+
+        nvrhi::ShaderDesc pixelShaderDesc{};
+        pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
+        pixelShaderDesc.debugName = "SOGE pixel shader";
+        pixelShaderDesc.entryName = "PSMain";
+        m_nvrhiPixelShader = m_nvrhiDevice->createShader(pixelShaderDesc, shaderBinary.data(), shaderBinary.size());
+
+        nvrhi::BindingLayoutDesc bindingLayoutDesc{};
+        bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
+        m_nvrhiBindingLayout = m_nvrhiDevice->createBindingLayout(bindingLayoutDesc);
+
+        nvrhi::GraphicsPipelineDesc pipelineDesc{};
+        pipelineDesc.inputLayout = m_nvrhiInputLayout;
+        pipelineDesc.VS = m_nvrhiVertexShader;
+        pipelineDesc.PS = m_nvrhiPixelShader;
+        pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
+        m_nvrhiGraphicsPipeline = m_nvrhiDevice->createGraphicsPipeline(pipelineDesc, m_nvrhiFramebuffer);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)

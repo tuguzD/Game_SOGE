@@ -56,9 +56,17 @@ namespace soge
         NvrhiMessageCallback m_nvrhiMessageCallback;
         nvrhi::DeviceHandle m_nvrhiDevice;
 
+        // TODO: move this into some class which strongly links to the window and has the same lifetime
         nri::SwapChain* m_nriSwapChain;
         eastl::vector<nvrhi::TextureHandle> m_nvrhiSwapChainTextures;
         nvrhi::FramebufferHandle m_nvrhiFramebuffer;
+
+        // TODO: move this into some pipeline class which can be reused by multiple render passes
+        nvrhi::ShaderHandle m_nvrhiVertexShader;
+        nvrhi::InputLayoutHandle m_nvrhiInputLayout;
+        nvrhi::ShaderHandle m_nvrhiPixelShader;
+        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
+        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
 
     public:
         explicit D3D12GraphicsCore();
