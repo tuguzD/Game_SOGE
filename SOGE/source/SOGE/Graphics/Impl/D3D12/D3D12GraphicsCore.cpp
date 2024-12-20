@@ -124,20 +124,19 @@ namespace soge
     {
         SOGE_INFO_LOG("Destroying D3D12 render backend...");
 
-        DestroyNriSwapChain();
-
-        SOGE_INFO_LOG("Destroying NVRHI render device...");
-        m_nvrhiDevice = nullptr;
-
-        DestroyNriDevice();
+        DestroySwapChain();
+        DestroyDevice();
     }
 
-    void D3D12GraphicsCore::DestroyNriSwapChain()
+    void D3D12GraphicsCore::DestroySwapChain()
     {
         if (m_nriSwapChain == nullptr)
         {
             return;
         }
+
+        SOGE_INFO_LOG("Destroying NVRHI framebuffer...");
+        m_nvrhiFramebuffer = nullptr;
 
         SOGE_INFO_LOG("Destroying NVRHI swap chain textures...");
         m_nvrhiSwapChainTextures.clear();
@@ -147,8 +146,11 @@ namespace soge
         m_nriSwapChain = nullptr;
     }
 
-    void D3D12GraphicsCore::DestroyNriDevice()
+    void D3D12GraphicsCore::DestroyDevice()
     {
+        SOGE_INFO_LOG("Destroying NVRHI render device...");
+        m_nvrhiDevice = nullptr;
+
         if (m_nriDevice == nullptr)
         {
             return;
@@ -168,7 +170,7 @@ namespace soge
 
     void D3D12GraphicsCore::SetRenderTarget(const Window& aWindow)
     {
-        DestroyNriSwapChain();
+        DestroySwapChain();
 
         SOGE_INFO_LOG("Creating NRI swap chain for window...");
         nri::SwapChainDesc swapChainDesc{};
@@ -224,6 +226,12 @@ namespace soge
                 nvrhiTextureDesc);
             m_nvrhiSwapChainTextures.push_back(nvrhiTexture);
         }
+
+        SOGE_INFO_LOG("Creating NVRHI framebuffer for swap chain textures...");
+        nvrhi::FramebufferDesc framebufferDesc{};
+        framebufferDesc.addColorAttachment(m_nvrhiSwapChainTextures[0]);
+
+        m_nvrhiFramebuffer = m_nvrhiDevice->createFramebuffer(framebufferDesc);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)
