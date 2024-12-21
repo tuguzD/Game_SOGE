@@ -56,8 +56,7 @@ namespace
 namespace soge
 {
     D3D12GraphicsCore::D3D12GraphicsCore()
-        : m_nriCallbackInterface(), m_nriAllocationCallbacks(), m_nriSwapChain(nullptr), m_currentFrameIndex(),
-          m_frameCount()
+        : m_nriCallbackInterface(), m_nriAllocationCallbacks(), m_nriSwapChain(nullptr), m_totalFrameCount()
     {
         SOGE_INFO_LOG("Creating D3D12 render backend...");
         m_nriCallbackInterface.MessageCallback = NriMessageCallback;
@@ -104,8 +103,6 @@ namespace soge
         NRIThrowIfFailed(ConvertResult(d3d12Device->CreateCommandQueue(&graphicsCommandQueueDesc,
                                                                        IID_PPV_ARGS(&graphicsCommandQueue))),
                          "creating graphics command queue");
-        NRIThrowIfFailed(ConvertResult(graphicsCommandQueue->SetName(L"SOGE graphics command queue")),
-                         "setting debug name for graphics command queue");
 
         SOGE_INFO_LOG("Creating NRI device wrapper from D3D12 device...");
         nri::DeviceCreationD3D12Desc deviceCreationD3D12Desc{};
@@ -130,6 +127,11 @@ namespace soge
                                               static_cast<nri::SwapChainInterface*>(&m_nriInterface)),
                          "retrieving NRI swap chain interface from device wrapper");
 
+        NRIThrowIfFailed(
+            m_nriInterface.GetCommandQueue(*m_nriDevice, nri::CommandQueueType::GRAPHICS, m_nriGraphicsCommandQueue),
+            "retrieving NRI graphics command queue");
+        m_nriInterface.SetCommandQueueDebugName(*m_nriGraphicsCommandQueue, "SOGE graphics command queue");
+
         SOGE_INFO_LOG("Creating NVRHI render device...");
         const nvrhi::d3d12::DeviceDesc deviceDesc{
             .errorCB = &m_nvrhiMessageCallback,
@@ -144,6 +146,10 @@ namespace soge
     {
         SOGE_INFO_LOG("Destroying D3D12 render backend...");
 
+        if (m_nriGraphicsCommandQueue != nullptr)
+        {
+            m_nriInterface.WaitForIdle(*m_nriGraphicsCommandQueue);
+        }
         m_nvrhiDevice->waitForIdle();
         m_nvrhiDevice->runGarbageCollection();
 
@@ -192,6 +198,7 @@ namespace soge
         SOGE_INFO_LOG("Destroying NRI render device wrapper...");
         nri::nriDestroyDevice(*m_nriDevice);
         m_nriDevice = nullptr;
+        m_nriGraphicsCommandQueue = nullptr;
 
         if (m_nriInitDevice == nullptr)
         {
@@ -213,15 +220,12 @@ namespace soge
         nriWindow.windows = nri::WindowsWindow{static_cast<HWND>(aWindow.GetNativeHandler())};
         swapChainDesc.window = nriWindow;
 
-        nri::CommandQueue* commandQueue;
-        NRIThrowIfFailed(m_nriInterface.GetCommandQueue(*m_nriDevice, nri::CommandQueueType::GRAPHICS, commandQueue),
-                         "retrieving graphics command queue");
-        swapChainDesc.commandQueue = commandQueue;
-
+        swapChainDesc.commandQueue = m_nriGraphicsCommandQueue;
         swapChainDesc.width = static_cast<nri::Dim_t>(aWindow.GetWidth());
         swapChainDesc.height = static_cast<nri::Dim_t>(aWindow.GetHeight());
         swapChainDesc.textureNum = 2;
         swapChainDesc.format = nri::SwapChainFormat::BT709_G10_16BIT;
+        swapChainDesc.waitable = true; // TODO: change to false, set queuedFrameNum to 2 (in the future, not now)
 
         NRIThrowIfFailed(m_nriInterface.CreateSwapChain(*m_nriDevice, swapChainDesc, m_nriSwapChain),
                          "creating a graphics swap chain for window");
@@ -328,7 +332,7 @@ namespace soge
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
         pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
-        // no need to create pipeline for each frame buffer, all of them compatible with the first one
+        // no need to create pipeline for each frame buffer, all of them are compatible with the first one
         nvrhi::FramebufferHandle framebuffer = m_backBuffers[0].m_nvrhiFramebuffer;
         m_nvrhiGraphicsPipeline = m_nvrhiDevice->createGraphicsPipeline(pipelineDesc, framebuffer);
 
@@ -351,25 +355,27 @@ namespace soge
         commandList->open();
         commandList->writeBuffer(m_nvrhiVertexBuffer, g_vertices.data(), sizeof(g_vertices));
         commandList->close();
-        m_nvrhiDevice->executeCommandList(commandList);
+        m_nvrhiDevice->executeCommandList(commandList, nvrhi::CommandQueue::Graphics);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)
     {
-        // NRIThrowIfFailed(m_nriInterface.WaitForPresent(*m_nriSwapChain), "waiting swap chain for present");
+        NRIThrowIfFailed(m_nriInterface.WaitForPresent(*m_nriSwapChain), "waiting for swap chain to present");
         m_nvrhiDevice->runGarbageCollection();
 
-        // TODO: change current frame index on each invocation
-        const auto& [currentColorAttachments, currentFramebuffer] = m_backBuffers[m_currentFrameIndex];
+        const auto currentFrameIndex = m_nriInterface.AcquireNextSwapChainTexture(*m_nriSwapChain);
+        const auto& [currentColorAttachments, currentFramebuffer] = m_backBuffers[currentFrameIndex];
+        const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer->getFramebufferInfo();
+
+        SOGE_INFO_LOG("Current frame index is {}, delta time is {}", currentFrameIndex, aDeltaTime);
 
         const nvrhi::CommandListHandle commandList = m_nvrhiDevice->createCommandList();
         commandList->open();
 
         for (std::uint32_t index = 0; index < currentColorAttachments.size(); ++index)
         {
-            nvrhi::utils::ClearColorAttachment(commandList, currentFramebuffer, index, nvrhi::Color(0.f));
+            nvrhi::utils::ClearColorAttachment(commandList, currentFramebuffer, index, nvrhi::Color{});
         }
-        const nvrhi::TextureDesc& textureDesc = currentColorAttachments[0]->getDesc();
 
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = m_nvrhiGraphicsPipeline;
@@ -378,21 +384,19 @@ namespace soge
         graphicsState.vertexBuffers = {
             nvrhi::VertexBufferBinding{.buffer = m_nvrhiVertexBuffer, .slot = 0, .offset = 0},
         };
-        graphicsState.viewport = nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport{
-            static_cast<float>(textureDesc.width),
-            static_cast<float>(textureDesc.height),
-        });
+        graphicsState.viewport = nvrhi::ViewportState().addViewportAndScissorRect(framebufferInfo.getViewport());
         commandList->setGraphicsState(graphicsState);
 
         nvrhi::DrawArguments drawArguments{};
-        drawArguments.vertexCount = g_vertices.size();
+        drawArguments.vertexCount = static_cast<std::uint32_t>(g_vertices.size());
         commandList->draw(drawArguments);
 
         commandList->close();
-        // m_nvrhiDevice->executeCommandList(commandList);
+        // TODO: find out why this call breaks the next call
+        // m_nvrhiDevice->executeCommandList(commandList, nvrhi::CommandQueue::Graphics);
 
-        // NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
-        m_frameCount++;
+        NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
+        m_totalFrameCount++;
     }
 
     D3D12GraphicsCore::NvrhiMessageCallback::NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept

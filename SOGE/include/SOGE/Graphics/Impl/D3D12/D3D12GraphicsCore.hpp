@@ -50,6 +50,7 @@ namespace soge
         nri::Device* m_nriInitDevice;
         nri::Device* m_nriDevice;
         NriInterface m_nriInterface;
+        nri::CommandQueue* m_nriGraphicsCommandQueue;
         nri::CallbackInterface m_nriCallbackInterface;
         nri::AllocationCallbacks m_nriAllocationCallbacks;
 
@@ -66,8 +67,7 @@ namespace soge
         nri::SwapChain* m_nriSwapChain;
         eastl::vector<BackBuffer> m_backBuffers;
 
-        std::uint8_t m_currentFrameIndex;
-        std::uint32_t m_frameCount;
+        std::uint32_t m_totalFrameCount;
 
         // TODO: move this into some pipeline class which can be reused by multiple render passes
         nvrhi::ShaderHandle m_nvrhiVertexShader;
