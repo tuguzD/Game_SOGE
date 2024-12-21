@@ -10,6 +10,8 @@
 
 #include <nvrhi/validation.h>
 
+#include <fstream>
+
 
 namespace
 {
@@ -246,37 +248,30 @@ namespace soge
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating simple pipeline...");
 
-        constexpr std::string_view shaderBinary = R"(
-            struct VS_Input
-            {
-                float3 position : POSITION0;
-                float4 color : COLOR0;
-            };
-            
-            struct VS_Output
-            {
-                float4 position : SV_POSITION;
-                float4 color : COLOR0;
-            };
-            
-            VS_Output VSMain(VS_Input input)
-            {
-                VS_Output output = (VS_Output)0;
-            
-                output.position = float4(input.position, 1.0f);
-                output.color = input.color;
-            
-                return output;
-            }
-            
-            typedef VS_Output PS_Input;
-            
-            float4 PSMain(PS_Input input) : SV_Target
-            {
-                float4 color = input.color;
-                return color;
-            }
-        )";
+        // TODO: move file in a separate folder
+        std::ifstream vertexShaderFile("simple.vs.bin", std::ios::in | std::ios::binary);
+        std::vector<std::uint8_t> vertexShaderBinary(std::istreambuf_iterator(vertexShaderFile), {});
+        vertexShaderFile.close();
+
+        nvrhi::ShaderDesc vertexShaderDesc{};
+        vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
+        vertexShaderDesc.debugName = "SOGE vertex shader";
+        vertexShaderDesc.entryName = "VSMain";
+        m_nvrhiVertexShader =
+            m_nvrhiDevice->createShader(vertexShaderDesc, vertexShaderBinary.data(), vertexShaderBinary.size());
+
+        // TODO: move file in a separate folder
+        std::ifstream pixelShaderFile("simple.ps.bin", std::ios::in | std::ios::binary);
+        std::vector<std::uint8_t> pixelShaderBinary(std::istreambuf_iterator(pixelShaderFile), {});
+        pixelShaderFile.close();
+
+        nvrhi::ShaderDesc pixelShaderDesc{};
+        pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
+        pixelShaderDesc.debugName = "SOGE pixel shader";
+        pixelShaderDesc.entryName = "PSMain";
+        m_nvrhiPixelShader =
+            m_nvrhiDevice->createShader(pixelShaderDesc, pixelShaderBinary.data(), pixelShaderBinary.size());
+
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
                 .name = "position",
@@ -291,21 +286,9 @@ namespace soge
                 .elementStride = sizeof(Vertex),
             },
         };
-
-        nvrhi::ShaderDesc vertexShaderDesc{};
-        vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
-        vertexShaderDesc.debugName = "SOGE vertex shader";
-        vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader = m_nvrhiDevice->createShader(vertexShaderDesc, shaderBinary.data(), shaderBinary.size());
-
-        nvrhi::ShaderDesc pixelShaderDesc{};
-        pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
-        pixelShaderDesc.debugName = "SOGE pixel shader";
-        pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = m_nvrhiDevice->createShader(pixelShaderDesc, shaderBinary.data(), shaderBinary.size());
-
-        m_nvrhiInputLayout = m_nvrhiDevice->createInputLayout(vertexAttributeDescArray.data(),
-                                                              vertexAttributeDescArray.size(), m_nvrhiVertexShader);
+        m_nvrhiInputLayout = m_nvrhiDevice->createInputLayout(
+            vertexAttributeDescArray.data(), static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
+            m_nvrhiVertexShader);
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
