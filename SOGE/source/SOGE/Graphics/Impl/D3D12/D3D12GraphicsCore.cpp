@@ -8,6 +8,7 @@
 
 #include <Extensions/NRIWrapperD3D12.h>
 
+#include <nvrhi/utils.h>
 #include <nvrhi/validation.h>
 
 #include <fstream>
@@ -35,12 +36,28 @@ namespace
 
         return nri::Result::FAILURE;
     }
+
+    constexpr std::array g_vertices{
+        soge::Vertex{
+            .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
+            .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
+        },
+        soge::Vertex{
+            .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
+            .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
+        },
+        soge::Vertex{
+            .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
+            .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
+        },
+    };
 }
 
 namespace soge
 {
     D3D12GraphicsCore::D3D12GraphicsCore()
-        : m_nriCallbackInterface(), m_nriAllocationCallbacks(), m_nriSwapChain(nullptr)
+        : m_nriCallbackInterface(), m_nriAllocationCallbacks(), m_nriSwapChain(nullptr), m_currentFrameIndex(),
+          m_frameCount()
     {
         SOGE_INFO_LOG("Creating D3D12 render backend...");
         m_nriCallbackInterface.MessageCallback = NriMessageCallback;
@@ -127,6 +144,9 @@ namespace soge
     {
         SOGE_INFO_LOG("Destroying D3D12 render backend...");
 
+        m_nvrhiDevice->waitForIdle();
+        m_nvrhiDevice->runGarbageCollection();
+
         DestroySwapChain();
         DestroyDevice();
     }
@@ -138,6 +158,11 @@ namespace soge
             return;
         }
 
+        // TODO: move code below into component class
+        SOGE_INFO_LOG("Destroying vertex buffer...");
+        m_nvrhiBindingSet = nullptr;
+        m_nvrhiVertexBuffer = nullptr;
+
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Destroying simple pipeline...");
         m_nvrhiGraphicsPipeline = nullptr;
@@ -147,11 +172,8 @@ namespace soge
         m_nvrhiVertexShader = nullptr;
         // end of TODO
 
-        SOGE_INFO_LOG("Destroying NVRHI framebuffer...");
-        m_nvrhiFramebuffer = nullptr;
-
-        SOGE_INFO_LOG("Destroying NVRHI swap chain textures...");
-        m_nvrhiSwapChainTextures.clear();
+        SOGE_INFO_LOG("Destroying NVRHI back buffers...");
+        m_backBuffers.clear();
 
         SOGE_INFO_LOG("Destroying NRI swap chain...");
         m_nriInterface.DestroySwapChain(*m_nriSwapChain);
@@ -205,48 +227,54 @@ namespace soge
                          "creating a graphics swap chain for window");
         m_nriInterface.SetSwapChainDebugName(*m_nriSwapChain, "SOGE graphics swap chain");
 
-        std::uint32_t swapChainTextureCount;
-        const auto swapChainTextures = m_nriInterface.GetSwapChainTextures(*m_nriSwapChain, swapChainTextureCount);
-        SOGE_INFO_LOG("Swap chain texture count: {}", swapChainTextureCount);
+        std::uint32_t swapChainColorTextureCount;
+        nri::Texture* const* swapChainColorTextures =
+            m_nriInterface.GetSwapChainTextures(*m_nriSwapChain, swapChainColorTextureCount);
+        SOGE_INFO_LOG("Swap chain texture count: {}", swapChainColorTextureCount);
 
-        m_nvrhiSwapChainTextures.reserve(swapChainTextureCount);
-        for (std::size_t i = 0; i < swapChainTextureCount; i++)
+        m_backBuffers.reserve(swapChainColorTextureCount);
+        for (std::size_t index = 0; index < swapChainColorTextureCount; index++)
         {
-            SOGE_INFO_LOG("Creating NVRHI texture {} from NRI texture...", i);
+            SOGE_INFO_LOG("Creating NVRHI swap chain color texture {}...", index);
 
-            const auto nriTexture = swapChainTextures[i];
-            const auto& nriTextureDesc = m_nriInterface.GetTextureDesc(*nriTexture);
-            assert(nriTextureDesc.type == nri::TextureType::TEXTURE_2D);
-            assert(nriTextureDesc.usage & nri::TextureUsageBits::COLOR_ATTACHMENT &&
-                   nriTextureDesc.usage & nri::TextureUsageBits::SHADER_RESOURCE);
-            assert(nriTextureDesc.format == nri::Format::RGBA16_SFLOAT);
+            const nri::Texture* nriColorTexture = swapChainColorTextures[index];
+            const nri::TextureDesc& nriColorTextureDesc = m_nriInterface.GetTextureDesc(*nriColorTexture);
+            assert(nriColorTextureDesc.type == nri::TextureType::TEXTURE_2D);
+            assert(nriColorTextureDesc.usage & nri::TextureUsageBits::COLOR_ATTACHMENT &&
+                   nriColorTextureDesc.usage & nri::TextureUsageBits::SHADER_RESOURCE);
+            assert(nriColorTextureDesc.format == nri::Format::RGBA16_SFLOAT);
 
-            nvrhi::TextureDesc nvrhiTextureDesc{};
-            nvrhiTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
-            nvrhiTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
-            nvrhiTextureDesc.width = nriTextureDesc.width;
-            nvrhiTextureDesc.height = nriTextureDesc.height;
-            nvrhiTextureDesc.isRenderTarget = true;
-            nvrhiTextureDesc.isShaderResource = true;
-            nvrhiTextureDesc.depth = nriTextureDesc.depth;
-            nvrhiTextureDesc.mipLevels = nriTextureDesc.mipNum;
-            nvrhiTextureDesc.arraySize = nriTextureDesc.layerNum;
-            nvrhiTextureDesc.sampleCount = nriTextureDesc.sampleNum;
+            nvrhi::TextureDesc nvrhiColorTextureDesc{};
+            nvrhiColorTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+            nvrhiColorTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
+            nvrhiColorTextureDesc.width = nriColorTextureDesc.width;
+            nvrhiColorTextureDesc.height = nriColorTextureDesc.height;
+            nvrhiColorTextureDesc.isRenderTarget = true;
+            nvrhiColorTextureDesc.isShaderResource = true;
+            nvrhiColorTextureDesc.depth = nriColorTextureDesc.depth;
+            nvrhiColorTextureDesc.mipLevels = nriColorTextureDesc.mipNum;
+            nvrhiColorTextureDesc.arraySize = nriColorTextureDesc.layerNum;
+            nvrhiColorTextureDesc.sampleCount = nriColorTextureDesc.sampleNum;
 
-            auto nvrhiTexture = m_nvrhiDevice->createHandleForNativeTexture(
-                nvrhi::ObjectTypes::D3D12_Resource, m_nriInterface.GetTextureNativeObject(*nriTexture),
-                nvrhiTextureDesc);
-            m_nvrhiSwapChainTextures.push_back(nvrhiTexture);
+            nvrhi::TextureHandle nvrhiColorTexture = m_nvrhiDevice->createHandleForNativeTexture(
+                nvrhi::ObjectTypes::D3D12_Resource, m_nriInterface.GetTextureNativeObject(*nriColorTexture),
+                nvrhiColorTextureDesc);
+
+            SOGE_INFO_LOG("Creating NVRHI framebuffer {}...", index);
+            nvrhi::FramebufferDesc framebufferDesc{};
+            framebufferDesc.addColorAttachment(nvrhiColorTexture);
+
+            nvrhi::FramebufferHandle nvrhiFramebuffer = m_nvrhiDevice->createFramebuffer(framebufferDesc);
+
+            BackBuffer backBuffer{
+                .m_nvrhiColorAttachments = {nvrhiColorTexture},
+                .m_nvrhiFramebuffer = nvrhiFramebuffer,
+            };
+            m_backBuffers.push_back(backBuffer);
         }
 
-        SOGE_INFO_LOG("Creating NVRHI framebuffer for swap chain textures...");
-        nvrhi::FramebufferDesc framebufferDesc{};
-        framebufferDesc.addColorAttachment(m_nvrhiSwapChainTextures[0]);
-
-        m_nvrhiFramebuffer = m_nvrhiDevice->createFramebuffer(framebufferDesc);
-
         // TODO: move code below into pipeline class
-        SOGE_INFO_LOG("Creating simple pipeline...");
+        SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
 
         // TODO: move file in a separate folder
         std::ifstream vertexShaderFile("simple.vs.bin", std::ios::in | std::ios::binary);
@@ -300,11 +328,71 @@ namespace soge
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
         pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
-        m_nvrhiGraphicsPipeline = m_nvrhiDevice->createGraphicsPipeline(pipelineDesc, m_nvrhiFramebuffer);
+        // no need to create pipeline for each frame buffer, all of them compatible with the first one
+        nvrhi::FramebufferHandle framebuffer = m_backBuffers[0].m_nvrhiFramebuffer;
+        m_nvrhiGraphicsPipeline = m_nvrhiDevice->createGraphicsPipeline(pipelineDesc, framebuffer);
+
+        // TODO: move code below into component class
+        SOGE_INFO_LOG("Creating vertex buffer...");
+        nvrhi::BufferDesc vertexBufferDesc{};
+        vertexBufferDesc.byteSize = sizeof(g_vertices);
+        vertexBufferDesc.isVertexBuffer = true;
+        vertexBufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
+        vertexBufferDesc.keepInitialState = true;
+        vertexBufferDesc.debugName = "SOGE vertex buffer";
+        m_nvrhiVertexBuffer = m_nvrhiDevice->createBuffer(vertexBufferDesc);
+
+        SOGE_INFO_LOG("Creating binding set...");
+        nvrhi::BindingSetDesc bindingSetDesc{};
+        bindingSetDesc.trackLiveness = true;
+        m_nvrhiBindingSet = m_nvrhiDevice->createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
+
+        const nvrhi::CommandListHandle commandList = m_nvrhiDevice->createCommandList();
+        commandList->open();
+        commandList->writeBuffer(m_nvrhiVertexBuffer, g_vertices.data(), sizeof(g_vertices));
+        commandList->close();
+        m_nvrhiDevice->executeCommandList(commandList);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)
     {
+        // NRIThrowIfFailed(m_nriInterface.WaitForPresent(*m_nriSwapChain), "waiting swap chain for present");
+        m_nvrhiDevice->runGarbageCollection();
+
+        // TODO: change current frame index on each invocation
+        const auto& [currentColorAttachments, currentFramebuffer] = m_backBuffers[m_currentFrameIndex];
+
+        const nvrhi::CommandListHandle commandList = m_nvrhiDevice->createCommandList();
+        commandList->open();
+
+        for (std::uint32_t index = 0; index < currentColorAttachments.size(); ++index)
+        {
+            nvrhi::utils::ClearColorAttachment(commandList, currentFramebuffer, index, nvrhi::Color(0.f));
+        }
+        const nvrhi::TextureDesc& textureDesc = currentColorAttachments[0]->getDesc();
+
+        nvrhi::GraphicsState graphicsState{};
+        graphicsState.pipeline = m_nvrhiGraphicsPipeline;
+        graphicsState.framebuffer = currentFramebuffer;
+        graphicsState.bindings = {m_nvrhiBindingSet};
+        graphicsState.vertexBuffers = {
+            nvrhi::VertexBufferBinding{.buffer = m_nvrhiVertexBuffer, .slot = 0, .offset = 0},
+        };
+        graphicsState.viewport = nvrhi::ViewportState().addViewportAndScissorRect(nvrhi::Viewport{
+            static_cast<float>(textureDesc.width),
+            static_cast<float>(textureDesc.height),
+        });
+        commandList->setGraphicsState(graphicsState);
+
+        nvrhi::DrawArguments drawArguments{};
+        drawArguments.vertexCount = g_vertices.size();
+        commandList->draw(drawArguments);
+
+        commandList->close();
+        // m_nvrhiDevice->executeCommandList(commandList);
+
+        // NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
+        m_frameCount++;
     }
 
     D3D12GraphicsCore::NvrhiMessageCallback::NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept

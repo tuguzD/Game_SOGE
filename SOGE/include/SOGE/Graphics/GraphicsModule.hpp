@@ -16,6 +16,7 @@ namespace soge
         explicit GraphicsModule();
 
         virtual void SetRenderTarget(const Window& aWindow);
+        virtual void Update(float aDeltaTime);
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;

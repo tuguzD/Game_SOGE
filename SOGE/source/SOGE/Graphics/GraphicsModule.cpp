@@ -42,4 +42,14 @@ namespace soge
 
         m_graphicsCore->SetRenderTarget(aWindow);
     }
+
+    void GraphicsModule::Update(const float aDeltaTime)
+    {
+        if (m_graphicsCore == nullptr)
+        {
+            return;
+        }
+
+        m_graphicsCore->Update(aDeltaTime);
+    }
 }

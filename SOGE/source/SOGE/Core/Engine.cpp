@@ -125,6 +125,8 @@ namespace soge
             {
                 layer->OnUpdate();
             }
+
+            GetModule<GraphicsModule>()->Update(Timestep::DeltaTime());
         }
 
         Unload(AccessTag{});

@@ -57,9 +57,17 @@ namespace soge
         nvrhi::DeviceHandle m_nvrhiDevice;
 
         // TODO: move this into some class which strongly links to the window and has the same lifetime
+        struct BackBuffer
+        {
+            nvrhi::static_vector<nvrhi::TextureHandle, nvrhi::c_MaxRenderTargets> m_nvrhiColorAttachments;
+            nvrhi::FramebufferHandle m_nvrhiFramebuffer;
+        };
+
         nri::SwapChain* m_nriSwapChain;
-        eastl::vector<nvrhi::TextureHandle> m_nvrhiSwapChainTextures;
-        nvrhi::FramebufferHandle m_nvrhiFramebuffer;
+        eastl::vector<BackBuffer> m_backBuffers;
+
+        std::uint8_t m_currentFrameIndex;
+        std::uint32_t m_frameCount;
 
         // TODO: move this into some pipeline class which can be reused by multiple render passes
         nvrhi::ShaderHandle m_nvrhiVertexShader;
@@ -67,6 +75,10 @@ namespace soge
         nvrhi::ShaderHandle m_nvrhiPixelShader;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+
+        // TODO: move this into component class which can pass data to multiple pipelines
+        nvrhi::BufferHandle m_nvrhiVertexBuffer;
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
         explicit D3D12GraphicsCore();
