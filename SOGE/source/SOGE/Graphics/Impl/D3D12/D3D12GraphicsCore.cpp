@@ -277,7 +277,7 @@ namespace soge
                 return color;
             }
         )";
-        const std::array vertexAttributeDescs{
+        const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
                 .name = "position",
                 .format = nvrhi::Format::RGB32_FLOAT,
@@ -286,7 +286,7 @@ namespace soge
             },
             nvrhi::VertexAttributeDesc{
                 .name = "color",
-                .format = nvrhi::Format::RG32_FLOAT,
+                .format = nvrhi::Format::RGBA32_FLOAT,
                 .offset = offsetof(Vertex, m_color),
                 .elementStride = sizeof(Vertex),
             },
@@ -298,14 +298,14 @@ namespace soge
         vertexShaderDesc.entryName = "VSMain";
         m_nvrhiVertexShader = m_nvrhiDevice->createShader(vertexShaderDesc, shaderBinary.data(), shaderBinary.size());
 
-        m_nvrhiInputLayout = m_nvrhiDevice->createInputLayout(
-            vertexAttributeDescs.data(), static_cast<std::uint32_t>(vertexAttributeDescs.size()), m_nvrhiVertexShader);
-
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
         pixelShaderDesc.debugName = "SOGE pixel shader";
         pixelShaderDesc.entryName = "PSMain";
         m_nvrhiPixelShader = m_nvrhiDevice->createShader(pixelShaderDesc, shaderBinary.data(), shaderBinary.size());
+
+        m_nvrhiInputLayout = m_nvrhiDevice->createInputLayout(vertexAttributeDescArray.data(),
+                                                              vertexAttributeDescArray.size(), m_nvrhiVertexShader);
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
@@ -316,6 +316,7 @@ namespace soge
         pipelineDesc.VS = m_nvrhiVertexShader;
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
+        pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
         m_nvrhiGraphicsPipeline = m_nvrhiDevice->createGraphicsPipeline(pipelineDesc, m_nvrhiFramebuffer);
     }
 
