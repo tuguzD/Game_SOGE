@@ -39,7 +39,8 @@ workspace "SOGE"
         files
         {
             "%{wks.location}/%{prj.name}/include/**.hpp",
-            "%{wks.location}/%{prj.name}/source/**.cpp"
+            "%{wks.location}/%{prj.name}/source/**.cpp",
+            "%{wks.location}/%{prj.name}/resources/shaders/**.hlsl"
         }
 
         includedirs
@@ -81,6 +82,16 @@ workspace "SOGE"
             "nvrhi_d3d12",
             "nvrhi_vk",
         }
+
+        prebuildcommands
+        {
+            "{MKDIR} %[%{!wks.location}/GAME/resources/shaders]",
+            "dxc -T vs_6_0 -E VSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.vs.bin]",
+            "dxc -T ps_6_0 -E PSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.ps.bin]"
+        }
+
+        filter "files:**.hlsl"
+            flags "ExcludeFromBuild"
 
         filter "system:windows"
             systemversion "latest"
