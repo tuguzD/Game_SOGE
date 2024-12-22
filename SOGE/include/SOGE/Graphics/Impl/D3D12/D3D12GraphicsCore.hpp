@@ -61,7 +61,7 @@ namespace soge
         nri::SwapChain* m_nriSwapChain;
         eastl::vector<nvrhi::FramebufferHandle> m_nvrhiFramebuffers;
 
-        std::uint32_t m_totalFrameCount;
+        std::uint64_t m_totalFrameCount;
 
         // TODO: move this into some pipeline class which can be reused by multiple render passes
         nvrhi::ShaderHandle m_nvrhiVertexShader;

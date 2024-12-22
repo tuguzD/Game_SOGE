@@ -8,6 +8,7 @@
 
 #include <Extensions/NRIWrapperD3D12.h>
 
+#include <nvrhi/utils.h>
 #ifdef SOGE_DEBUG
 #include <nvrhi/validation.h>
 #endif
@@ -233,6 +234,34 @@ namespace soge
                          "creating a swap chain for window");
         m_nriInterface.SetSwapChainDebugName(*m_nriSwapChain, "SOGE swap chain");
 
+        SOGE_INFO_LOG("Creating NVRHI depth texture...");
+        nvrhi::TextureDesc nvrhiDepthTextureDesc{};
+        nvrhiDepthTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+        nvrhiDepthTextureDesc.width = aWindow.GetWidth();
+        nvrhiDepthTextureDesc.height = aWindow.GetHeight();
+        nvrhiDepthTextureDesc.isRenderTarget = true;
+        nvrhiDepthTextureDesc.isShaderResource = true;
+        nvrhiDepthTextureDesc.isTypeless = true;
+        nvrhiDepthTextureDesc.mipLevels = 1;
+        nvrhiDepthTextureDesc.useClearValue = true;
+        nvrhiDepthTextureDesc.clearValue = nvrhi::Color{1.0f, 0.0f, 0.0f, 0.0f};
+        nvrhiDepthTextureDesc.initialState = nvrhi::ResourceStates::DepthWrite;
+        nvrhiDepthTextureDesc.keepInitialState = true;
+        nvrhiDepthTextureDesc.debugName = "SOGE depth texture";
+
+        const nvrhi::FormatSupport requiredDepthFeatures =
+            nvrhi::FormatSupport::Texture | nvrhi::FormatSupport::DepthStencil | nvrhi::FormatSupport::ShaderLoad;
+        constexpr std::array requestedDepthFormats{
+            nvrhi::Format::D24S8,
+            nvrhi::Format::D32S8,
+            nvrhi::Format::D32,
+            nvrhi::Format::D16,
+        };
+        nvrhiDepthTextureDesc.format = nvrhi::utils::ChooseFormat(
+            m_nvrhiDevice, requiredDepthFeatures, requestedDepthFormats.data(), requestedDepthFormats.size());
+
+        const nvrhi::TextureHandle nvrhiDepthTexture = m_nvrhiDevice->createTexture(nvrhiDepthTextureDesc);
+
         std::uint32_t swapChainColorTextureCount;
         nri::Texture* const* swapChainColorTextures =
             m_nriInterface.GetSwapChainTextures(*m_nriSwapChain, swapChainColorTextureCount);
@@ -264,6 +293,8 @@ namespace soge
             nvrhiColorTextureDesc.mipLevels = nriColorTextureDesc.mipNum;
             nvrhiColorTextureDesc.arraySize = nriColorTextureDesc.layerNum;
             nvrhiColorTextureDesc.sampleCount = nriColorTextureDesc.sampleNum;
+            nvrhiColorTextureDesc.useClearValue = true;
+            nvrhiColorTextureDesc.clearValue = nvrhi::Color{};
             nvrhiColorTextureDesc.initialState = nvrhi::ResourceStates::Present;
             nvrhiColorTextureDesc.keepInitialState = true;
 
@@ -274,6 +305,7 @@ namespace soge
             SOGE_INFO_LOG("Creating NVRHI framebuffer (frame {})...", index);
             nvrhi::FramebufferDesc framebufferDesc{};
             framebufferDesc.addColorAttachment(nvrhiColorTexture);
+            framebufferDesc.setDepthAttachment(nvrhiDepthTexture);
 
             nvrhi::FramebufferHandle nvrhiFramebuffer = m_nvrhiDevice->createFramebuffer(framebufferDesc);
             m_nvrhiFramebuffers.push_back(nvrhiFramebuffer);
@@ -333,7 +365,6 @@ namespace soge
         pipelineDesc.VS = m_nvrhiVertexShader;
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
-        pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
         m_nvrhiGraphicsPipeline = m_nvrhiDevice->createGraphicsPipeline(pipelineDesc, m_nvrhiFramebuffers[0]);
 
@@ -374,11 +405,11 @@ namespace soge
         const nvrhi::CommandListHandle commandList = m_nvrhiDevice->createCommandList();
         commandList->open();
 
-        for (const auto& colorAttachment : framebufferDesc.colorAttachments)
+        for (std::uint32_t index = 0; index < framebufferDesc.colorAttachments.size(); index++)
         {
-            nvrhi::Color clearColor{0.0f, 0.0f, 0.0f, 1.0f};
-            commandList->clearTextureFloat(colorAttachment.texture, colorAttachment.subresources, clearColor);
+            nvrhi::utils::ClearColorAttachment(commandList, currentFramebuffer, index, nvrhi::Color{});
         }
+        nvrhi::utils::ClearDepthStencilAttachment(commandList, currentFramebuffer, 1.0f, 0);
 
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = m_nvrhiGraphicsPipeline;
