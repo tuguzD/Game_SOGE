@@ -40,16 +40,16 @@ namespace
 
     constexpr std::array g_vertices{
         soge::Vertex{
-            .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
-            .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
+            .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
+            .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
         },
         soge::Vertex{
             .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
             .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
         },
         soge::Vertex{
-            .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
-            .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
+            .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
+            .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
         },
     };
 }
