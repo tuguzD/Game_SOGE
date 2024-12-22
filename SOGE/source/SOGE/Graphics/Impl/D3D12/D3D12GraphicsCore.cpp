@@ -8,8 +8,9 @@
 
 #include <Extensions/NRIWrapperD3D12.h>
 
-#include <nvrhi/utils.h>
+#ifdef SOGE_DEBUG
 #include <nvrhi/validation.h>
+#endif
 
 #include <fstream>
 
@@ -70,8 +71,10 @@ namespace soge
         SOGE_INFO_LOG("Creating NRI render device...");
         nri::DeviceCreationDesc deviceCreationDesc{};
         deviceCreationDesc.graphicsAPI = nri::GraphicsAPI::D3D12;
+#ifdef SOGE_DEBUG
         deviceCreationDesc.enableGraphicsAPIValidation = true;
         deviceCreationDesc.enableNRIValidation = true;
+#endif
         deviceCreationDesc.adapterDesc = &bestAdapterDesc;
         deviceCreationDesc.callbackInterface = m_nriCallbackInterface;
         deviceCreationDesc.allocationCallbacks = m_nriAllocationCallbacks;
@@ -81,7 +84,7 @@ namespace soge
         NRIThrowIfFailed(nri::nriGetInterface(*m_nriInitDevice, NRI_INTERFACE(nri::CoreInterface),
                                               static_cast<nri::CoreInterface*>(&m_nriInterface)),
                          "retrieving NRI core interface");
-        m_nriInterface.SetDeviceDebugName(*m_nriInitDevice, "SOGE D3D12 GPU device");
+        m_nriInterface.SetDeviceDebugName(*m_nriInitDevice, "SOGE device");
 
         NRIThrowIfFailed(nri::nriGetInterface(*m_nriInitDevice, NRI_INTERFACE(nri::HelperInterface),
                                               static_cast<nri::HelperInterface*>(&m_nriInterface)),
@@ -139,7 +142,9 @@ namespace soge
             .pGraphicsCommandQueue = graphicsCommandQueue.Detach(),
         };
         m_nvrhiDevice = nvrhi::d3d12::createDevice(deviceDesc);
+#ifdef SOGE_DEBUG
         m_nvrhiDevice = nvrhi::validation::createValidationLayer(m_nvrhiDevice);
+#endif
     }
 
     D3D12GraphicsCore::~D3D12GraphicsCore()
@@ -228,8 +233,8 @@ namespace soge
         swapChainDesc.waitable = true; // TODO: change to false, set queuedFrameNum to 2 (in the future, not now)
 
         NRIThrowIfFailed(m_nriInterface.CreateSwapChain(*m_nriDevice, swapChainDesc, m_nriSwapChain),
-                         "creating a graphics swap chain for window");
-        m_nriInterface.SetSwapChainDebugName(*m_nriSwapChain, "SOGE graphics swap chain");
+                         "creating a swap chain for window");
+        m_nriInterface.SetSwapChainDebugName(*m_nriSwapChain, "SOGE swap chain");
 
         std::uint32_t swapChainColorTextureCount;
         nri::Texture* const* swapChainColorTextures =
@@ -239,9 +244,12 @@ namespace soge
         m_backBuffers.reserve(swapChainColorTextureCount);
         for (std::size_t index = 0; index < swapChainColorTextureCount; index++)
         {
-            SOGE_INFO_LOG("Creating NVRHI swap chain color texture {}...", index);
+            SOGE_INFO_LOG("Creating NVRHI swap chain color texture (frame {})...", index);
 
-            const nri::Texture* nriColorTexture = swapChainColorTextures[index];
+            nri::Texture* const nriColorTexture = swapChainColorTextures[index];
+            m_nriInterface.SetTextureDebugName(*nriColorTexture,
+                                               fmt::format("SOGE swap chain color texture (frame {})", index).c_str());
+
             const nri::TextureDesc& nriColorTextureDesc = m_nriInterface.GetTextureDesc(*nriColorTexture);
             assert(nriColorTextureDesc.type == nri::TextureType::TEXTURE_2D);
             assert(nriColorTextureDesc.usage & nri::TextureUsageBits::COLOR_ATTACHMENT &&
@@ -264,7 +272,7 @@ namespace soge
                 nvrhi::ObjectTypes::D3D12_Resource, m_nriInterface.GetTextureNativeObject(*nriColorTexture),
                 nvrhiColorTextureDesc);
 
-            SOGE_INFO_LOG("Creating NVRHI framebuffer {}...", index);
+            SOGE_INFO_LOG("Creating NVRHI framebuffer (frame {})...", index);
             nvrhi::FramebufferDesc framebufferDesc{};
             framebufferDesc.addColorAttachment(nvrhiColorTexture);
 
@@ -360,21 +368,22 @@ namespace soge
 
     void D3D12GraphicsCore::Update(float aDeltaTime)
     {
+        SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, aDeltaTime);
+
         NRIThrowIfFailed(m_nriInterface.WaitForPresent(*m_nriSwapChain), "waiting for swap chain to present");
         m_nvrhiDevice->runGarbageCollection();
 
         const auto currentFrameIndex = m_nriInterface.AcquireNextSwapChainTexture(*m_nriSwapChain);
         const auto& [currentColorAttachments, currentFramebuffer] = m_backBuffers[currentFrameIndex];
         const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer->getFramebufferInfo();
-
-        SOGE_INFO_LOG("Current frame index is {}, delta time is {}", currentFrameIndex, aDeltaTime);
+        const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer->getDesc();
 
         const nvrhi::CommandListHandle commandList = m_nvrhiDevice->createCommandList();
         commandList->open();
 
-        for (std::uint32_t index = 0; index < currentColorAttachments.size(); ++index)
+        for (const auto& colorAttachment : framebufferDesc.colorAttachments)
         {
-            nvrhi::utils::ClearColorAttachment(commandList, currentFramebuffer, index, nvrhi::Color{});
+            commandList->clearTextureFloat(colorAttachment.texture, colorAttachment.subresources, nvrhi::Color{});
         }
 
         nvrhi::GraphicsState graphicsState{};
@@ -393,7 +402,7 @@ namespace soge
 
         commandList->close();
         // TODO: find out why this call breaks the next call
-        // m_nvrhiDevice->executeCommandList(commandList, nvrhi::CommandQueue::Graphics);
+        m_nvrhiDevice->executeCommandList(commandList, nvrhi::CommandQueue::Graphics);
 
         NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
         m_totalFrameCount++;
