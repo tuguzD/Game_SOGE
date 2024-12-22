@@ -230,7 +230,7 @@ namespace soge
         swapChainDesc.height = static_cast<nri::Dim_t>(aWindow.GetHeight());
         swapChainDesc.textureNum = 2;
         swapChainDesc.format = nri::SwapChainFormat::BT709_G10_16BIT;
-        swapChainDesc.waitable = true; // TODO: change to false, set queuedFrameNum to 2 (in the future, not now)
+        swapChainDesc.waitable = true; // TODO: set queuedFrameNum to 2 (in the future, not now)
 
         NRIThrowIfFailed(m_nriInterface.CreateSwapChain(*m_nriDevice, swapChainDesc, m_nriSwapChain),
                          "creating a swap chain for window");
@@ -267,6 +267,8 @@ namespace soge
             nvrhiColorTextureDesc.mipLevels = nriColorTextureDesc.mipNum;
             nvrhiColorTextureDesc.arraySize = nriColorTextureDesc.layerNum;
             nvrhiColorTextureDesc.sampleCount = nriColorTextureDesc.sampleNum;
+            nvrhiColorTextureDesc.initialState = nvrhi::ResourceStates::Present;
+            nvrhiColorTextureDesc.keepInitialState = true;
 
             nvrhi::TextureHandle nvrhiColorTexture = m_nvrhiDevice->createHandleForNativeTexture(
                 nvrhi::ObjectTypes::D3D12_Resource, m_nriInterface.GetTextureNativeObject(*nriColorTexture),
@@ -401,7 +403,6 @@ namespace soge
         commandList->draw(drawArguments);
 
         commandList->close();
-        // TODO: find out why this call breaks the next call
         m_nvrhiDevice->executeCommandList(commandList, nvrhi::CommandQueue::Graphics);
 
         NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
