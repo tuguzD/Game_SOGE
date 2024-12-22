@@ -86,8 +86,8 @@ workspace "SOGE"
         prebuildcommands
         {
             "{MKDIR} %[%{!wks.location}/GAME/resources/shaders]",
-            "dxc -T vs_6_0 -E VSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.vs.bin]",
-            "dxc -T ps_6_0 -E PSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.ps.bin]"
+            "dxc -T vs_6_0 -E VSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.vs.dxil]",
+            "dxc -T ps_6_0 -E PSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.ps.dxil]"
         }
 
         filter "files:**.hlsl"

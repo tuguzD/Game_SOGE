@@ -314,7 +314,7 @@ namespace soge
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
 
-        std::ifstream vertexShaderFile("resources/shaders/simple.vs.bin", std::ios::in | std::ios::binary);
+        std::ifstream vertexShaderFile("resources/shaders/simple.vs.dxil", std::ios::in | std::ios::binary);
         std::vector<std::uint8_t> vertexShaderBinary(std::istreambuf_iterator(vertexShaderFile), {});
         vertexShaderFile.close();
 
@@ -325,7 +325,7 @@ namespace soge
         m_nvrhiVertexShader =
             m_nvrhiDevice->createShader(vertexShaderDesc, vertexShaderBinary.data(), vertexShaderBinary.size());
 
-        std::ifstream pixelShaderFile("resources/shaders/simple.ps.bin", std::ios::in | std::ios::binary);
+        std::ifstream pixelShaderFile("resources/shaders/simple.ps.dxil", std::ios::in | std::ios::binary);
         std::vector<std::uint8_t> pixelShaderBinary(std::istreambuf_iterator(pixelShaderFile), {});
         pixelShaderFile.close();
 
