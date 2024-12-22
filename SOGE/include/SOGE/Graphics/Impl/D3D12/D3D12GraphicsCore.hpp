@@ -58,14 +58,8 @@ namespace soge
         nvrhi::DeviceHandle m_nvrhiDevice;
 
         // TODO: move this into some class which strongly links to the window and has the same lifetime
-        struct BackBuffer
-        {
-            nvrhi::static_vector<nvrhi::TextureHandle, nvrhi::c_MaxRenderTargets> m_nvrhiColorAttachments;
-            nvrhi::FramebufferHandle m_nvrhiFramebuffer;
-        };
-
         nri::SwapChain* m_nriSwapChain;
-        eastl::vector<BackBuffer> m_backBuffers;
+        eastl::vector<nvrhi::FramebufferHandle> m_nvrhiFramebuffers;
 
         std::uint32_t m_totalFrameCount;
 
