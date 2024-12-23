@@ -21,6 +21,7 @@ workspace "SOGE"
         include "3rdparty/glm/premake5.lua"
         include "3rdparty/NRI/premake5.lua"
         include "3rdparty/NVRHI/premake5.lua"
+        include "3rdparty/ShaderMake/premake5.lua"
     group ""
 
     project "SOGE"
@@ -40,7 +41,7 @@ workspace "SOGE"
         {
             "%{wks.location}/%{prj.name}/include/**.hpp",
             "%{wks.location}/%{prj.name}/source/**.cpp",
-            "%{wks.location}/%{prj.name}/resources/shaders/**.hlsl"
+            "%{wks.location}/%{prj.name}/resources/**"
         }
 
         includedirs
@@ -86,8 +87,11 @@ workspace "SOGE"
         prebuildcommands
         {
             "{MKDIR} %[%{!wks.location}/GAME/resources/shaders]",
-            "dxc -T vs_6_0 -E VSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.vs.dxil]",
-            "dxc -T ps_6_0 -E PSMain %[%{!wks.location}/SOGE/resources/shaders/simple.hlsl] -Fo %[%{!wks.location}/GAME/resources/shaders/simple.ps.dxil]"
+            "%[" .. SHADERMAKE_PATH .. "] " ..
+                "--platform DXIL --verbose --binary --shaderModel 6_0 " ..
+                "--config %[%{!wks.location}/SOGE/resources/shaders/simple.shadermake] " ..
+                "--out %[%{!wks.location}/GAME/resources/shaders] " ..
+                "--compiler %[" .. DXC_PATH .. "]"
         }
 
         filter "files:**.hlsl"

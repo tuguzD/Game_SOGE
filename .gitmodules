@@ -28,3 +28,6 @@
 [submodule "3rdparty/NRI/NRI"]
 	path = 3rdparty/NRI/NRI
 	url = https://github.com/NVIDIAGameWorks/NRI.git
+[submodule "3rdparty/ShaderMake/ShaderMake"]
+	path = 3rdparty/ShaderMake/ShaderMake
+	url = https://github.com/NVIDIAGameWorks/ShaderMake.git

@@ -1,0 +1,4 @@
+// https://github.com/NVIDIAGameWorks/ShaderMake?tab=readme-ov-file#config-file-structure
+
+simple.hlsl -T vs -E VSMain
+simple.hlsl -T ps -E PSMain
