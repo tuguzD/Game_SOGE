@@ -86,12 +86,12 @@ workspace "SOGE"
 
         prebuildcommands
         {
-            "{MKDIR} %[%{!wks.location}/GAME/resources/shaders]",
-            "%[" .. SHADERMAKE_PATH .. "] " ..
-                "--platform DXIL --verbose --binary --shaderModel 6_0 " ..
-                "--config %[%{!wks.location}/SOGE/resources/shaders/simple.shadermake] " ..
-                "--out %[%{!wks.location}/GAME/resources/shaders] " ..
-                "--compiler %[" .. DXC_PATH .. "]"
+            shadermake
+            {
+                platform = shadermake_platform.DXIL,
+                config = "%{!wks.location}/SOGE/resources/shaders/simple.shadermake",
+                output = "%{!wks.location}/GAME/resources/shaders"
+            }
         }
 
         filter "files:**.hlsl"
