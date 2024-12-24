@@ -71,7 +71,9 @@ workspace "SOGE"
             "SOGE_INPUT_IMPL=SDL",
             "SOGE_WINDOW_IMPL=SDL",
             "SOGE_SYSTEM_IMPL=SDL",
-            "SOGE_GRAPHICS_IMPL=D3D12" -- D3D11/D3D12/VK
+            "SOGE_GRAPHICS_IMPL=D3D12", -- D3D11/D3D12/VK
+            "SOGE_GRAPHICS_COMPILED_SHADER_EXTENSION_D3D12=dxil",
+            "SOGE_GRAPHICS_COMPILED_SHADER_EXTENSION_VK=spirv",
         }
 
         links

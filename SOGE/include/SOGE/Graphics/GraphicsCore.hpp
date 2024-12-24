@@ -23,6 +23,9 @@ namespace soge
 
         virtual void SetRenderTarget(const Window& aWindow) = 0;
         virtual void Update(float aDeltaTime) = 0;
+
+        [[nodiscard]]
+        virtual eastl::string_view GetCompiledShaderExtension() = 0;
     };
 }
 

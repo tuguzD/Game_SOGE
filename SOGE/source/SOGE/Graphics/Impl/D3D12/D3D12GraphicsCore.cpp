@@ -4,6 +4,7 @@
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 #include "SOGE/Graphics/Generic/Vertex.hpp"
+#include "SOGE/Utils/PreprocessorHelpers.hpp"
 #include "SOGE/Window/Window.hpp"
 
 #include <Extensions/NRIWrapperD3D12.h>
@@ -13,6 +14,7 @@
 #include <nvrhi/validation.h>
 #endif
 
+#include <filesystem>
 #include <fstream>
 
 
@@ -314,8 +316,15 @@ namespace soge
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
 
-        std::ifstream vertexShaderFile("resources/shaders/simple_VSMain.dxil", std::ios::in | std::ios::binary);
-        std::vector<std::uint8_t> vertexShaderBinary(std::istreambuf_iterator(vertexShaderFile), {});
+        std::filesystem::path vertexShaderPath{"./resources/shaders/simple_VSMain"};
+        vertexShaderPath.replace_extension(GetCompiledShaderExtension().data());
+        if (!std::filesystem::exists(vertexShaderPath))
+        {
+            // TODO: throw error
+        }
+
+        std::ifstream vertexShaderFile{vertexShaderPath, std::ios::in | std::ios::binary};
+        std::vector<std::uint8_t> vertexShaderBinary{std::istreambuf_iterator{vertexShaderFile}, {}};
         vertexShaderFile.close();
 
         nvrhi::ShaderDesc vertexShaderDesc{};
@@ -325,8 +334,15 @@ namespace soge
         m_nvrhiVertexShader =
             m_nvrhiDevice->createShader(vertexShaderDesc, vertexShaderBinary.data(), vertexShaderBinary.size());
 
-        std::ifstream pixelShaderFile("resources/shaders/simple_PSMain.dxil", std::ios::in | std::ios::binary);
-        std::vector<std::uint8_t> pixelShaderBinary(std::istreambuf_iterator(pixelShaderFile), {});
+        std::filesystem::path pixelShaderPath{"./resources/shaders/simple_PSMain"};
+        pixelShaderPath.replace_extension(GetCompiledShaderExtension().data());
+        if (!std::filesystem::exists(pixelShaderPath))
+        {
+            // TODO: throw error
+        }
+
+        std::ifstream pixelShaderFile{pixelShaderPath, std::ios::in | std::ios::binary};
+        std::vector<std::uint8_t> pixelShaderBinary{std::istreambuf_iterator{pixelShaderFile}, {}};
         pixelShaderFile.close();
 
         nvrhi::ShaderDesc pixelShaderDesc{};
@@ -428,6 +444,11 @@ namespace soge
 
         NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
         m_totalFrameCount++;
+    }
+
+    eastl::string_view D3D12GraphicsCore::GetCompiledShaderExtension()
+    {
+        return SOGE_STRINGIZE(SOGE_GRAPHICS_COMPILED_SHADER_EXTENSION_D3D12);
     }
 
     D3D12GraphicsCore::NvrhiMessageCallback::NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept

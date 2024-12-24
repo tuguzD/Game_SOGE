@@ -87,6 +87,8 @@ namespace soge
 
         void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;
+
+        eastl::string_view GetCompiledShaderExtension() override;
     };
 
     using ImplGraphicsCore = D3D12GraphicsCore;
