@@ -47,6 +47,9 @@ namespace soge
         void DestroySwapChain();
         void DestroyDevice();
 
+        [[nodiscard]]
+        nvrhi::ShaderHandle LoadShader(const std::filesystem::path& aPath, const nvrhi::ShaderDesc& aDesc);
+
         nri::Device* m_nriInitDevice;
         nri::Device* m_nriDevice;
         NriInterface m_nriInterface;

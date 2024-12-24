@@ -213,6 +213,22 @@ namespace soge
         }
     }
 
+    nvrhi::ShaderHandle D3D12GraphicsCore::LoadShader(const std::filesystem::path& aPath,
+                                                      const nvrhi::ShaderDesc& aDesc)
+    {
+        std::filesystem::path path{aPath};
+        path.replace_extension(GetCompiledShaderExtension().data());
+        if (!std::filesystem::exists(path))
+        {
+            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", path.generic_string());
+            throw std::runtime_error{errorMessage};
+        }
+
+        std::ifstream shaderFile{path, std::ios::in | std::ios::binary};
+        const std::vector<std::uint8_t> shaderBinary{std::istreambuf_iterator{shaderFile}, {}};
+        return m_nvrhiDevice->createShader(aDesc, shaderBinary.data(), shaderBinary.size());
+    }
+
     void D3D12GraphicsCore::SetRenderTarget(const Window& aWindow)
     {
         DestroySwapChain();
@@ -316,41 +332,17 @@ namespace soge
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
 
-        std::filesystem::path vertexShaderPath{"./resources/shaders/simple_VSMain"};
-        vertexShaderPath.replace_extension(GetCompiledShaderExtension().data());
-        if (!std::filesystem::exists(vertexShaderPath))
-        {
-            // TODO: throw error
-        }
-
-        std::ifstream vertexShaderFile{vertexShaderPath, std::ios::in | std::ios::binary};
-        std::vector<std::uint8_t> vertexShaderBinary{std::istreambuf_iterator{vertexShaderFile}, {}};
-        vertexShaderFile.close();
-
         nvrhi::ShaderDesc vertexShaderDesc{};
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
         vertexShaderDesc.debugName = "SOGE vertex shader";
         vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader =
-            m_nvrhiDevice->createShader(vertexShaderDesc, vertexShaderBinary.data(), vertexShaderBinary.size());
-
-        std::filesystem::path pixelShaderPath{"./resources/shaders/simple_PSMain"};
-        pixelShaderPath.replace_extension(GetCompiledShaderExtension().data());
-        if (!std::filesystem::exists(pixelShaderPath))
-        {
-            // TODO: throw error
-        }
-
-        std::ifstream pixelShaderFile{pixelShaderPath, std::ios::in | std::ios::binary};
-        std::vector<std::uint8_t> pixelShaderBinary{std::istreambuf_iterator{pixelShaderFile}, {}};
-        pixelShaderFile.close();
+        m_nvrhiVertexShader = LoadShader("./resources/shaders/simple_VSMain", vertexShaderDesc);
 
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
         pixelShaderDesc.debugName = "SOGE pixel shader";
         pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader =
-            m_nvrhiDevice->createShader(pixelShaderDesc, pixelShaderBinary.data(), pixelShaderBinary.size());
+        m_nvrhiPixelShader = LoadShader("./resources/shaders/simple_PSMain", pixelShaderDesc);
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
