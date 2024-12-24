@@ -4,6 +4,8 @@
 #include "SOGE/Sound/SoundResource.hpp"
 #include "SOGE/Event/EventModule.hpp"
 
+#include <glm/vec3.hpp>
+
 
 namespace soge
 {
@@ -30,9 +32,16 @@ namespace soge
         constexpr SoundCore& operator=(SoundCore&&) noexcept = default;
 
         virtual void Update() = 0;
+        virtual void Update3DListener(const glm::vec3& aPos,
+                                      const glm::vec3& aForwardVec,
+                                      const glm::vec3& aUpwardVec) = 0;
 
         virtual void LoadSoundResource(SoundResource& aSoundResource) = 0;
         virtual void PlaySoundResource(SoundResource& aSoundResource) = 0;
+        virtual void PauseSoundResource(SoundResource& aSoundResource) = 0;
+        virtual void UnpauseSoundResource(SoundResource& aSoundResource) = 0;
+        virtual void StopSoundResource(SoundResource& aSoundResource) = 0;
+
         virtual bool IsSoundResourcePlaying(SoundResource& aSoundResource) = 0;
         //void Stop(const SoundResource& aSoundResource);
 

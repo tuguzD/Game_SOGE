@@ -38,6 +38,16 @@ namespace soge
         m_soundCore->PlaySoundResource(aSoundResource);
     }
 
+    void SoundModule::PauseSoundResource(SoundResource& aSoundResource) const
+    {
+        m_soundCore->PauseSoundResource(aSoundResource);
+    }
+
+    void SoundModule::StopSoundResource(SoundResource& aSoundResource) const
+    {
+        m_soundCore->StopSoundResource(aSoundResource);
+    }
+
     void SoundModule::Update() const
     {
         m_soundCore->Update();

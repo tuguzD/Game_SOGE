@@ -110,6 +110,7 @@ namespace soge
                       EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(), uuid.str());
 
         SoundResource sres = SoundResource("TestSoundRes", "C:/test1.wav");
+        sres.Enable3D(true);
         GetModule<SoundModule>()->LoadSoundResource(sres);
 
         m_shutdownRequested = false;
@@ -120,7 +121,13 @@ namespace soge
 
             if (GetModule<InputModule>()->IsKeyPressed(Keys::SpaceBar))
             {
+                SOGE_INFO_LOG("Key pressed");
                 GetModule<SoundModule>()->PlaySoundResource(sres);
+            }
+
+            if (GetModule<InputModule>()->IsKeyPressed(Keys::A))
+            {
+                GetModule<SoundModule>()->StopSoundResource(sres);
             }
 
             GetModule<InputModule>()->Update();
@@ -133,6 +140,9 @@ namespace soge
             {
                 layer->OnUpdate();
             }
+
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
         }
 
         Unload(AccessTag{});

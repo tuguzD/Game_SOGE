@@ -5,14 +5,32 @@
 namespace soge
 {
     SoundResource::SoundResource(const eastl::string& aName, const cppfs::FilePath& aFullPath)
-        : ResourceBase(aName, aFullPath), m_actualLengthMs(0)
+        : ResourceBase(aName, aFullPath)
     {
+        m_is3d      = true;
+        m_isLooping = false;
+        m_isPaused  = false;
+        m_isPlaying = false;
+        m_isStopped = true;
     }
 
     void SoundResource::SetActualLengthMs(unsigned int aLengthMs)
     {
-        m_actualLengthMs = aLengthMs;
-        m_userLengthMs = aLengthMs;
+    }
+
+    void SoundResource::SetPlaying(bool aPlay) noexcept
+    {
+        m_isPlaying = aPlay;
+    }
+
+    void SoundResource::SetStopped(bool aStop) noexcept
+    {
+        m_isStopped = aStop;
+    }
+
+    void SoundResource::SetPaused(bool aPause) noexcept
+    {
+        m_isPaused = aPause;
     }
 
     bool SoundResource::Reload()
@@ -28,59 +46,39 @@ namespace soge
     {
     }
 
-    void SoundResource::SetLoop(bool aLoop)
+    void SoundResource::Enable3D(bool aEnable3D) noexcept
     {
-        m_loop = aLoop;
+        m_is3d = aEnable3D;
     }
 
-    void SoundResource::Set3D(bool aNeed3D)
+    void SoundResource::EnableLooping(bool aEnableLoop) noexcept
     {
-        m_is3d = aNeed3D;
+        m_isLooping = aEnableLoop;
     }
 
-    void SoundResource::SetLength(unsigned int aLengthMs)
+    bool SoundResource::IsPlaying() const noexcept
     {
-        if (aLengthMs > m_actualLengthMs)
-        {
-            SOGE_WARN_LOG("Given audio length is more than actual length; {0} > {1}", aLengthMs, m_actualLengthMs);
-            return;
-        }
-        m_userLengthMs = aLengthMs;
+        return m_isPlaying;
     }
 
-    void SoundResource::SetVolume(float aVolume)
+    bool SoundResource::IsPaused() const noexcept
     {
-        m_volume = aVolume;
+        return m_isPaused;
     }
 
-    float SoundResource::GetVolume() const
+    bool SoundResource::IsStopped() const noexcept
     {
-        return m_volume;
+        return m_isStopped;
     }
 
-    float SoundResource::GetReverbAmount() const
+    bool SoundResource::IsLooping() const noexcept
     {
-        return m_reverbAmount;
+        return m_isLooping;
     }
 
-    bool SoundResource::IsLoop() const
-    {
-        return m_loop;
-    }
-
-    bool SoundResource::Is3D() const
+    bool SoundResource::Is3D() const noexcept
     {
         return m_is3d;
-    }
-
-    unsigned int SoundResource::GetActualLengthMs() const
-    {
-        return m_actualLengthMs;
-    }
-
-    unsigned int SoundResource::GetUserLengthMs() const
-    {
-        return m_userLengthMs;
     }
 
 }

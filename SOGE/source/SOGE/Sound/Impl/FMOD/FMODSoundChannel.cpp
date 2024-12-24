@@ -25,7 +25,6 @@ namespace soge
     void FMODSoundChannel::BeginChannelPlayback()
     {
         FMODThrowIfFailed(m_fmodSoundChannel->setPaused(false));
-        //FMODThrowIfFailed(m_fmodSoundChannel->setVolume(100));
     }
 
     void FMODSoundChannel::PauseChannelPlayback()

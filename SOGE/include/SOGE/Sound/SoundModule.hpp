@@ -24,6 +24,8 @@ namespace soge
         //void ReloadSoundResource(SoundResource& aSoundResource) const;
 
         void PlaySoundResource(SoundResource& aSoundResource) const;
+        void PauseSoundResource(SoundResource& aSoundResource) const;
+        void StopSoundResource(SoundResource& aSoundResource) const;
         //void StopSoundResource(SoundResource& aSoundResource)
 
         void Update() const;

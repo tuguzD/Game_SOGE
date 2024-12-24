@@ -3,6 +3,8 @@
 
 #include "SOGE/Sound/SoundCore.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODSound.hpp"
+#include "SOGE/Sound/Impl/FMOD/FMODConfig.hpp"
+#include "SOGE/Sound/Impl/FMOD/FMODListener.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODSoundChannel.hpp"
 
 #include <FMOD/fmod.hpp>
@@ -14,6 +16,9 @@ namespace soge
     class FMODSoundCore : public SoundCore
     {
     private:
+        FMODConfig m_config;
+        FMODListener m_listener;
+
         FMOD::System* m_fmodSystem;
         FMOD::Studio::System* m_fmodStudioSystem;
 
@@ -25,9 +30,15 @@ namespace soge
         ~FMODSoundCore();
 
         void Update() override;
+        void Update3DListener(const glm::vec3& aPos,
+                              const glm::vec3& aForwardVec,
+                              const glm::vec3& aUpwardVec) override;
 
         void LoadSoundResource(SoundResource& aSoundResource) override;
         void PlaySoundResource(SoundResource& aSoundResource) override;
+        void PauseSoundResource(SoundResource& aSoundResource) override;
+        void UnpauseSoundResource(SoundResource& aSoundResource) override;
+        void StopSoundResource(SoundResource& aSoundResource) override;
         bool IsSoundResourcePlaying(SoundResource& aSoundResource) override;
     };
 
