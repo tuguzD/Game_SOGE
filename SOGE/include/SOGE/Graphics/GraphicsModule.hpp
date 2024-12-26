@@ -4,6 +4,8 @@
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 
+#include <filesystem>
+
 
 namespace soge
 {
@@ -21,6 +23,10 @@ namespace soge
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
     };
+
+    [[nodiscard]]
+    std::filesystem::path GetCompiledShaderPath(const GraphicsCore& aCore, const std::filesystem::path& aSourcePath,
+                                                eastl::string_view aEntryName = "");
 }
 
 SOGE_DI_REGISTER_MODULE_NS(soge, GraphicsModule)

@@ -4,6 +4,7 @@
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 #include "SOGE/Graphics/Generic/Vertex.hpp"
+#include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 #include "SOGE/Window/Window.hpp"
 
@@ -213,10 +214,11 @@ namespace soge
         }
     }
 
-    nvrhi::ShaderHandle D3D12GraphicsCore::LoadShader(const std::filesystem::path& aPath,
-                                                      const nvrhi::ShaderDesc& aDesc)
+    nvrhi::ShaderHandle D3D12GraphicsCore::LoadShader(const nvrhi::ShaderDesc& aDesc,
+                                                      const std::filesystem::path& aPath,
+                                                      const eastl::string_view aEntryName)
     {
-        std::filesystem::path path{aPath};
+        std::filesystem::path path = GetCompiledShaderPath(*this, aPath, aEntryName);
         path.replace_extension(GetCompiledShaderExtension().data());
         if (!std::filesystem::exists(path))
         {
@@ -336,13 +338,13 @@ namespace soge
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
         vertexShaderDesc.debugName = "SOGE vertex shader";
         vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader = LoadShader("./resources/shaders/simple_VSMain", vertexShaderDesc);
+        m_nvrhiVertexShader = LoadShader(vertexShaderDesc, "./resources/shaders/simple.hlsl", "VSMain");
 
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
         pixelShaderDesc.debugName = "SOGE pixel shader";
         pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = LoadShader("./resources/shaders/simple_PSMain", pixelShaderDesc);
+        m_nvrhiPixelShader = LoadShader(pixelShaderDesc, "./resources/shaders/simple.hlsl", "PSMain");
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
@@ -438,7 +440,7 @@ namespace soge
         m_totalFrameCount++;
     }
 
-    eastl::string_view D3D12GraphicsCore::GetCompiledShaderExtension()
+    eastl::string_view D3D12GraphicsCore::GetCompiledShaderExtension() const
     {
         return SOGE_STRINGIZE(SOGE_GRAPHICS_COMPILED_SHADER_EXTENSION_D3D12);
     }

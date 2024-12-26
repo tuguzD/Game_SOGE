@@ -25,7 +25,7 @@ namespace soge
         virtual void Update(float aDeltaTime) = 0;
 
         [[nodiscard]]
-        virtual eastl::string_view GetCompiledShaderExtension() = 0;
+        virtual eastl::string_view GetCompiledShaderExtension() const = 0;
     };
 }
 

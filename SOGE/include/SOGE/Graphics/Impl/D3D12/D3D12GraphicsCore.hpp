@@ -48,7 +48,8 @@ namespace soge
         void DestroyDevice();
 
         [[nodiscard]]
-        nvrhi::ShaderHandle LoadShader(const std::filesystem::path& aPath, const nvrhi::ShaderDesc& aDesc);
+        nvrhi::ShaderHandle LoadShader(const nvrhi::ShaderDesc& aDesc, const std::filesystem::path& aPath,
+                                       eastl::string_view aEntryName = "");
 
         nri::Device* m_nriInitDevice;
         nri::Device* m_nriDevice;
@@ -91,7 +92,7 @@ namespace soge
         void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;
 
-        eastl::string_view GetCompiledShaderExtension() override;
+        eastl::string_view GetCompiledShaderExtension() const override;
     };
 
     using ImplGraphicsCore = D3D12GraphicsCore;
