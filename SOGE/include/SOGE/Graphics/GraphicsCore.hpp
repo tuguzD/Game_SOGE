@@ -21,11 +21,11 @@ namespace soge
 
         constexpr virtual ~GraphicsCore() noexcept = default;
 
-        virtual void SetRenderTarget(const Window& aWindow) = 0;
-        virtual void Update(float aDeltaTime) = 0;
+        constexpr virtual void SetRenderTarget(const Window& aWindow) = 0;
+        constexpr virtual void Update(float aDeltaTime) = 0;
 
         [[nodiscard]]
-        virtual eastl::string_view GetCompiledShaderExtension() const = 0;
+        constexpr virtual eastl::string_view GetCompiledShaderExtension() const = 0;
     };
 }
 

@@ -48,7 +48,7 @@ namespace soge
         void DestroyDevice();
 
         [[nodiscard]]
-        nvrhi::ShaderHandle LoadShader(const nvrhi::ShaderDesc& aDesc, const std::filesystem::path& aPath,
+        nvrhi::ShaderHandle LoadShader(const nvrhi::ShaderDesc& aDesc, const std::filesystem::path& aSourcePath,
                                        eastl::string_view aEntryName = "");
 
         nri::Device* m_nriInitDevice;
@@ -92,6 +92,7 @@ namespace soge
         void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;
 
+        [[nodiscard]]
         eastl::string_view GetCompiledShaderExtension() const override;
     };
 

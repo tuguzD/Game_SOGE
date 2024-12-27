@@ -215,18 +215,17 @@ namespace soge
     }
 
     nvrhi::ShaderHandle D3D12GraphicsCore::LoadShader(const nvrhi::ShaderDesc& aDesc,
-                                                      const std::filesystem::path& aPath,
+                                                      const std::filesystem::path& aSourcePath,
                                                       const eastl::string_view aEntryName)
     {
-        std::filesystem::path path = GetCompiledShaderPath(*this, aPath, aEntryName);
-        path.replace_extension(GetCompiledShaderExtension().data());
-        if (!std::filesystem::exists(path))
+        const auto compiledPath = GetCompiledShaderPath(*this, aSourcePath, aEntryName);
+        if (!std::filesystem::exists(compiledPath))
         {
-            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", path.generic_string());
+            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", compiledPath.generic_string());
             throw std::runtime_error{errorMessage};
         }
 
-        std::ifstream shaderFile{path, std::ios::in | std::ios::binary};
+        std::ifstream shaderFile{compiledPath, std::ios::in | std::ios::binary};
         const std::vector<std::uint8_t> shaderBinary{std::istreambuf_iterator{shaderFile}, {}};
         return m_nvrhiDevice->createShader(aDesc, shaderBinary.data(), shaderBinary.size());
     }
