@@ -2,6 +2,7 @@
 #define SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSCORE_HPP
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
 
 #include <NRI.h>
 
@@ -11,6 +12,9 @@
 #include <Extensions/NRISwapChain.h>
 
 #include <nvrhi/d3d12.h>
+
+#include <EASTL/optional.h>
+#include <EASTL/vector.h>
 
 
 namespace soge
@@ -47,10 +51,6 @@ namespace soge
         void DestroySwapChain();
         void DestroyDevice();
 
-        [[nodiscard]]
-        nvrhi::ShaderHandle LoadShader(const nvrhi::ShaderDesc& aDesc, const std::filesystem::path& aSourcePath,
-                                       eastl::string_view aEntryName = "");
-
         nri::Device* m_nriInitDevice;
         nri::Device* m_nriDevice;
         NriInterface m_nriInterface;
@@ -67,16 +67,8 @@ namespace soge
 
         std::uint64_t m_totalFrameCount;
 
-        // TODO: move this into some pipeline class which can be reused by multiple render passes
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
-        nvrhi::InputLayoutHandle m_nvrhiInputLayout;
-        nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
-        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
-
-        // TODO: move this into component class which can pass data to multiple pipelines
-        nvrhi::BufferHandle m_nvrhiVertexBuffer;
-        nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        eastl::optional<D3D12GraphicsPipeline> m_graphicsPipeline;
+        eastl::vector<nvrhi::ICommandList*> m_commandLists;
 
     public:
         explicit D3D12GraphicsCore();
@@ -92,6 +84,11 @@ namespace soge
         void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;
 
+        [[nodiscard]]
+        nvrhi::IFramebuffer& GetCurrentFramebuffer() override;
+
+        [[nodiscard]]
+        nvrhi::IDevice& GetRawDevice() override;
         [[nodiscard]]
         eastl::string_view GetCompiledShaderExtension() const override;
     };
