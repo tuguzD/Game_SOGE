@@ -26,10 +26,6 @@ namespace soge
         constexpr virtual void SetRenderTarget(const Window& aWindow) = 0;
         constexpr virtual void Update(float aDeltaTime) = 0;
 
-        // TODO: move into render pass (eventually...)
-        [[nodiscard]]
-        constexpr virtual nvrhi::IFramebuffer& GetCurrentFramebuffer() = 0;
-
         [[nodiscard]]
         constexpr virtual nvrhi::IDevice& GetRawDevice() = 0;
         [[nodiscard]]

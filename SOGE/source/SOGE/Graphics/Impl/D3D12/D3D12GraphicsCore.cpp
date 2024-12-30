@@ -42,8 +42,7 @@ namespace
 
 namespace soge
 {
-    D3D12GraphicsCore::D3D12GraphicsCore()
-        : m_nriCallbackInterface{}, m_nriAllocationCallbacks{}, m_nriSwapChain{nullptr}, m_totalFrameCount{}
+    D3D12GraphicsCore::D3D12GraphicsCore() : m_nriCallbackInterface{}, m_nriAllocationCallbacks{}, m_totalFrameCount{}
     {
         SOGE_INFO_LOG("Creating D3D12 render backend...");
         m_nriCallbackInterface.MessageCallback = NriMessageCallback;
@@ -158,12 +157,7 @@ namespace soge
             m_nvrhiFramebuffers.clear();
         }
 
-        if (m_nriSwapChain != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NRI swap chain...");
-            m_nriInterface.DestroySwapChain(*m_nriSwapChain);
-            m_nriSwapChain = nullptr;
-        }
+        m_swapChain = eastl::nullopt;
     }
 
     void D3D12GraphicsCore::DestroyDevice()
@@ -194,24 +188,7 @@ namespace soge
     {
         DestroySwapChain();
 
-        SOGE_INFO_LOG("Creating NRI swap chain for window...");
-        nri::SwapChainDesc swapChainDesc{};
-
-        nri::Window nriWindow{};
-        nriWindow.windows = nri::WindowsWindow{static_cast<HWND>(aWindow.GetNativeHandler())};
-        swapChainDesc.window = nriWindow;
-
-        swapChainDesc.commandQueue = m_nriGraphicsCommandQueue;
-        swapChainDesc.width = static_cast<nri::Dim_t>(aWindow.GetWidth());
-        swapChainDesc.height = static_cast<nri::Dim_t>(aWindow.GetHeight());
-        swapChainDesc.textureNum = 2;
-        swapChainDesc.queuedFrameNum = 2;
-        swapChainDesc.format = nri::SwapChainFormat::BT709_G10_16BIT;
-        swapChainDesc.waitable = true;
-
-        NRIThrowIfFailed(m_nriInterface.CreateSwapChain(*m_nriDevice, swapChainDesc, m_nriSwapChain),
-                         "creating a swap chain for window");
-        m_nriInterface.SetSwapChainDebugName(*m_nriSwapChain, "SOGE swap chain");
+        m_swapChain.emplace(aWindow, *this);
 
         SOGE_INFO_LOG("Creating NVRHI depth texture...");
         nvrhi::TextureDesc nvrhiDepthTextureDesc{};
@@ -241,45 +218,11 @@ namespace soge
 
         const nvrhi::TextureHandle nvrhiDepthTexture = m_nvrhiDevice->createTexture(nvrhiDepthTextureDesc);
 
-        std::uint32_t swapChainColorTextureCount;
-        nri::Texture* const* swapChainColorTextures =
-            m_nriInterface.GetSwapChainTextures(*m_nriSwapChain, swapChainColorTextureCount);
-        SOGE_INFO_LOG("NRI swap chain texture count is {}", swapChainColorTextureCount);
-
-        m_nvrhiFramebuffers.reserve(swapChainColorTextureCount);
-        for (std::size_t index = 0; index < swapChainColorTextureCount; index++)
+        const auto swapChainTextures = m_swapChain->GetTextures();
+        m_nvrhiFramebuffers.reserve(swapChainTextures.size());
+        for (std::size_t index = 0; index < swapChainTextures.size(); index++)
         {
-            SOGE_INFO_LOG("Creating NVRHI swap chain color texture (frame {})...", index);
-
-            nri::Texture* const nriColorTexture = swapChainColorTextures[index];
-            m_nriInterface.SetTextureDebugName(*nriColorTexture,
-                                               fmt::format("SOGE swap chain color texture (frame {})", index).c_str());
-
-            const nri::TextureDesc& nriColorTextureDesc = m_nriInterface.GetTextureDesc(*nriColorTexture);
-            assert(nriColorTextureDesc.type == nri::TextureType::TEXTURE_2D);
-            assert(nriColorTextureDesc.usage & nri::TextureUsageBits::COLOR_ATTACHMENT &&
-                   nriColorTextureDesc.usage & nri::TextureUsageBits::SHADER_RESOURCE);
-            assert(nriColorTextureDesc.format == nri::Format::RGBA16_SFLOAT);
-
-            nvrhi::TextureDesc nvrhiColorTextureDesc{};
-            nvrhiColorTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
-            nvrhiColorTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
-            nvrhiColorTextureDesc.width = nriColorTextureDesc.width;
-            nvrhiColorTextureDesc.height = nriColorTextureDesc.height;
-            nvrhiColorTextureDesc.isRenderTarget = true;
-            nvrhiColorTextureDesc.isShaderResource = true;
-            nvrhiColorTextureDesc.depth = nriColorTextureDesc.depth;
-            nvrhiColorTextureDesc.mipLevels = nriColorTextureDesc.mipNum;
-            nvrhiColorTextureDesc.arraySize = nriColorTextureDesc.layerNum;
-            nvrhiColorTextureDesc.sampleCount = nriColorTextureDesc.sampleNum;
-            nvrhiColorTextureDesc.useClearValue = true;
-            nvrhiColorTextureDesc.clearValue = nvrhi::Color{};
-            nvrhiColorTextureDesc.initialState = nvrhi::ResourceStates::Present;
-            nvrhiColorTextureDesc.keepInitialState = true;
-
-            nvrhi::TextureHandle nvrhiColorTexture = m_nvrhiDevice->createHandleForNativeTexture(
-                nvrhi::ObjectTypes::D3D12_Resource, m_nriInterface.GetTextureNativeObject(*nriColorTexture),
-                nvrhiColorTextureDesc);
+            nvrhi::ITexture* nvrhiColorTexture = &swapChainTextures[index].get();
 
             SOGE_INFO_LOG("Creating NVRHI framebuffer (frame {})...", index);
             nvrhi::FramebufferDesc framebufferDesc{};
@@ -290,17 +233,17 @@ namespace soge
             m_nvrhiFramebuffers.push_back(nvrhiFramebuffer);
         }
 
-        m_graphicsPipeline = D3D12GraphicsPipeline{*this};
+        m_graphicsPipeline.emplace(*this);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)
     {
         SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, aDeltaTime);
 
-        NRIThrowIfFailed(m_nriInterface.WaitForPresent(*m_nriSwapChain), "waiting for swap chain to present");
+        m_swapChain->WaitForPresent();
         m_nvrhiDevice->runGarbageCollection();
 
-        const auto currentFrameIndex = m_nriInterface.AcquireNextSwapChainTexture(*m_nriSwapChain);
+        const auto currentFrameIndex = m_swapChain->GetCurrentTextureIndex();
         const auto currentFramebuffer = m_nvrhiFramebuffers[currentFrameIndex];
 
         nvrhi::CommandListParameters commandListDesc{};
@@ -330,14 +273,8 @@ namespace soge
         m_nvrhiDevice->executeCommandLists(m_commandLists.data(), m_commandLists.size(), nvrhi::CommandQueue::Graphics);
         m_commandLists.clear();
 
-        NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
+        m_swapChain->Present();
         m_totalFrameCount++;
-    }
-
-    nvrhi::IFramebuffer& D3D12GraphicsCore::GetCurrentFramebuffer()
-    {
-        const auto currentFrameIndex = m_nriInterface.AcquireNextSwapChainTexture(*m_nriSwapChain);
-        return *m_nvrhiFramebuffers[currentFrameIndex];
     }
 
     nvrhi::IDevice& D3D12GraphicsCore::GetRawDevice()

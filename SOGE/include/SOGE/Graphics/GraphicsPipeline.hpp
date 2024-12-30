@@ -23,6 +23,8 @@ namespace soge
 
         using CommandListRef = eastl::reference_wrapper<nvrhi::ICommandList>;
         using CommandLists = eastl::span<CommandListRef>;
+
+        [[nodiscard]]
         constexpr virtual CommandLists Update(float aDeltaTime) = 0;
     };
 }

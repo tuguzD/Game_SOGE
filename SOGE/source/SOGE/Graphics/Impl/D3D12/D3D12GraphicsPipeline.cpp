@@ -5,6 +5,7 @@
 #include "SOGE/Graphics/Generic/Vertex.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -45,7 +46,7 @@ namespace
 
 namespace soge
 {
-    D3D12GraphicsPipeline::D3D12GraphicsPipeline(GraphicsCore& aCore) : m_core(aCore)
+    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsCore& aCore) : m_core(aCore)
     {
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
@@ -91,7 +92,7 @@ namespace soge
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
-        m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &aCore.GetCurrentFramebuffer());
+        m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, aCore.m_nvrhiFramebuffers[0]);
 
         // TODO: move code below into component class
         SOGE_INFO_LOG("Creating NVRHI vertex buffer...");
@@ -122,26 +123,17 @@ namespace soge
         m_commandListRefs.clear();
 
         // TODO: move code below into component class
-        if (m_nvrhiBindingSet != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NVRHI binding set...");
-            m_nvrhiBindingSet = nullptr;
-        }
-        if (m_nvrhiVertexBuffer != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NVRHI vertex buffer...");
-            m_nvrhiVertexBuffer = nullptr;
-        }
+        SOGE_INFO_LOG("Destroying NVRHI binding set...");
+        m_nvrhiBindingSet = nullptr;
+        SOGE_INFO_LOG("Destroying NVRHI vertex buffer...");
+        m_nvrhiVertexBuffer = nullptr;
 
-        if (m_nvrhiGraphicsPipeline != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
-            m_nvrhiGraphicsPipeline = nullptr;
-            m_nvrhiBindingLayout = nullptr;
-            m_nvrhiPixelShader = nullptr;
-            m_nvrhiInputLayout = nullptr;
-            m_nvrhiVertexShader = nullptr;
-        }
+        SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
+        m_nvrhiGraphicsPipeline = nullptr;
+        m_nvrhiBindingLayout = nullptr;
+        m_nvrhiPixelShader = nullptr;
+        m_nvrhiInputLayout = nullptr;
+        m_nvrhiVertexShader = nullptr;
     }
 
     auto D3D12GraphicsPipeline::Update(float aDeltaTime) -> CommandLists
@@ -157,7 +149,9 @@ namespace soge
         m_commandLists.emplace_back(triangleCommandList);
         {
             GraphicsCommandListGuard commandList{*triangleCommandList};
-            nvrhi::IFramebuffer& currentFramebuffer = m_core.get().GetCurrentFramebuffer();
+
+            const auto currentFrameIndex = m_core.get().m_swapChain->GetCurrentTextureIndex();
+            nvrhi::IFramebuffer& currentFramebuffer = *m_core.get().m_nvrhiFramebuffers[currentFrameIndex];
             const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer.getFramebufferInfo();
 
             nvrhi::GraphicsState graphicsState{};

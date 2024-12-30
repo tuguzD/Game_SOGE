@@ -3,6 +3,7 @@
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
 
 #include <NRI.h>
 
@@ -45,6 +46,9 @@ namespace soge
         {
         };
 
+        friend D3D12GraphicsSwapchain;
+        friend D3D12GraphicsPipeline;
+
         static void NriMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
                                        const char* aMessage, void* aUserArg);
 
@@ -62,13 +66,13 @@ namespace soge
         nvrhi::DeviceHandle m_nvrhiDevice;
 
         // TODO: move this into some class which strongly links to the window and has the same lifetime
-        nri::SwapChain* m_nriSwapChain;
+        eastl::optional<D3D12GraphicsSwapchain> m_swapChain;
         eastl::vector<nvrhi::FramebufferHandle> m_nvrhiFramebuffers;
-
-        std::uint64_t m_totalFrameCount;
 
         eastl::optional<D3D12GraphicsPipeline> m_graphicsPipeline;
         eastl::vector<nvrhi::ICommandList*> m_commandLists;
+
+        std::uint64_t m_totalFrameCount;
 
     public:
         explicit D3D12GraphicsCore();
@@ -83,9 +87,6 @@ namespace soge
 
         void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;
-
-        [[nodiscard]]
-        nvrhi::IFramebuffer& GetCurrentFramebuffer() override;
 
         [[nodiscard]]
         nvrhi::IDevice& GetRawDevice() override;

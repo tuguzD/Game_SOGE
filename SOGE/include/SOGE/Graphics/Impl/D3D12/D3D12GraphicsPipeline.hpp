@@ -9,12 +9,12 @@
 
 namespace soge
 {
-    class GraphicsCore;
+    class D3D12GraphicsCore;
 
     class D3D12GraphicsPipeline : public GraphicsPipeline
     {
     private:
-        eastl::reference_wrapper<GraphicsCore> m_core;
+        eastl::reference_wrapper<D3D12GraphicsCore> m_core;
 
         eastl::vector<nvrhi::CommandListHandle> m_commandLists;
         eastl::vector<CommandListRef> m_commandListRefs;
@@ -30,16 +30,17 @@ namespace soge
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
-        explicit D3D12GraphicsPipeline(GraphicsCore& aCore);
+        explicit D3D12GraphicsPipeline(D3D12GraphicsCore& aCore);
 
         explicit D3D12GraphicsPipeline(const D3D12GraphicsPipeline&) = delete;
         D3D12GraphicsPipeline& operator=(const D3D12GraphicsPipeline&) = delete;
 
-        explicit D3D12GraphicsPipeline(D3D12GraphicsPipeline&&) noexcept = default;
-        D3D12GraphicsPipeline& operator=(D3D12GraphicsPipeline&&) noexcept = default;
+        explicit D3D12GraphicsPipeline(D3D12GraphicsPipeline&&) noexcept = delete;
+        D3D12GraphicsPipeline& operator=(D3D12GraphicsPipeline&&) noexcept = delete;
 
         ~D3D12GraphicsPipeline() override;
 
+        [[nodiscard]]
         CommandLists Update(float aDeltaTime) override;
     };
 }
