@@ -13,10 +13,10 @@ namespace soge
     public:
         constexpr explicit GraphicsPipeline() = default;
 
-        constexpr explicit GraphicsPipeline(const GraphicsPipeline&) = delete;
+        constexpr GraphicsPipeline(const GraphicsPipeline&) = delete;
         constexpr GraphicsPipeline& operator=(const GraphicsPipeline&) = delete;
 
-        constexpr explicit GraphicsPipeline(GraphicsPipeline&&) noexcept = default;
+        constexpr GraphicsPipeline(GraphicsPipeline&&) noexcept = default;
         constexpr GraphicsPipeline& operator=(GraphicsPipeline&&) noexcept = default;
 
         constexpr virtual ~GraphicsPipeline() = default;

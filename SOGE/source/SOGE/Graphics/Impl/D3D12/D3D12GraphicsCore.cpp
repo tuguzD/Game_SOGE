@@ -132,6 +132,43 @@ namespace soge
 #endif
     }
 
+    D3D12GraphicsCore::D3D12GraphicsCore(D3D12GraphicsCore&& aOther) noexcept
+        : m_nriInitDevice{}, m_nriDevice{}, m_nriInterface{}, m_nriGraphicsCommandQueue{}, m_nriCallbackInterface{},
+          m_nriAllocationCallbacks{}, m_nvrhiMessageCallback{}, m_nvrhiDevice{}, m_swapChain{}, m_nvrhiFramebuffers{},
+          m_graphicsPipeline{}, m_commandLists{}, m_totalFrameCount{}
+    {
+        swap(aOther);
+    }
+
+    D3D12GraphicsCore& D3D12GraphicsCore::operator=(D3D12GraphicsCore&& aOther) noexcept
+    {
+        swap(aOther);
+        return *this;
+    }
+
+    void D3D12GraphicsCore::swap(D3D12GraphicsCore& aOther) noexcept
+    {
+        using std::swap;
+
+        swap(m_nriInitDevice, aOther.m_nriInitDevice);
+        swap(m_nriDevice, aOther.m_nriDevice);
+        swap(m_nriInterface, aOther.m_nriInterface);
+        swap(m_nriGraphicsCommandQueue, aOther.m_nriGraphicsCommandQueue);
+        swap(m_nriCallbackInterface, aOther.m_nriCallbackInterface);
+        swap(m_nriAllocationCallbacks, aOther.m_nriAllocationCallbacks);
+
+        swap(m_nvrhiMessageCallback, aOther.m_nvrhiMessageCallback);
+        swap(m_nvrhiDevice, aOther.m_nvrhiDevice);
+
+        swap(m_swapChain, aOther.m_swapChain);
+        swap(m_nvrhiFramebuffers, aOther.m_nvrhiFramebuffers);
+
+        swap(m_graphicsPipeline, aOther.m_graphicsPipeline);
+        swap(m_commandLists, aOther.m_commandLists);
+
+        swap(m_totalFrameCount, aOther.m_totalFrameCount);
+    }
+
     D3D12GraphicsCore::~D3D12GraphicsCore()
     {
         SOGE_INFO_LOG("Destroying D3D12 render backend...");
@@ -188,7 +225,7 @@ namespace soge
     {
         DestroySwapChain();
 
-        m_swapChain.emplace(aWindow, *this);
+        m_swapChain = D3D12GraphicsSwapchain{aWindow, *this};
 
         SOGE_INFO_LOG("Creating NVRHI depth texture...");
         nvrhi::TextureDesc nvrhiDepthTextureDesc{};
@@ -233,7 +270,7 @@ namespace soge
             m_nvrhiFramebuffers.push_back(nvrhiFramebuffer);
         }
 
-        m_graphicsPipeline.emplace(*this);
+        m_graphicsPipeline = D3D12GraphicsPipeline{*this};
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)

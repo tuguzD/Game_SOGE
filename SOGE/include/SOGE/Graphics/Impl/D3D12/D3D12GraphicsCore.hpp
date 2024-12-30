@@ -28,10 +28,10 @@ namespace soge
         public:
             explicit NvrhiMessageCallback() = default;
 
-            explicit NvrhiMessageCallback(const NvrhiMessageCallback&) = delete;
+            NvrhiMessageCallback(const NvrhiMessageCallback&) = delete;
             NvrhiMessageCallback& operator=(const NvrhiMessageCallback&) = delete;
 
-            explicit NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept;
+            NvrhiMessageCallback(NvrhiMessageCallback&&) noexcept;
             NvrhiMessageCallback& operator=(NvrhiMessageCallback&&) noexcept;
 
             ~NvrhiMessageCallback() override = default;
@@ -77,13 +77,16 @@ namespace soge
     public:
         explicit D3D12GraphicsCore();
 
-        explicit D3D12GraphicsCore(const D3D12GraphicsCore&) = delete;
+        D3D12GraphicsCore(const D3D12GraphicsCore&) = delete;
         D3D12GraphicsCore& operator=(const D3D12GraphicsCore&) = delete;
 
-        explicit D3D12GraphicsCore(D3D12GraphicsCore&&) noexcept = delete;
-        D3D12GraphicsCore& operator=(D3D12GraphicsCore&&) noexcept = delete;
+        D3D12GraphicsCore(D3D12GraphicsCore&& aOther) noexcept;
+        D3D12GraphicsCore& operator=(D3D12GraphicsCore&& aOther) noexcept;
 
         ~D3D12GraphicsCore() override;
+
+        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
+        void swap(D3D12GraphicsCore& aOther) noexcept;
 
         void SetRenderTarget(const Window& aWindow) override;
         void Update(float aDeltaTime) override;

@@ -15,10 +15,10 @@ namespace soge
     public:
         constexpr explicit GraphicsSwapchain(const Window& aWindow);
 
-        constexpr explicit GraphicsSwapchain(const GraphicsSwapchain&) = delete;
+        constexpr GraphicsSwapchain(const GraphicsSwapchain&) = delete;
         constexpr GraphicsSwapchain& operator=(const GraphicsSwapchain&) = delete;
 
-        constexpr explicit GraphicsSwapchain(GraphicsSwapchain&&) noexcept = default;
+        constexpr GraphicsSwapchain(GraphicsSwapchain&&) noexcept = default;
         constexpr GraphicsSwapchain& operator=(GraphicsSwapchain&&) noexcept = default;
 
         constexpr virtual ~GraphicsSwapchain() = default;

@@ -15,10 +15,10 @@ namespace soge
     public:
         constexpr explicit GraphicsCore() noexcept = default;
 
-        constexpr explicit GraphicsCore(const GraphicsCore&) noexcept = delete;
+        constexpr GraphicsCore(const GraphicsCore&) noexcept = delete;
         constexpr GraphicsCore& operator=(const GraphicsCore&) noexcept = delete;
 
-        constexpr explicit GraphicsCore(GraphicsCore&&) noexcept = default;
+        constexpr GraphicsCore(GraphicsCore&&) noexcept = default;
         constexpr GraphicsCore& operator=(GraphicsCore&&) noexcept = default;
 
         constexpr virtual ~GraphicsCore() noexcept = default;

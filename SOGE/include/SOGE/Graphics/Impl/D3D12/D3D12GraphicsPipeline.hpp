@@ -32,13 +32,16 @@ namespace soge
     public:
         explicit D3D12GraphicsPipeline(D3D12GraphicsCore& aCore);
 
-        explicit D3D12GraphicsPipeline(const D3D12GraphicsPipeline&) = delete;
+        D3D12GraphicsPipeline(const D3D12GraphicsPipeline&) = delete;
         D3D12GraphicsPipeline& operator=(const D3D12GraphicsPipeline&) = delete;
 
-        explicit D3D12GraphicsPipeline(D3D12GraphicsPipeline&&) noexcept = delete;
-        D3D12GraphicsPipeline& operator=(D3D12GraphicsPipeline&&) noexcept = delete;
+        D3D12GraphicsPipeline(D3D12GraphicsPipeline&& aOther) noexcept;
+        D3D12GraphicsPipeline& operator=(D3D12GraphicsPipeline&& aOther) noexcept;
 
         ~D3D12GraphicsPipeline() override;
+
+        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
+        void swap(D3D12GraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
         CommandLists Update(float aDeltaTime) override;

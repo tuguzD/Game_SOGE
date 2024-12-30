@@ -16,10 +16,10 @@ namespace soge
     public:
         constexpr explicit GraphicsCommandListGuard(nvrhi::ICommandList& aCommandList) noexcept;
 
-        constexpr explicit GraphicsCommandListGuard(const GraphicsCommandListGuard&) noexcept = default;
+        constexpr GraphicsCommandListGuard(const GraphicsCommandListGuard&) noexcept = default;
         constexpr GraphicsCommandListGuard& operator=(const GraphicsCommandListGuard&) noexcept = default;
 
-        constexpr explicit GraphicsCommandListGuard(GraphicsCommandListGuard&&) = default;
+        constexpr GraphicsCommandListGuard(GraphicsCommandListGuard&&) = default;
         constexpr GraphicsCommandListGuard& operator=(GraphicsCommandListGuard&&) noexcept = default;
 
         constexpr ~GraphicsCommandListGuard() noexcept;

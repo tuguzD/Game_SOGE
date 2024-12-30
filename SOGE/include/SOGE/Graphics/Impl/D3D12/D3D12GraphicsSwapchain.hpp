@@ -27,13 +27,16 @@ namespace soge
     public:
         explicit D3D12GraphicsSwapchain(const Window& aWindow, D3D12GraphicsCore& aCore);
 
-        explicit D3D12GraphicsSwapchain(const D3D12GraphicsSwapchain&) = delete;
+        D3D12GraphicsSwapchain(const D3D12GraphicsSwapchain&) = delete;
         D3D12GraphicsSwapchain& operator=(const D3D12GraphicsSwapchain&) = delete;
 
-        explicit D3D12GraphicsSwapchain(D3D12GraphicsSwapchain&&) noexcept = delete;
-        D3D12GraphicsSwapchain& operator=(D3D12GraphicsSwapchain&&) noexcept = delete;
+        D3D12GraphicsSwapchain(D3D12GraphicsSwapchain&& aOther) noexcept;
+        D3D12GraphicsSwapchain& operator=(D3D12GraphicsSwapchain&& aOther) noexcept;
 
         ~D3D12GraphicsSwapchain() override;
+
+        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
+        void swap(D3D12GraphicsSwapchain& aOther) noexcept;
 
         [[nodiscard]]
         Textures GetTextures() override;

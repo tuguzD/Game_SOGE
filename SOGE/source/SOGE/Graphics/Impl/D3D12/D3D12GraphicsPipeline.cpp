@@ -46,7 +46,7 @@ namespace
 
 namespace soge
 {
-    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsCore& aCore) : m_core(aCore)
+    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsCore& aCore) : m_core{aCore}
     {
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
@@ -117,23 +117,62 @@ namespace soge
         nvrhiDevice.executeCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
     }
 
+    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsPipeline&& aOther) noexcept : m_core{aOther.m_core}
+    {
+        swap(aOther);
+    }
+
+    D3D12GraphicsPipeline& D3D12GraphicsPipeline::operator=(D3D12GraphicsPipeline&& aOther) noexcept
+    {
+        swap(aOther);
+        return *this;
+    }
+
+    void D3D12GraphicsPipeline::swap(D3D12GraphicsPipeline& aOther) noexcept
+    {
+        using std::swap;
+
+        eastl::swap(m_core, aOther.m_core);
+
+        swap(m_commandLists, aOther.m_commandLists);
+        swap(m_commandListRefs, aOther.m_commandListRefs);
+
+        swap(m_nvrhiVertexShader, aOther.m_nvrhiVertexShader);
+        swap(m_nvrhiInputLayout, aOther.m_nvrhiInputLayout);
+        swap(m_nvrhiPixelShader, aOther.m_nvrhiPixelShader);
+        swap(m_nvrhiBindingLayout, aOther.m_nvrhiBindingLayout);
+        swap(m_nvrhiGraphicsPipeline, aOther.m_nvrhiGraphicsPipeline);
+
+        swap(m_nvrhiVertexBuffer, aOther.m_nvrhiVertexBuffer);
+        swap(m_nvrhiBindingSet, aOther.m_nvrhiBindingSet);
+    }
+
     D3D12GraphicsPipeline::~D3D12GraphicsPipeline()
     {
         m_commandLists.clear();
         m_commandListRefs.clear();
 
         // TODO: move code below into component class
-        SOGE_INFO_LOG("Destroying NVRHI binding set...");
-        m_nvrhiBindingSet = nullptr;
-        SOGE_INFO_LOG("Destroying NVRHI vertex buffer...");
-        m_nvrhiVertexBuffer = nullptr;
+        if (m_nvrhiBindingSet != nullptr)
+        {
+            SOGE_INFO_LOG("Destroying NVRHI binding set...");
+            m_nvrhiBindingSet = nullptr;
+        }
+        if (m_nvrhiVertexBuffer != nullptr)
+        {
+            SOGE_INFO_LOG("Destroying NVRHI vertex buffer...");
+            m_nvrhiVertexBuffer = nullptr;
+        }
 
-        SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
-        m_nvrhiGraphicsPipeline = nullptr;
-        m_nvrhiBindingLayout = nullptr;
-        m_nvrhiPixelShader = nullptr;
-        m_nvrhiInputLayout = nullptr;
-        m_nvrhiVertexShader = nullptr;
+        if (m_nvrhiGraphicsPipeline != nullptr)
+        {
+            SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
+            m_nvrhiGraphicsPipeline = nullptr;
+            m_nvrhiBindingLayout = nullptr;
+            m_nvrhiPixelShader = nullptr;
+            m_nvrhiInputLayout = nullptr;
+            m_nvrhiVertexShader = nullptr;
+        }
     }
 
     auto D3D12GraphicsPipeline::Update(float aDeltaTime) -> CommandLists

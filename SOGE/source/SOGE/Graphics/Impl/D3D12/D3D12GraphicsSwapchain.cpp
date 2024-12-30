@@ -12,7 +12,7 @@
 namespace soge
 {
     D3D12GraphicsSwapchain::D3D12GraphicsSwapchain(const Window& aWindow, D3D12GraphicsCore& aCore)
-        : GraphicsSwapchain(aWindow), m_core(aCore), m_nriSwapChain(nullptr)
+        : GraphicsSwapchain{aWindow}, m_core{aCore}, m_nriSwapChain{nullptr}
     {
         SOGE_INFO_LOG("Creating NRI swap chain for window...");
         nri::SwapChainDesc swapChainDesc{};
@@ -80,16 +80,44 @@ namespace soge
         }
     }
 
+    D3D12GraphicsSwapchain::D3D12GraphicsSwapchain(D3D12GraphicsSwapchain&& aOther) noexcept
+        : GraphicsSwapchain{std::move(aOther)},
+          m_core{aOther.m_core}, // NOLINT(bugprone-use-after-move) reason: move is no-op
+          m_nriSwapChain{}
+    {
+        swap(aOther);
+    }
+
+    D3D12GraphicsSwapchain& D3D12GraphicsSwapchain::operator=(D3D12GraphicsSwapchain&& aOther) noexcept
+    {
+        swap(aOther);
+        return *this;
+    }
+
+    void D3D12GraphicsSwapchain::swap(D3D12GraphicsSwapchain& aOther) noexcept
+    {
+        using std::swap;
+
+        eastl::swap(m_core, aOther.m_core);
+
+        swap(m_nriSwapChain, aOther.m_nriSwapChain);
+
+        swap(m_nvrhiTextures, aOther.m_nvrhiTextures);
+        swap(m_nvrhiTextureRefs, aOther.m_nvrhiTextureRefs);
+    }
+
     D3D12GraphicsSwapchain::~D3D12GraphicsSwapchain()
     {
-        SOGE_INFO_LOG("Destroying NRI swap chain...");
         m_nvrhiTextureRefs.clear();
         m_nvrhiTextures.clear();
 
-        const nri::SwapChainInterface& nriInterface = m_core.get().m_nriInterface;
-        nriInterface.DestroySwapChain(*m_nriSwapChain);
-
-        m_nriSwapChain = nullptr;
+        if (m_nriSwapChain != nullptr)
+        {
+            SOGE_INFO_LOG("Destroying NRI swap chain...");
+            const nri::SwapChainInterface& nriInterface = m_core.get().m_nriInterface;
+            nriInterface.DestroySwapChain(*m_nriSwapChain);
+            m_nriSwapChain = nullptr;
+        }
     }
 
     auto D3D12GraphicsSwapchain::GetTextures() -> Textures
