@@ -118,6 +118,9 @@ namespace soge
 
     D3D12GraphicsPipeline::~D3D12GraphicsPipeline()
     {
+        m_commandLists.clear();
+        m_commandListRefs.clear();
+
         // TODO: move code below into component class
         if (m_nvrhiBindingSet != nullptr)
         {
@@ -144,13 +147,14 @@ namespace soge
     auto D3D12GraphicsPipeline::Update(float aDeltaTime) -> CommandLists
     {
         m_commandLists.clear();
+        m_commandListRefs.clear();
 
         nvrhi::CommandListParameters commandListDesc{};
         commandListDesc.enableImmediateExecution = false;
 
         nvrhi::IDevice& nvrhiDevice = m_core.get().GetRawDevice();
         const nvrhi::CommandListHandle triangleCommandList = nvrhiDevice.createCommandList(commandListDesc);
-        m_commandLists.push_back(triangleCommandList);
+        m_commandLists.emplace_back(triangleCommandList);
         {
             GraphicsCommandListGuard commandList{*triangleCommandList};
             nvrhi::IFramebuffer& currentFramebuffer = m_core.get().GetCurrentFramebuffer();
@@ -171,6 +175,11 @@ namespace soge
             commandList->draw(drawArguments);
         }
 
-        return m_commandLists;
+        m_commandListRefs.reserve(m_commandLists.size());
+        for (const auto& commandList : m_commandLists)
+        {
+            m_commandListRefs.emplace_back(*commandList);
+        }
+        return m_commandListRefs;
     }
 }

@@ -319,16 +319,16 @@ namespace soge
         }
         const auto drawCommandLists = m_graphicsPipeline->Update(aDeltaTime);
 
-        m_commandLists.clear();
         m_commandLists.reserve(drawCommandLists.size() + 1);
         {
-            m_commandLists.push_back(clearCommandList);
+            m_commandLists.emplace_back(clearCommandList);
             for (const auto& drawCommandList : drawCommandLists)
             {
-                m_commandLists.push_back(drawCommandList);
+                m_commandLists.emplace_back(&drawCommandList.get());
             }
         }
         m_nvrhiDevice->executeCommandLists(m_commandLists.data(), m_commandLists.size(), nvrhi::CommandQueue::Graphics);
+        m_commandLists.clear();
 
         NRIThrowIfFailed(m_nriInterface.QueuePresent(*m_nriSwapChain), "presenting swap chain");
         m_totalFrameCount++;

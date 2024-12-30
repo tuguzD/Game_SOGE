@@ -1,6 +1,7 @@
 ﻿#ifndef SOGE_GRAPHICS_GRAPHICSPIPELINE_HPP
 #define SOGE_GRAPHICS_GRAPHICSPIPELINE_HPP
 
+#include <EASTL/functional.h>
 #include <EASTL/span.h>
 #include <nvrhi/nvrhi.h>
 
@@ -20,7 +21,8 @@ namespace soge
 
         constexpr virtual ~GraphicsPipeline() = default;
 
-        using CommandLists = eastl::span<nvrhi::CommandListHandle>;
+        using CommandListRef = eastl::reference_wrapper<nvrhi::ICommandList>;
+        using CommandLists = eastl::span<CommandListRef>;
         constexpr virtual CommandLists Update(float aDeltaTime) = 0;
     };
 }

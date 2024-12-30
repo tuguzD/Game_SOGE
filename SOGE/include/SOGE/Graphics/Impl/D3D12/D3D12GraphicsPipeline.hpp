@@ -15,7 +15,9 @@ namespace soge
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
+
         eastl::vector<nvrhi::CommandListHandle> m_commandLists;
+        eastl::vector<CommandListRef> m_commandListRefs;
 
         nvrhi::ShaderHandle m_nvrhiVertexShader;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
