@@ -2,6 +2,9 @@
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
+
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
@@ -186,7 +189,7 @@ namespace soge
 
     void D3D12GraphicsCore::DestroySwapChain()
     {
-        m_graphicsPipeline = eastl::nullopt;
+        m_graphicsPipeline = nullptr;
 
         if (!m_nvrhiFramebuffers.empty())
         {
@@ -194,7 +197,7 @@ namespace soge
             m_nvrhiFramebuffers.clear();
         }
 
-        m_swapChain = eastl::nullopt;
+        m_swapChain = nullptr;
     }
 
     void D3D12GraphicsCore::DestroyDevice()
@@ -225,7 +228,7 @@ namespace soge
     {
         DestroySwapChain();
 
-        m_swapChain = D3D12GraphicsSwapchain{aWindow, *this};
+        m_swapChain = CreateUnique<D3D12GraphicsSwapchain>(aWindow, *this);
 
         SOGE_INFO_LOG("Creating NVRHI depth texture...");
         nvrhi::TextureDesc nvrhiDepthTextureDesc{};
@@ -270,7 +273,7 @@ namespace soge
             m_nvrhiFramebuffers.push_back(nvrhiFramebuffer);
         }
 
-        m_graphicsPipeline = D3D12GraphicsPipeline{*this};
+        m_graphicsPipeline = CreateUnique<D3D12GraphicsPipeline>(*this);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)

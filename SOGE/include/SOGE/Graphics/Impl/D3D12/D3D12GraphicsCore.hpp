@@ -2,8 +2,7 @@
 #define SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSCORE_HPP
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
+#include "SOGE/System/Memory.hpp"
 
 #include <NRI.h>
 
@@ -14,12 +13,14 @@
 
 #include <nvrhi/d3d12.h>
 
-#include <EASTL/optional.h>
 #include <EASTL/vector.h>
 
 
 namespace soge
 {
+    class GraphicsSwapchain;
+    class GraphicsPipeline;
+
     class D3D12GraphicsCore : public GraphicsCore
     {
     private:
@@ -46,8 +47,8 @@ namespace soge
         {
         };
 
-        friend D3D12GraphicsSwapchain;
-        friend D3D12GraphicsPipeline;
+        friend class D3D12GraphicsSwapchain;
+        friend class D3D12GraphicsPipeline;
 
         static void NriMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
                                        const char* aMessage, void* aUserArg);
@@ -66,10 +67,10 @@ namespace soge
         nvrhi::DeviceHandle m_nvrhiDevice;
 
         // TODO: move this into some class which strongly links to the window and has the same lifetime
-        eastl::optional<D3D12GraphicsSwapchain> m_swapChain;
+        UniquePtr<GraphicsSwapchain> m_swapChain;
         eastl::vector<nvrhi::FramebufferHandle> m_nvrhiFramebuffers;
 
-        eastl::optional<D3D12GraphicsPipeline> m_graphicsPipeline;
+        UniquePtr<GraphicsPipeline> m_graphicsPipeline;
         eastl::vector<nvrhi::ICommandList*> m_commandLists;
 
         std::uint64_t m_totalFrameCount;
