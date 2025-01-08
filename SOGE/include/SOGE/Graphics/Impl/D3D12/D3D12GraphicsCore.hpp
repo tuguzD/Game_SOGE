@@ -19,6 +19,7 @@
 namespace soge
 {
     class GraphicsSwapchain;
+    class GraphicsRenderPass;
     class GraphicsPipeline;
 
     class D3D12GraphicsCore : public GraphicsCore
@@ -48,6 +49,7 @@ namespace soge
         };
 
         friend class D3D12GraphicsSwapchain;
+        friend class D3D12GraphicsRenderPass;
         friend class D3D12GraphicsPipeline;
 
         static void NriMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
@@ -68,9 +70,8 @@ namespace soge
 
         // TODO: move this into some class which strongly links to the window and has the same lifetime
         UniquePtr<GraphicsSwapchain> m_swapChain;
-        eastl::vector<nvrhi::FramebufferHandle> m_nvrhiFramebuffers;
-
-        UniquePtr<GraphicsPipeline> m_graphicsPipeline;
+        UniquePtr<GraphicsRenderPass> m_renderPass;
+        UniquePtr<GraphicsPipeline> m_pipeline;
         eastl::vector<nvrhi::ICommandList*> m_commandLists;
 
         std::uint64_t m_totalFrameCount;

@@ -4,6 +4,7 @@
 
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
+#include "SOGE/Graphics/GraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
@@ -94,7 +95,8 @@ namespace soge
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
-        m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, aCore.m_nvrhiFramebuffers[0]);
+        nvrhi::IFramebuffer& compatibleFramebuffer = aCore.m_renderPass->GetFramebuffer();
+        m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
 
         // TODO: move code below into component class
         SOGE_INFO_LOG("Creating NVRHI vertex buffer...");
@@ -191,8 +193,7 @@ namespace soge
         {
             GraphicsCommandListGuard commandList{*triangleCommandList};
 
-            const auto currentFrameIndex = m_core.get().m_swapChain->GetCurrentTextureIndex();
-            nvrhi::IFramebuffer& currentFramebuffer = *m_core.get().m_nvrhiFramebuffers[currentFrameIndex];
+            nvrhi::IFramebuffer& currentFramebuffer = m_core.get().m_renderPass->GetFramebuffer();
             const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer.getFramebufferInfo();
 
             nvrhi::GraphicsState graphicsState{};

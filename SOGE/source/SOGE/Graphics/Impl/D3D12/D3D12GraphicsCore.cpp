@@ -3,13 +3,13 @@
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
+#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsRenderPass.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
-#include "SOGE/Window/Window.hpp"
 
 #include <Extensions/NRIWrapperD3D12.h>
 
@@ -137,8 +137,8 @@ namespace soge
 
     D3D12GraphicsCore::D3D12GraphicsCore(D3D12GraphicsCore&& aOther) noexcept
         : m_nriInitDevice{}, m_nriDevice{}, m_nriInterface{}, m_nriGraphicsCommandQueue{}, m_nriCallbackInterface{},
-          m_nriAllocationCallbacks{}, m_nvrhiMessageCallback{}, m_nvrhiDevice{}, m_swapChain{}, m_nvrhiFramebuffers{},
-          m_graphicsPipeline{}, m_commandLists{}, m_totalFrameCount{}
+          m_nriAllocationCallbacks{}, m_nvrhiMessageCallback{}, m_nvrhiDevice{}, m_swapChain{}, m_renderPass{},
+          m_pipeline{}, m_commandLists{}, m_totalFrameCount{}
     {
         swap(aOther);
     }
@@ -164,9 +164,9 @@ namespace soge
         swap(m_nvrhiDevice, aOther.m_nvrhiDevice);
 
         swap(m_swapChain, aOther.m_swapChain);
-        swap(m_nvrhiFramebuffers, aOther.m_nvrhiFramebuffers);
+        swap(m_renderPass, aOther.m_renderPass);
 
-        swap(m_graphicsPipeline, aOther.m_graphicsPipeline);
+        swap(m_pipeline, aOther.m_pipeline);
         swap(m_commandLists, aOther.m_commandLists);
 
         swap(m_totalFrameCount, aOther.m_totalFrameCount);
@@ -189,14 +189,8 @@ namespace soge
 
     void D3D12GraphicsCore::DestroySwapChain()
     {
-        m_graphicsPipeline = nullptr;
-
-        if (!m_nvrhiFramebuffers.empty())
-        {
-            SOGE_INFO_LOG("Destroying NVRHI framebuffers...");
-            m_nvrhiFramebuffers.clear();
-        }
-
+        m_pipeline = nullptr;
+        m_renderPass = nullptr;
         m_swapChain = nullptr;
     }
 
@@ -229,51 +223,8 @@ namespace soge
         DestroySwapChain();
 
         m_swapChain = CreateUnique<D3D12GraphicsSwapchain>(aWindow, *this);
-
-        SOGE_INFO_LOG("Creating NVRHI depth texture...");
-        nvrhi::TextureDesc nvrhiDepthTextureDesc{};
-        nvrhiDepthTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
-        nvrhiDepthTextureDesc.width = aWindow.GetWidth();
-        nvrhiDepthTextureDesc.height = aWindow.GetHeight();
-        nvrhiDepthTextureDesc.isRenderTarget = true;
-        nvrhiDepthTextureDesc.isShaderResource = true;
-        nvrhiDepthTextureDesc.isTypeless = true;
-        nvrhiDepthTextureDesc.mipLevels = 1;
-        nvrhiDepthTextureDesc.useClearValue = true;
-        nvrhiDepthTextureDesc.clearValue = nvrhi::Color{1.0f, 0.0f, 0.0f, 0.0f};
-        nvrhiDepthTextureDesc.initialState = nvrhi::ResourceStates::DepthWrite;
-        nvrhiDepthTextureDesc.keepInitialState = true;
-        nvrhiDepthTextureDesc.debugName = "SOGE depth texture";
-
-        const nvrhi::FormatSupport requiredDepthFeatures =
-            nvrhi::FormatSupport::Texture | nvrhi::FormatSupport::DepthStencil | nvrhi::FormatSupport::ShaderLoad;
-        constexpr std::array requestedDepthFormats{
-            nvrhi::Format::D24S8,
-            nvrhi::Format::D32S8,
-            nvrhi::Format::D32,
-            nvrhi::Format::D16,
-        };
-        nvrhiDepthTextureDesc.format = nvrhi::utils::ChooseFormat(
-            m_nvrhiDevice, requiredDepthFeatures, requestedDepthFormats.data(), requestedDepthFormats.size());
-
-        const nvrhi::TextureHandle nvrhiDepthTexture = m_nvrhiDevice->createTexture(nvrhiDepthTextureDesc);
-
-        const auto swapChainTextures = m_swapChain->GetTextures();
-        m_nvrhiFramebuffers.reserve(swapChainTextures.size());
-        for (std::size_t index = 0; index < swapChainTextures.size(); index++)
-        {
-            nvrhi::ITexture* nvrhiColorTexture = &swapChainTextures[index].get();
-
-            SOGE_INFO_LOG("Creating NVRHI framebuffer (frame {})...", index);
-            nvrhi::FramebufferDesc framebufferDesc{};
-            framebufferDesc.addColorAttachment(nvrhiColorTexture);
-            framebufferDesc.setDepthAttachment(nvrhiDepthTexture);
-
-            nvrhi::FramebufferHandle nvrhiFramebuffer = m_nvrhiDevice->createFramebuffer(framebufferDesc);
-            m_nvrhiFramebuffers.push_back(nvrhiFramebuffer);
-        }
-
-        m_graphicsPipeline = CreateUnique<D3D12GraphicsPipeline>(*this);
+        m_renderPass = CreateUnique<D3D12GraphicsRenderPass>(*this);
+        m_pipeline = CreateUnique<D3D12GraphicsPipeline>(*this);
     }
 
     void D3D12GraphicsCore::Update(float aDeltaTime)
@@ -283,8 +234,7 @@ namespace soge
         m_swapChain->WaitForPresent();
         m_nvrhiDevice->runGarbageCollection();
 
-        const auto currentFrameIndex = m_swapChain->GetCurrentTextureIndex();
-        const auto currentFramebuffer = m_nvrhiFramebuffers[currentFrameIndex];
+        nvrhi::IFramebuffer& currentFramebuffer = m_renderPass->GetFramebuffer();
 
         nvrhi::CommandListParameters commandListDesc{};
         commandListDesc.enableImmediateExecution = false;
@@ -293,14 +243,14 @@ namespace soge
         {
             GraphicsCommandListGuard commandList{*clearCommandList};
 
-            const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer->getDesc();
+            const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer.getDesc();
             for (std::uint32_t index = 0; index < framebufferDesc.colorAttachments.size(); index++)
             {
-                nvrhi::utils::ClearColorAttachment(commandList, currentFramebuffer, index, nvrhi::Color{});
+                nvrhi::utils::ClearColorAttachment(commandList, &currentFramebuffer, index, nvrhi::Color{});
             }
-            nvrhi::utils::ClearDepthStencilAttachment(commandList, currentFramebuffer, 1.0f, 0);
+            nvrhi::utils::ClearDepthStencilAttachment(commandList, &currentFramebuffer, 1.0f, 0);
         }
-        const auto drawCommandLists = m_graphicsPipeline->Update(aDeltaTime);
+        const auto drawCommandLists = m_pipeline->Update(aDeltaTime);
 
         m_commandLists.reserve(drawCommandLists.size() + 1);
         {

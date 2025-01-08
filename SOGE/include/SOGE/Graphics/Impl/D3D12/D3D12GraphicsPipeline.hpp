@@ -5,7 +5,6 @@
 
 #include <EASTL/vector.h>
 #include <glm/vec4.hpp>
-#include <nvrhi/nvrhi.h>
 
 
 namespace soge
