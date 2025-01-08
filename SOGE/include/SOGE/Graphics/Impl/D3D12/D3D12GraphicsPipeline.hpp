@@ -4,6 +4,7 @@
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
 #include <EASTL/vector.h>
+#include <glm/vec4.hpp>
 #include <nvrhi/nvrhi.h>
 
 
@@ -30,6 +31,12 @@ namespace soge
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
+        struct Vertex
+        {
+            glm::vec4 m_position;
+            glm::vec4 m_color;
+        };
+
         explicit D3D12GraphicsPipeline(D3D12GraphicsCore& aCore);
 
         D3D12GraphicsPipeline(const D3D12GraphicsPipeline&) = delete;

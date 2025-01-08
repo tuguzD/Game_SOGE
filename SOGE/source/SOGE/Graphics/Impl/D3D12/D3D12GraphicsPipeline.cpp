@@ -2,7 +2,6 @@
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
 
-#include "SOGE/Graphics/Generic/Vertex.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
@@ -14,16 +13,18 @@
 
 namespace
 {
+    using Vertex = soge::D3D12GraphicsPipeline::Vertex;
+
     constexpr std::array g_vertices{
-        soge::Vertex{
+        Vertex{
             .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
             .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
         },
-        soge::Vertex{
+        Vertex{
             .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
             .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
         },
-        soge::Vertex{
+        Vertex{
             .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
             .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
         },
