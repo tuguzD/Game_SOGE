@@ -11,7 +11,7 @@
 
 namespace soge
 {
-    D3D12GraphicsSwapchain::D3D12GraphicsSwapchain(const Window& aWindow, D3D12GraphicsCore& aCore)
+    D3D12GraphicsSwapchain::D3D12GraphicsSwapchain(D3D12GraphicsCore& aCore, const Window& aWindow)
         : GraphicsSwapchain{aWindow}, m_core{aCore}, m_nriSwapChain{nullptr}
     {
         SOGE_INFO_LOG("Creating NRI swap chain for window...");

@@ -222,9 +222,9 @@ namespace soge
     {
         DestroySwapChain();
 
-        m_swapChain = CreateUnique<D3D12GraphicsSwapchain>(aWindow, *this);
+        m_swapChain = CreateUnique<D3D12GraphicsSwapchain>(*this, aWindow);
         m_renderPass = CreateUnique<D3D12GraphicsRenderPass>(*this);
-        m_pipeline = CreateUnique<D3D12GraphicsPipeline>(*this);
+        m_pipeline = CreateUnique<D3D12GraphicsPipeline>(*this, *m_renderPass);
     }
 
     GraphicsSwapchain* D3D12GraphicsCore::GetSwapchain()

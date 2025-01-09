@@ -25,7 +25,7 @@ namespace soge
         eastl::vector<TextureRef> m_nvrhiTextureRefs;
 
     public:
-        explicit D3D12GraphicsSwapchain(const Window& aWindow, D3D12GraphicsCore& aCore);
+        explicit D3D12GraphicsSwapchain(D3D12GraphicsCore& aCore, const Window& aWindow);
 
         D3D12GraphicsSwapchain(const D3D12GraphicsSwapchain&) = delete;
         D3D12GraphicsSwapchain& operator=(const D3D12GraphicsSwapchain&) = delete;

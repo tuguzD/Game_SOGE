@@ -49,7 +49,8 @@ namespace
 
 namespace soge
 {
-    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsCore& aCore) : m_core{aCore}
+    D3D12GraphicsPipeline::D3D12GraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass)
+        : m_core{aCore}, m_renderPass{aRenderPass}
     {
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
@@ -95,7 +96,7 @@ namespace soge
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
-        nvrhi::IFramebuffer& compatibleFramebuffer = aCore.m_renderPass->GetFramebuffer();
+        nvrhi::IFramebuffer& compatibleFramebuffer = aRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
 
         // TODO: move code below into component class
@@ -121,7 +122,8 @@ namespace soge
         nvrhiDevice.executeCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsPipeline&& aOther) noexcept : m_core{aOther.m_core}
+    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsPipeline&& aOther) noexcept
+        : m_core{aOther.m_core}, m_renderPass{aOther.m_renderPass}
     {
         swap(aOther);
     }
@@ -137,6 +139,7 @@ namespace soge
         using std::swap;
 
         eastl::swap(m_core, aOther.m_core);
+        eastl::swap(m_renderPass, aOther.m_renderPass);
 
         swap(m_commandLists, aOther.m_commandLists);
         swap(m_commandListRefs, aOther.m_commandListRefs);
@@ -193,7 +196,7 @@ namespace soge
         {
             GraphicsCommandListGuard commandList{*triangleCommandList};
 
-            nvrhi::IFramebuffer& currentFramebuffer = m_core.get().m_renderPass->GetFramebuffer();
+            nvrhi::IFramebuffer& currentFramebuffer = m_renderPass.get().GetFramebuffer();
             const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer.getFramebufferInfo();
 
             nvrhi::GraphicsState graphicsState{};

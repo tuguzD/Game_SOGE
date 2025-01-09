@@ -9,12 +9,14 @@
 
 namespace soge
 {
-    class D3D12GraphicsCore;
+    class GraphicsCore;
+    class GraphicsRenderPass;
 
     class D3D12GraphicsPipeline : public GraphicsPipeline
     {
     private:
-        eastl::reference_wrapper<D3D12GraphicsCore> m_core;
+        eastl::reference_wrapper<GraphicsCore> m_core;
+        eastl::reference_wrapper<GraphicsRenderPass> m_renderPass;
 
         eastl::vector<nvrhi::CommandListHandle> m_commandLists;
         eastl::vector<CommandListRef> m_commandListRefs;
@@ -36,7 +38,7 @@ namespace soge
             glm::vec4 m_color;
         };
 
-        explicit D3D12GraphicsPipeline(D3D12GraphicsCore& aCore);
+        explicit D3D12GraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass);
 
         D3D12GraphicsPipeline(const D3D12GraphicsPipeline&) = delete;
         D3D12GraphicsPipeline& operator=(const D3D12GraphicsPipeline&) = delete;
