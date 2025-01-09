@@ -10,6 +10,7 @@ namespace soge
 {
     class Window;
 
+    // TODO: link this with lifetime of the window
     class GraphicsSwapchain
     {
     public:

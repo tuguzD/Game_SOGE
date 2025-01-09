@@ -67,7 +67,6 @@ namespace soge
         NvrhiMessageCallback m_nvrhiMessageCallback;
         nvrhi::DeviceHandle m_nvrhiDevice;
 
-        // TODO: move this into some class which strongly links to the window and has the same lifetime
         UniquePtr<GraphicsSwapchain> m_swapChain;
         UniquePtr<GraphicsRenderPass> m_renderPass;
         UniquePtr<GraphicsPipeline> m_pipeline;
