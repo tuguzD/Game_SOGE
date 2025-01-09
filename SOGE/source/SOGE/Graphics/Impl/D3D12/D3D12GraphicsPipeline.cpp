@@ -53,7 +53,7 @@ namespace soge
     {
         // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
-        nvrhi::IDevice& nvrhiDevice = m_core.get().GetRawDevice();
+        nvrhi::IDevice& nvrhiDevice = aCore.GetRawDevice();
 
         nvrhi::ShaderDesc vertexShaderDesc{};
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;

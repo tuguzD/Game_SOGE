@@ -49,7 +49,6 @@ namespace soge
         };
 
         friend class D3D12GraphicsSwapchain;
-        friend class D3D12GraphicsRenderPass;
         friend class D3D12GraphicsPipeline;
 
         static void NriMessageCallback(nri::Message aMessageType, const char* aFile, std::uint32_t aLine,
@@ -91,6 +90,9 @@ namespace soge
         void swap(D3D12GraphicsCore& aOther) noexcept;
 
         void SetRenderTarget(const Window& aWindow) override;
+        [[nodiscard]]
+        GraphicsSwapchain* GetSwapchain() override;
+
         void Update(float aDeltaTime) override;
 
         [[nodiscard]]

@@ -8,17 +8,17 @@
 
 namespace soge
 {
-    class D3D12GraphicsCore;
+    class GraphicsCore;
 
     class D3D12GraphicsRenderPass : public GraphicsRenderPass
     {
     private:
-        eastl::reference_wrapper<D3D12GraphicsCore> m_core;
+        eastl::reference_wrapper<GraphicsCore> m_core;
 
         eastl::vector<nvrhi::FramebufferHandle> m_nvrhiFramebuffers;
 
     public:
-        explicit D3D12GraphicsRenderPass(D3D12GraphicsCore& aCore);
+        explicit D3D12GraphicsRenderPass(GraphicsCore& aCore);
 
         D3D12GraphicsRenderPass(const D3D12GraphicsRenderPass&) = delete;
         D3D12GraphicsRenderPass& operator=(const D3D12GraphicsRenderPass&) = delete;

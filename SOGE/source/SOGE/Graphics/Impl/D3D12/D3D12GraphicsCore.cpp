@@ -227,6 +227,11 @@ namespace soge
         m_pipeline = CreateUnique<D3D12GraphicsPipeline>(*this);
     }
 
+    GraphicsSwapchain* D3D12GraphicsCore::GetSwapchain()
+    {
+        return m_swapChain.get();
+    }
+
     void D3D12GraphicsCore::Update(float aDeltaTime)
     {
         SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, aDeltaTime);

@@ -2,17 +2,19 @@
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsRenderPass.hpp"
 
+#include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
 #include <nvrhi/utils.h>
 
 
 namespace soge
 {
-    D3D12GraphicsRenderPass::D3D12GraphicsRenderPass(D3D12GraphicsCore& aCore) : m_core{aCore}
+    D3D12GraphicsRenderPass::D3D12GraphicsRenderPass(GraphicsCore& aCore) : m_core{aCore}
     {
-        const auto swapChainTextures = aCore.m_swapChain->GetTextures();
+        nvrhi::IDevice& device = aCore.GetRawDevice();
+
+        const auto swapChainTextures = aCore.GetSwapchain()->GetTextures();
         assert(!swapChainTextures.empty());
         const auto& swapChainTextureDesc = swapChainTextures[0].get().getDesc();
 
@@ -40,9 +42,9 @@ namespace soge
             nvrhi::Format::D16,
         };
         nvrhiDepthTextureDesc.format = nvrhi::utils::ChooseFormat(
-            aCore.m_nvrhiDevice, requiredDepthFeatures, requestedDepthFormats.data(), requestedDepthFormats.size());
+            &device, requiredDepthFeatures, requestedDepthFormats.data(), requestedDepthFormats.size());
 
-        const nvrhi::TextureHandle nvrhiDepthTexture = aCore.m_nvrhiDevice->createTexture(nvrhiDepthTextureDesc);
+        const nvrhi::TextureHandle nvrhiDepthTexture = device.createTexture(nvrhiDepthTextureDesc);
 
         m_nvrhiFramebuffers.reserve(swapChainTextures.size());
         for (std::size_t index = 0; index < swapChainTextures.size(); index++)
@@ -54,7 +56,7 @@ namespace soge
             framebufferDesc.addColorAttachment(nvrhiColorTexture);
             framebufferDesc.setDepthAttachment(nvrhiDepthTexture);
 
-            nvrhi::FramebufferHandle nvrhiFramebuffer = aCore.m_nvrhiDevice->createFramebuffer(framebufferDesc);
+            nvrhi::FramebufferHandle nvrhiFramebuffer = device.createFramebuffer(framebufferDesc);
             m_nvrhiFramebuffers.push_back(nvrhiFramebuffer);
         }
     }
@@ -89,7 +91,7 @@ namespace soge
 
     auto D3D12GraphicsRenderPass::GetFramebuffer() -> FramebufferRef
     {
-        const auto currentFrameIndex = m_core.get().m_swapChain->GetCurrentTextureIndex();
+        const auto currentFrameIndex = m_core.get().GetSwapchain()->GetCurrentTextureIndex();
         return *m_nvrhiFramebuffers[currentFrameIndex];
     }
 }

@@ -9,6 +9,7 @@
 namespace soge
 {
     class Window;
+    class GraphicsSwapchain;
 
     class GraphicsCore
     {
@@ -24,6 +25,9 @@ namespace soge
         constexpr virtual ~GraphicsCore() noexcept = default;
 
         constexpr virtual void SetRenderTarget(const Window& aWindow) = 0;
+        [[nodiscard]]
+        constexpr virtual GraphicsSwapchain* GetSwapchain() = 0;
+
         constexpr virtual void Update(float aDeltaTime) = 0;
 
         [[nodiscard]]
