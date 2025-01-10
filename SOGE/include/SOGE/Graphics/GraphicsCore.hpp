@@ -11,6 +11,8 @@ namespace soge
     class Window;
     class GraphicsSwapchain;
 
+    class RenderGraph;
+
     class GraphicsCore
     {
     public:
@@ -28,7 +30,7 @@ namespace soge
         [[nodiscard]]
         constexpr virtual GraphicsSwapchain* GetSwapchain() = 0;
 
-        constexpr virtual void Update(float aDeltaTime) = 0;
+        constexpr virtual void Update(RenderGraph& aRenderGraph, float aDeltaTime) = 0;
 
         [[nodiscard]]
         constexpr virtual nvrhi::IDevice& GetRawDevice() = 0;

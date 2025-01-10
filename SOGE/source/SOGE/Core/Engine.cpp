@@ -4,6 +4,7 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
+#include "SOGE/Graphics/SimpleRenderGraph.hpp"
 #include "SOGE/Input/InputModule.hpp"
 #include "SOGE/Utils/StringHelpers.hpp"
 #include "SOGE/Window/WindowModule.hpp"
@@ -109,6 +110,7 @@ namespace soge
                       EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(), uuid.str());
 
         GetModule<GraphicsModule>()->SetRenderTarget(window);
+        GetModule<GraphicsModule>()->SetRenderGraph<SimpleRenderGraph>();
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)

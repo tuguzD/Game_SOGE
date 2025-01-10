@@ -2,19 +2,15 @@
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
-#include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
-#include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
-
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
-#include "SOGE/Graphics/GraphicsModule.hpp"
+#include "SOGE/Graphics/RenderGraph.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 #include <Extensions/NRIWrapperD3D12.h>
 
-#include <nvrhi/utils.h>
 #ifdef SOGE_DEBUG
 #include <nvrhi/validation.h>
 #endif
@@ -138,8 +134,7 @@ namespace soge
 
     D3D12GraphicsCore::D3D12GraphicsCore(D3D12GraphicsCore&& aOther) noexcept
         : m_nriInitDevice{}, m_nriDevice{}, m_nriInterface{}, m_nriGraphicsCommandQueue{}, m_nriCallbackInterface{},
-          m_nriAllocationCallbacks{}, m_nvrhiMessageCallback{}, m_nvrhiDevice{}, m_swapChain{}, m_renderPass{},
-          m_pipeline{}, m_commandLists{}, m_totalFrameCount{}
+          m_nriAllocationCallbacks{}, m_nvrhiMessageCallback{}, m_nvrhiDevice{}, m_swapChain{}, m_totalFrameCount{}
     {
         swap(aOther);
     }
@@ -165,10 +160,6 @@ namespace soge
         swap(m_nvrhiDevice, aOther.m_nvrhiDevice);
 
         swap(m_swapChain, aOther.m_swapChain);
-        swap(m_renderPass, aOther.m_renderPass);
-
-        swap(m_pipeline, aOther.m_pipeline);
-        swap(m_commandLists, aOther.m_commandLists);
 
         swap(m_totalFrameCount, aOther.m_totalFrameCount);
     }
@@ -190,9 +181,6 @@ namespace soge
 
     void D3D12GraphicsCore::DestroySwapChain()
     {
-        m_pipeline = nullptr;
-        m_renderPass = nullptr;
-
         m_swapChain = nullptr;
     }
 
@@ -225,9 +213,6 @@ namespace soge
         DestroySwapChain();
 
         m_swapChain = CreateUnique<D3D12GraphicsSwapchain>(*this, aWindow);
-
-        m_renderPass = CreateUnique<FinalGraphicsRenderPass>(*this);
-        m_pipeline = CreateUnique<TriangleGraphicsPipeline>(*this, *m_renderPass);
     }
 
     GraphicsSwapchain* D3D12GraphicsCore::GetSwapchain()
@@ -235,41 +220,14 @@ namespace soge
         return m_swapChain.get();
     }
 
-    void D3D12GraphicsCore::Update(float aDeltaTime)
+    void D3D12GraphicsCore::Update(RenderGraph& aRenderGraph, float aDeltaTime)
     {
         SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, aDeltaTime);
 
         m_swapChain->WaitForPresent();
         m_nvrhiDevice->runGarbageCollection();
 
-        nvrhi::IFramebuffer& currentFramebuffer = m_renderPass->GetFramebuffer();
-
-        nvrhi::CommandListParameters commandListDesc{};
-        commandListDesc.enableImmediateExecution = false;
-
-        const nvrhi::CommandListHandle clearCommandList = m_nvrhiDevice->createCommandList(commandListDesc);
-        {
-            GraphicsCommandListGuard commandList{*clearCommandList};
-
-            const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer.getDesc();
-            for (std::uint32_t index = 0; index < framebufferDesc.colorAttachments.size(); index++)
-            {
-                nvrhi::utils::ClearColorAttachment(commandList, &currentFramebuffer, index, nvrhi::Color{});
-            }
-            nvrhi::utils::ClearDepthStencilAttachment(commandList, &currentFramebuffer, 1.0f, 0);
-        }
-        const auto drawCommandLists = m_pipeline->Update(aDeltaTime);
-
-        m_commandLists.reserve(drawCommandLists.size() + 1);
-        {
-            m_commandLists.emplace_back(clearCommandList);
-            for (const auto& drawCommandList : drawCommandLists)
-            {
-                m_commandLists.emplace_back(&drawCommandList.get());
-            }
-        }
-        m_nvrhiDevice->executeCommandLists(m_commandLists.data(), m_commandLists.size(), nvrhi::CommandQueue::Graphics);
-        m_commandLists.clear();
+        aRenderGraph.Execute(aDeltaTime);
 
         m_swapChain->Present();
         m_totalFrameCount++;

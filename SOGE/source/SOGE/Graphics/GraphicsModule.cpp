@@ -12,7 +12,7 @@
 
 namespace soge
 {
-    GraphicsModule::GraphicsModule() : m_graphicsCore(nullptr)
+    GraphicsModule::GraphicsModule() : m_graphicsCore{nullptr}, m_renderGraph{nullptr}
     {
     }
 
@@ -28,6 +28,7 @@ namespace soge
 
     void GraphicsModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
+        m_renderGraph = nullptr;
         m_graphicsCore = nullptr;
 
         SOGE_INFO_LOG("Graphics module unloaded...");
@@ -45,12 +46,12 @@ namespace soge
 
     void GraphicsModule::Update(const float aDeltaTime)
     {
-        if (m_graphicsCore == nullptr)
+        if (m_graphicsCore == nullptr && m_renderGraph == nullptr)
         {
             return;
         }
 
-        m_graphicsCore->Update(aDeltaTime);
+        m_graphicsCore->Update(*m_renderGraph, aDeltaTime);
     }
 
     std::filesystem::path GetCompiledShaderPath(const GraphicsCore& aCore, const std::filesystem::path& aSourcePath,

@@ -2,6 +2,7 @@
 
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 
+#include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
 
@@ -93,5 +94,26 @@ namespace soge
     {
         const auto currentFrameIndex = m_core.get().GetSwapchain()->GetCurrentTextureIndex();
         return *m_nvrhiFramebuffers[currentFrameIndex];
+    }
+
+    nvrhi::CommandListHandle FinalGraphicsRenderPass::CreateClearCommandList()
+    {
+        nvrhi::CommandListParameters commandListDesc{};
+        commandListDesc.enableImmediateExecution = false;
+
+        nvrhi::IDevice& device = m_core.get().GetRawDevice();
+        const nvrhi::CommandListHandle clearCommandList = device.createCommandList(commandListDesc);
+        {
+            GraphicsCommandListGuard commandList{*clearCommandList};
+
+            nvrhi::IFramebuffer& currentFramebuffer = GetFramebuffer();
+            const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer.getDesc();
+            for (std::uint32_t index = 0; index < framebufferDesc.colorAttachments.size(); index++)
+            {
+                nvrhi::utils::ClearColorAttachment(commandList, &currentFramebuffer, index, nvrhi::Color{});
+            }
+            nvrhi::utils::ClearDepthStencilAttachment(commandList, &currentFramebuffer, 1.0f, 0);
+        }
+        return clearCommandList;
     }
 }

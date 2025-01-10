@@ -13,8 +13,6 @@
 
 #include <nvrhi/d3d12.h>
 
-#include <EASTL/vector.h>
-
 
 namespace soge
 {
@@ -67,9 +65,6 @@ namespace soge
         nvrhi::DeviceHandle m_nvrhiDevice;
 
         UniquePtr<GraphicsSwapchain> m_swapChain;
-        UniquePtr<GraphicsRenderPass> m_renderPass;
-        UniquePtr<GraphicsPipeline> m_pipeline;
-        eastl::vector<nvrhi::ICommandList*> m_commandLists;
 
         std::uint64_t m_totalFrameCount;
 
@@ -91,7 +86,7 @@ namespace soge
         [[nodiscard]]
         GraphicsSwapchain* GetSwapchain() override;
 
-        void Update(float aDeltaTime) override;
+        void Update(RenderGraph& aRenderGraph, float aDeltaTime) override;
 
         [[nodiscard]]
         nvrhi::IDevice& GetRawDevice() override;

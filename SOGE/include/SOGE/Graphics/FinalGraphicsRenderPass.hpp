@@ -33,6 +33,9 @@ namespace soge
 
         [[nodiscard]]
         nvrhi::IFramebuffer& GetFramebuffer() override;
+
+        [[nodiscard]]
+        nvrhi::CommandListHandle CreateClearCommandList();
     };
 }
 
