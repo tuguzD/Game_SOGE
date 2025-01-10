@@ -97,6 +97,7 @@ namespace soge
     using ImplGraphicsCore = D3D12GraphicsCore;
 }
 
-SOGE_DI_REGISTER_NS(soge, D3D12GraphicsCore, df::Single<D3D12GraphicsCore>, tag::Overrides<GraphicsCore>)
+SOGE_DI_REGISTER_NS(soge, D3D12GraphicsCore, df::Single<D3D12GraphicsCore>,
+                    tag::Overrides<D3D12GraphicsCore, GraphicsCore>)
 
 #endif // SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSCORE_HPP

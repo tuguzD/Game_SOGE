@@ -20,9 +20,11 @@ namespace soge
     {
         SOGE_LOG_TITLE_DIVIDER(GRAPHICS MODULE)
 
-        m_container = &aContainer;
-        m_graphicsCore = &aContainer.Provide<ImplGraphicsCore>();
         aModuleManager.CreateModule<EventModule>();
+        aContainer.Create<ImplGraphicsCore>();
+
+        m_container = &aContainer;
+        m_graphicsCore = &aContainer.Provide<GraphicsCore>();
 
         SOGE_INFO_LOG("Graphics module loaded...");
     }

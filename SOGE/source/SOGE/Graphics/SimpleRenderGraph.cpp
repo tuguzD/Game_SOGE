@@ -9,7 +9,7 @@
 
 namespace soge
 {
-    SimpleRenderGraph::SimpleRenderGraph(ImplGraphicsCore& aCore) : RenderGraph{aCore}, m_core{aCore}
+    SimpleRenderGraph::SimpleRenderGraph(GraphicsCore& aCore) : RenderGraph{aCore}, m_core{aCore}
     {
         m_renderPass = CreateUnique<FinalGraphicsRenderPass>(aCore);
         m_pipeline = CreateUnique<TriangleGraphicsPipeline>(aCore, *m_renderPass);
