@@ -12,7 +12,7 @@
 
 namespace soge
 {
-    GraphicsModule::GraphicsModule() : m_graphicsCore{nullptr}, m_renderGraph{nullptr}
+    GraphicsModule::GraphicsModule() : m_container{nullptr}, m_graphicsCore{nullptr}, m_renderGraph{nullptr}
     {
     }
 
@@ -20,6 +20,7 @@ namespace soge
     {
         SOGE_LOG_TITLE_DIVIDER(GRAPHICS MODULE)
 
+        m_container = &aContainer;
         m_graphicsCore = &aContainer.Provide<ImplGraphicsCore>();
         aModuleManager.CreateModule<EventModule>();
 
@@ -30,6 +31,7 @@ namespace soge
     {
         m_renderGraph = nullptr;
         m_graphicsCore = nullptr;
+        m_container = nullptr;
 
         SOGE_INFO_LOG("Graphics module unloaded...");
     }

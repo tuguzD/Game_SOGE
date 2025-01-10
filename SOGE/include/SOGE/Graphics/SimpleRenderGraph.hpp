@@ -1,8 +1,12 @@
 ﻿#ifndef SOGE_GRAPHICS_SIMPLERENDERGRAPH_HPP
 #define SOGE_GRAPHICS_SIMPLERENDERGRAPH_HPP
 
+#include "SOGE/Graphics/GraphicsCompilePreproc.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
 #include "SOGE/System/Memory.hpp"
+#include "SOGE/Utils/PreprocessorHelpers.hpp"
+
+#include SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(SOGE/Graphics, GraphicsCore.hpp)
 
 
 namespace soge
@@ -21,7 +25,7 @@ namespace soge
         eastl::vector<nvrhi::ICommandList*> m_commandLists;
 
     public:
-        explicit SimpleRenderGraph(GraphicsCore& aCore);
+        explicit SimpleRenderGraph(ImplGraphicsCore& aCore);
 
         SimpleRenderGraph(const SimpleRenderGraph&) = delete;
         SimpleRenderGraph& operator=(const SimpleRenderGraph&) = delete;
@@ -35,6 +39,7 @@ namespace soge
     };
 }
 
-SOGE_DI_REGISTER_NS(soge, SimpleRenderGraph, df::Single<SimpleRenderGraph, GraphicsCore>, tag::Overrides<RenderGraph>)
+SOGE_DI_REGISTER_NS(soge, SimpleRenderGraph, df::Single<SimpleRenderGraph, ImplGraphicsCore>,
+                    tag::Overrides<RenderGraph>)
 
 #endif // SOGE_GRAPHICS_SIMPLERENDERGRAPH_HPP
