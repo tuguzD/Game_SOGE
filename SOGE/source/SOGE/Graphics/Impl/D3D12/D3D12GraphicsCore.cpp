@@ -2,8 +2,9 @@
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsRenderPass.hpp"
+#include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
+
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
@@ -191,6 +192,7 @@ namespace soge
     {
         m_pipeline = nullptr;
         m_renderPass = nullptr;
+
         m_swapChain = nullptr;
     }
 
@@ -223,8 +225,9 @@ namespace soge
         DestroySwapChain();
 
         m_swapChain = CreateUnique<D3D12GraphicsSwapchain>(*this, aWindow);
-        m_renderPass = CreateUnique<D3D12GraphicsRenderPass>(*this);
-        m_pipeline = CreateUnique<D3D12GraphicsPipeline>(*this, *m_renderPass);
+
+        m_renderPass = CreateUnique<FinalGraphicsRenderPass>(*this);
+        m_pipeline = CreateUnique<TriangleGraphicsPipeline>(*this, *m_renderPass);
     }
 
     GraphicsSwapchain* D3D12GraphicsCore::GetSwapchain()

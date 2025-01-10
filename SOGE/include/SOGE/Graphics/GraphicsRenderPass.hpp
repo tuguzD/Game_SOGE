@@ -20,10 +20,8 @@ namespace soge
 
         constexpr virtual ~GraphicsRenderPass() = default;
 
-        using FramebufferRef = eastl::reference_wrapper<nvrhi::IFramebuffer>;
-
         [[nodiscard]]
-        constexpr virtual FramebufferRef GetFramebuffer() = 0;
+        constexpr virtual nvrhi::IFramebuffer& GetFramebuffer() = 0;
     };
 }
 

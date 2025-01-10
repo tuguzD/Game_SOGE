@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsPipeline.hpp"
+#include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
 
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
@@ -14,7 +14,7 @@
 
 namespace
 {
-    using Vertex = soge::D3D12GraphicsPipeline::Vertex;
+    using Vertex = soge::TriangleGraphicsPipeline::Vertex;
 
     constexpr std::array g_vertices{
         Vertex{
@@ -49,10 +49,9 @@ namespace
 
 namespace soge
 {
-    D3D12GraphicsPipeline::D3D12GraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass)
+    TriangleGraphicsPipeline::TriangleGraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass)
         : m_core{aCore}, m_renderPass{aRenderPass}
     {
-        // TODO: move code below into pipeline class
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");
         nvrhi::IDevice& nvrhiDevice = aCore.GetRawDevice();
 
@@ -122,19 +121,19 @@ namespace soge
         nvrhiDevice.executeCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    D3D12GraphicsPipeline::D3D12GraphicsPipeline(D3D12GraphicsPipeline&& aOther) noexcept
+    TriangleGraphicsPipeline::TriangleGraphicsPipeline(TriangleGraphicsPipeline&& aOther) noexcept
         : m_core{aOther.m_core}, m_renderPass{aOther.m_renderPass}
     {
         swap(aOther);
     }
 
-    D3D12GraphicsPipeline& D3D12GraphicsPipeline::operator=(D3D12GraphicsPipeline&& aOther) noexcept
+    TriangleGraphicsPipeline& TriangleGraphicsPipeline::operator=(TriangleGraphicsPipeline&& aOther) noexcept
     {
         swap(aOther);
         return *this;
     }
 
-    void D3D12GraphicsPipeline::swap(D3D12GraphicsPipeline& aOther) noexcept
+    void TriangleGraphicsPipeline::swap(TriangleGraphicsPipeline& aOther) noexcept
     {
         using std::swap;
 
@@ -154,7 +153,7 @@ namespace soge
         swap(m_nvrhiBindingSet, aOther.m_nvrhiBindingSet);
     }
 
-    D3D12GraphicsPipeline::~D3D12GraphicsPipeline()
+    TriangleGraphicsPipeline::~TriangleGraphicsPipeline()
     {
         m_commandLists.clear();
         m_commandListRefs.clear();
@@ -182,7 +181,7 @@ namespace soge
         }
     }
 
-    auto D3D12GraphicsPipeline::Update(float aDeltaTime) -> CommandLists
+    auto TriangleGraphicsPipeline::Update(float aDeltaTime) -> CommandLists
     {
         m_commandLists.clear();
         m_commandListRefs.clear();

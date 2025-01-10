@@ -1,5 +1,5 @@
-﻿#ifndef SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSPIPELINE_HPP
-#define SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSPIPELINE_HPP
+﻿#ifndef SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
+#define SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
 
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
@@ -12,7 +12,7 @@ namespace soge
     class GraphicsCore;
     class GraphicsRenderPass;
 
-    class D3D12GraphicsPipeline : public GraphicsPipeline
+    class TriangleGraphicsPipeline : public GraphicsPipeline
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
@@ -38,22 +38,22 @@ namespace soge
             glm::vec4 m_color;
         };
 
-        explicit D3D12GraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass);
+        explicit TriangleGraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass);
 
-        D3D12GraphicsPipeline(const D3D12GraphicsPipeline&) = delete;
-        D3D12GraphicsPipeline& operator=(const D3D12GraphicsPipeline&) = delete;
+        TriangleGraphicsPipeline(const TriangleGraphicsPipeline&) = delete;
+        TriangleGraphicsPipeline& operator=(const TriangleGraphicsPipeline&) = delete;
 
-        D3D12GraphicsPipeline(D3D12GraphicsPipeline&& aOther) noexcept;
-        D3D12GraphicsPipeline& operator=(D3D12GraphicsPipeline&& aOther) noexcept;
+        TriangleGraphicsPipeline(TriangleGraphicsPipeline&& aOther) noexcept;
+        TriangleGraphicsPipeline& operator=(TriangleGraphicsPipeline&& aOther) noexcept;
 
-        ~D3D12GraphicsPipeline() override;
+        ~TriangleGraphicsPipeline() override;
 
         // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(D3D12GraphicsPipeline& aOther) noexcept;
+        void swap(TriangleGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
         CommandLists Update(float aDeltaTime) override;
     };
 }
 
-#endif // SOGE_GRAPHICS_IMPL_D3D12_D3D12GRAPHICSPIPELINE_HPP
+#endif // SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP

@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsRenderPass.hpp"
+#include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
@@ -10,7 +10,7 @@
 
 namespace soge
 {
-    D3D12GraphicsRenderPass::D3D12GraphicsRenderPass(GraphicsCore& aCore) : m_core{aCore}
+    FinalGraphicsRenderPass::FinalGraphicsRenderPass(GraphicsCore& aCore) : m_core{aCore}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -61,18 +61,18 @@ namespace soge
         }
     }
 
-    D3D12GraphicsRenderPass::D3D12GraphicsRenderPass(D3D12GraphicsRenderPass&& aOther) noexcept : m_core{aOther.m_core}
+    FinalGraphicsRenderPass::FinalGraphicsRenderPass(FinalGraphicsRenderPass&& aOther) noexcept : m_core{aOther.m_core}
     {
         swap(aOther);
     }
 
-    D3D12GraphicsRenderPass& D3D12GraphicsRenderPass::operator=(D3D12GraphicsRenderPass&& aOther) noexcept
+    FinalGraphicsRenderPass& FinalGraphicsRenderPass::operator=(FinalGraphicsRenderPass&& aOther) noexcept
     {
         swap(aOther);
         return *this;
     }
 
-    void D3D12GraphicsRenderPass::swap(D3D12GraphicsRenderPass& aOther) noexcept
+    void FinalGraphicsRenderPass::swap(FinalGraphicsRenderPass& aOther) noexcept
     {
         using std::swap;
 
@@ -80,7 +80,7 @@ namespace soge
         swap(m_nvrhiFramebuffers, aOther.m_nvrhiFramebuffers);
     }
 
-    D3D12GraphicsRenderPass::~D3D12GraphicsRenderPass()
+    FinalGraphicsRenderPass::~FinalGraphicsRenderPass()
     {
         if (!m_nvrhiFramebuffers.empty())
         {
@@ -89,7 +89,7 @@ namespace soge
         }
     }
 
-    auto D3D12GraphicsRenderPass::GetFramebuffer() -> FramebufferRef
+    nvrhi::IFramebuffer& FinalGraphicsRenderPass::GetFramebuffer()
     {
         const auto currentFrameIndex = m_core.get().GetSwapchain()->GetCurrentTextureIndex();
         return *m_nvrhiFramebuffers[currentFrameIndex];
