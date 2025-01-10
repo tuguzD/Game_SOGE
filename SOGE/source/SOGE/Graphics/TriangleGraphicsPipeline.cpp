@@ -4,7 +4,6 @@
 
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
-#include "SOGE/Graphics/GraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
@@ -49,7 +48,7 @@ namespace
 
 namespace soge
 {
-    TriangleGraphicsPipeline::TriangleGraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass)
+    TriangleGraphicsPipeline::TriangleGraphicsPipeline(GraphicsCore& aCore, FinalGraphicsRenderPass& aRenderPass)
         : m_core{aCore}, m_renderPass{aRenderPass}
     {
         SOGE_INFO_LOG("Creating NVRHI simple pipeline...");

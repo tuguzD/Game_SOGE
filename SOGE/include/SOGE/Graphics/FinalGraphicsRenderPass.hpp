@@ -1,6 +1,7 @@
 ﻿#ifndef SOGE_GRAPHICS_FINALGRAPHICSRENDERPASS_HPP
 #define SOGE_GRAPHICS_FINALGRAPHICSRENDERPASS_HPP
 
+#include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsRenderPass.hpp"
 
 #include <EASTL/vector.h>
@@ -8,8 +9,6 @@
 
 namespace soge
 {
-    class GraphicsCore;
-
     class FinalGraphicsRenderPass : public GraphicsRenderPass
     {
     private:
@@ -38,5 +37,7 @@ namespace soge
         nvrhi::CommandListHandle CreateClearCommandList();
     };
 }
+
+SOGE_DI_REGISTER_NS(soge, FinalGraphicsRenderPass, df::Single<FinalGraphicsRenderPass, GraphicsCore>)
 
 #endif // SOGE_GRAPHICS_FINALGRAPHICSRENDERPASS_HPP

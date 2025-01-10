@@ -1,11 +1,13 @@
 ﻿#ifndef SOGE_GRAPHICS_RENDERGRAPH_HPP
 #define SOGE_GRAPHICS_RENDERGRAPH_HPP
 
-#include "SOGE/Graphics/GraphicsCore.hpp"
+#include "SOGE/DI/Dependency.hpp"
 
 
 namespace soge
 {
+    class GraphicsCore;
+
     class RenderGraph
     {
     public:

@@ -1,22 +1,20 @@
 ﻿#ifndef SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
 #define SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
 
+#include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
-#include <EASTL/vector.h>
 #include <glm/vec4.hpp>
 
 
 namespace soge
 {
-    class GraphicsCore;
-    class GraphicsRenderPass;
-
     class TriangleGraphicsPipeline : public GraphicsPipeline
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
-        eastl::reference_wrapper<GraphicsRenderPass> m_renderPass;
+        eastl::reference_wrapper<FinalGraphicsRenderPass> m_renderPass;
 
         eastl::vector<nvrhi::CommandListHandle> m_commandLists;
         eastl::vector<CommandListRef> m_commandListRefs;
@@ -38,7 +36,7 @@ namespace soge
             glm::vec4 m_color;
         };
 
-        explicit TriangleGraphicsPipeline(GraphicsCore& aCore, GraphicsRenderPass& aRenderPass);
+        explicit TriangleGraphicsPipeline(GraphicsCore& aCore, FinalGraphicsRenderPass& aRenderPass);
 
         TriangleGraphicsPipeline(const TriangleGraphicsPipeline&) = delete;
         TriangleGraphicsPipeline& operator=(const TriangleGraphicsPipeline&) = delete;
@@ -55,5 +53,8 @@ namespace soge
         CommandLists Update(float aDeltaTime) override;
     };
 }
+
+SOGE_DI_REGISTER_NS(soge, TriangleGraphicsPipeline,
+                    df::Single<TriangleGraphicsPipeline, GraphicsCore, FinalGraphicsRenderPass>)
 
 #endif // SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP

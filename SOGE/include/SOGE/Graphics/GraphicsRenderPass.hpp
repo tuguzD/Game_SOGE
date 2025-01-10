@@ -1,7 +1,6 @@
 ﻿#ifndef SOGE_GRAPHICS_GRAPHICSRENDERPASS_HPP
 #define SOGE_GRAPHICS_GRAPHICSRENDERPASS_HPP
 
-#include <EASTL/functional.h>
 #include <nvrhi/nvrhi.h>
 
 
