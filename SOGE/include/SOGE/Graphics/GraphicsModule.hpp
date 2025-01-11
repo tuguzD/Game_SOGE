@@ -1,10 +1,16 @@
 #ifndef SOGE_GRAPHICS_GRAPHICSMODULE_HPP
 #define SOGE_GRAPHICS_GRAPHICSMODULE_HPP
 
+#include "SOGE/Core/Module.hpp"
 #include "SOGE/DI/Container.hpp"
-#include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
+#include "SOGE/System/Memory.hpp"
+#include "SOGE/Utils/UUID.hpp"
+
+#include <EASTL/functional.h>
+#include <EASTL/hash_map.h>
+#include <EASTL/vector.h>
 
 #include <filesystem>
 
@@ -14,20 +20,33 @@ namespace soge
     class GraphicsModule : public Module
     {
     private:
-        di::Container* m_container;
+        using Key = UUIDv4::UUID;
+        using UniqueEntity = UniquePtr<GraphicsEntity>;
+
+        Key CreateEntity(UniqueEntity aEntity);
+
+        using Entities = eastl::hash_map<Key, UniqueEntity>;
+        Entities m_entities;
+        using EntitiesSpan = eastl::vector<eastl::reference_wrapper<GraphicsEntity>>;
+        EntitiesSpan m_entitiesSpan;
+
         GraphicsCore* m_graphicsCore;
         RenderGraph* m_renderGraph;
-
-        // TODO: map of graphics entities to draw
-        UniquePtr<GraphicsEntity> m_graphicsEntity;
 
     public:
         explicit GraphicsModule();
 
-        virtual void SetRenderTarget(const Window& aWindow);
-
         template <typename T, typename... Args>
-        void SetRenderGraph(Args&&... args);
+        [[nodiscard]]
+        eastl::pair<T&, Key> CreateEntity(Args&&... args);
+
+        [[nodiscard]]
+        GraphicsEntity* GetEntity(const Key& aKey) const;
+
+        UniqueEntity DestroyEntity(const Key& aKey);
+
+        virtual void SetRenderTarget(const Window& aWindow);
+        virtual void SetRenderGraph(RenderGraph& aRenderGraph);
 
         virtual void Update();
 
@@ -40,15 +59,13 @@ namespace soge
                                                 eastl::string_view aEntryName = "");
 
     template <typename T, typename... Args>
-    void GraphicsModule::SetRenderGraph(Args&&... args)
+    auto GraphicsModule::CreateEntity(Args&&... args) -> eastl::pair<T&, Key>
     {
-        if (m_graphicsCore == nullptr && m_container == nullptr)
-        {
-            return;
-        }
+        UniquePtr<T> entity = CreateUnique<T>(std::forward<Args>(args)...);
+        T* entityPtr = entity.get();
 
-        m_container->Create<T>(std::forward<Args>(args)...);
-        m_renderGraph = &m_container->Provide<T>();
+        const auto key = CreateEntity(std::move(entity));
+        return {*entityPtr, key};
     }
 }
 

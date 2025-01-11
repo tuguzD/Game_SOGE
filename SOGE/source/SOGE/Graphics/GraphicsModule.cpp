@@ -4,6 +4,7 @@
 
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
+#include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsCompilePreproc.hpp"
 #include "SOGE/Graphics/TriangleEntity.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
@@ -13,7 +14,7 @@
 
 namespace soge
 {
-    GraphicsModule::GraphicsModule() : m_container{nullptr}, m_graphicsCore{nullptr}, m_renderGraph{nullptr}
+    GraphicsModule::GraphicsModule() : m_graphicsCore{nullptr}, m_renderGraph{nullptr}
     {
     }
 
@@ -24,7 +25,6 @@ namespace soge
         aModuleManager.CreateModule<EventModule>();
         aContainer.Create<ImplGraphicsCore>();
 
-        m_container = &aContainer;
         m_graphicsCore = &aContainer.Provide<GraphicsCore>();
 
         SOGE_INFO_LOG("Graphics module loaded...");
@@ -32,12 +32,54 @@ namespace soge
 
     void GraphicsModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
-        m_graphicsEntity = nullptr;
+        m_entitiesSpan.clear();
+        m_entities.clear();
+
         m_renderGraph = nullptr;
         m_graphicsCore = nullptr;
-        m_container = nullptr;
 
         SOGE_INFO_LOG("Graphics module unloaded...");
+    }
+
+    auto GraphicsModule::CreateEntity(UniqueEntity aEntity) -> Key
+    {
+        const auto key = UUID::Generate();
+
+        const auto [iter, created] = m_entities.try_emplace(key, std::move(aEntity));
+        if (created)
+        {
+            m_entitiesSpan.push_back(*iter->second);
+        }
+
+        return key;
+    }
+
+    GraphicsEntity* GraphicsModule::GetEntity(const Key& aKey) const
+    {
+        const auto iter = m_entities.find(aKey);
+        if (iter == m_entities.end())
+        {
+            return nullptr;
+        }
+
+        return iter->second.get();
+    }
+
+    auto GraphicsModule::DestroyEntity(const Key& aKey) -> UniqueEntity
+    {
+        const auto iter = m_entities.find(aKey);
+        if (iter == m_entities.end())
+        {
+            return UniqueEntity{};
+        }
+
+        UniqueEntity entity = std::move(iter->second);
+        m_entities.erase(iter);
+        m_entitiesSpan.erase(eastl::remove_if(m_entitiesSpan.begin(), m_entitiesSpan.end(),
+                                              [&entity](auto&& aItem) { return entity.get() == &aItem.get(); }),
+                             m_entitiesSpan.end());
+
+        return entity;
     }
 
     void GraphicsModule::SetRenderTarget(const Window& aWindow)
@@ -50,6 +92,11 @@ namespace soge
         m_graphicsCore->SetRenderTarget(aWindow);
     }
 
+    void GraphicsModule::SetRenderGraph(RenderGraph& aRenderGraph)
+    {
+        m_renderGraph = &aRenderGraph;
+    }
+
     void GraphicsModule::Update()
     {
         if (m_graphicsCore == nullptr && m_renderGraph == nullptr)
@@ -57,33 +104,7 @@ namespace soge
             return;
         }
 
-        if (m_graphicsEntity == nullptr)
-        {
-            using Vertex = TriangleEntity::Vertex;
-
-            constexpr std::array vertices{
-                Vertex{
-                    .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
-                    .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
-                },
-                Vertex{
-                    .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
-                    .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
-                },
-                Vertex{
-                    .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
-                    .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
-                },
-            };
-
-            auto entity = m_container->Provide<TriangleEntity>();
-            entity.UpdateVertices(vertices);
-
-            m_graphicsEntity = CreateUnique<TriangleEntity>(std::move(entity));
-        }
-        auto graphicsEntityRef = eastl::ref(*m_graphicsEntity);
-        const GraphicsCore::Entities entities{&graphicsEntityRef, 1};
-        m_graphicsCore->Update(*m_renderGraph, entities);
+        m_graphicsCore->Update(*m_renderGraph, m_entitiesSpan);
     }
 
     std::filesystem::path GetCompiledShaderPath(const GraphicsCore& aCore, const std::filesystem::path& aSourcePath,
