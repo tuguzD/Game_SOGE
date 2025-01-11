@@ -47,7 +47,7 @@ namespace soge
             GraphicsCommandListGuard commandList{*verticesCommandList};
             commandList->writeBuffer(m_nvrhiVertexBuffer, aVertices.data(), inputByteSize);
         }
-        device.executeCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
+        m_core.get().ExecuteCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
     }
 
     nvrhi::CommandListHandle TriangleEntity::Update(GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline)

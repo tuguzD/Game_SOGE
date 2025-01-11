@@ -2,10 +2,10 @@
 #define SOGE_GRAPHICS_GRAPHICSCORE_HPP
 
 #include "SOGE/DI/Dependency.hpp"
+#include "SOGE/Graphics/ExecuteCommandLists.hpp"
 
 #include <EASTL/functional.h>
 #include <EASTL/span.h>
-#include <nvrhi/nvrhi.h>
 
 
 namespace soge
@@ -42,7 +42,25 @@ namespace soge
         constexpr virtual nvrhi::IDevice& GetRawDevice() = 0;
         [[nodiscard]]
         constexpr virtual eastl::string_view GetCompiledShaderExtension() const = 0;
+
+        template <CommandListRange T>
+        void ExecuteCommandLists(T&& aCommandLists,
+                                 nvrhi::CommandQueue aExecutionQueue = nvrhi::CommandQueue::Graphics);
+        void ExecuteCommandList(const nvrhi::CommandListHandle& aCommandList,
+                                nvrhi::CommandQueue aExecutionQueue = nvrhi::CommandQueue::Graphics);
     };
+
+    template <CommandListRange T>
+    void GraphicsCore::ExecuteCommandLists(T&& aCommandLists, const nvrhi::CommandQueue aExecutionQueue)
+    {
+        soge::ExecuteCommandLists(GetRawDevice(), std::forward<T>(aCommandLists), aExecutionQueue);
+    }
+
+    inline void GraphicsCore::ExecuteCommandList(const nvrhi::CommandListHandle& aCommandList,
+                                                 const nvrhi::CommandQueue aExecutionQueue)
+    {
+        GetRawDevice().executeCommandList(aCommandList, aExecutionQueue);
+    }
 }
 
 SOGE_DI_REGISTER_NS(soge, GraphicsCore, df::Abstract<GraphicsCore>)
