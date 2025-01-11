@@ -4,7 +4,6 @@
 
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
-#include "SOGE/Graphics/GraphicsSwapchain.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
 #include <filesystem>
@@ -96,28 +95,6 @@ namespace soge
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
         nvrhi::IFramebuffer& compatibleFramebuffer = aRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
-
-        // TODO: move code below into component class
-        SOGE_INFO_LOG("Creating NVRHI vertex buffer...");
-        nvrhi::BufferDesc vertexBufferDesc{};
-        vertexBufferDesc.byteSize = sizeof(g_vertices);
-        vertexBufferDesc.isVertexBuffer = true;
-        vertexBufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
-        vertexBufferDesc.keepInitialState = true;
-        vertexBufferDesc.debugName = "SOGE vertex buffer";
-        m_nvrhiVertexBuffer = nvrhiDevice.createBuffer(vertexBufferDesc);
-
-        SOGE_INFO_LOG("Creating NVRHI binding set...");
-        nvrhi::BindingSetDesc bindingSetDesc{};
-        bindingSetDesc.trackLiveness = true;
-        m_nvrhiBindingSet = nvrhiDevice.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
-
-        const nvrhi::CommandListHandle verticesCommandList = nvrhiDevice.createCommandList();
-        {
-            GraphicsCommandListGuard commandList{*verticesCommandList};
-            commandList->writeBuffer(m_nvrhiVertexBuffer, g_vertices.data(), sizeof(g_vertices));
-        }
-        nvrhiDevice.executeCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
     }
 
     TriangleGraphicsPipeline::TriangleGraphicsPipeline(TriangleGraphicsPipeline&& aOther) noexcept
@@ -139,84 +116,50 @@ namespace soge
         eastl::swap(m_core, aOther.m_core);
         eastl::swap(m_renderPass, aOther.m_renderPass);
 
-        swap(m_commandLists, aOther.m_commandLists);
-        swap(m_commandListRefs, aOther.m_commandListRefs);
-
         swap(m_nvrhiVertexShader, aOther.m_nvrhiVertexShader);
         swap(m_nvrhiInputLayout, aOther.m_nvrhiInputLayout);
         swap(m_nvrhiPixelShader, aOther.m_nvrhiPixelShader);
         swap(m_nvrhiBindingLayout, aOther.m_nvrhiBindingLayout);
         swap(m_nvrhiGraphicsPipeline, aOther.m_nvrhiGraphicsPipeline);
-
-        swap(m_nvrhiVertexBuffer, aOther.m_nvrhiVertexBuffer);
-        swap(m_nvrhiBindingSet, aOther.m_nvrhiBindingSet);
     }
 
     TriangleGraphicsPipeline::~TriangleGraphicsPipeline()
     {
-        m_commandLists.clear();
-        m_commandListRefs.clear();
-
-        // TODO: move code below into component class
-        if (m_nvrhiBindingSet != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NVRHI binding set...");
-            m_nvrhiBindingSet = nullptr;
-        }
-        if (m_nvrhiVertexBuffer != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NVRHI vertex buffer...");
-            m_nvrhiVertexBuffer = nullptr;
-        }
-
-        if (m_nvrhiGraphicsPipeline != nullptr)
-        {
-            SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
-            m_nvrhiGraphicsPipeline = nullptr;
-            m_nvrhiBindingLayout = nullptr;
-            m_nvrhiPixelShader = nullptr;
-            m_nvrhiInputLayout = nullptr;
-            m_nvrhiVertexShader = nullptr;
-        }
+        SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
+        m_nvrhiGraphicsPipeline = nullptr;
+        m_nvrhiBindingLayout = nullptr;
+        m_nvrhiPixelShader = nullptr;
+        m_nvrhiInputLayout = nullptr;
+        m_nvrhiVertexShader = nullptr;
     }
 
-    auto TriangleGraphicsPipeline::Update(float aDeltaTime) -> CommandLists
+    FinalGraphicsRenderPass& TriangleGraphicsPipeline::GetRenderPass() noexcept
     {
-        m_commandLists.clear();
-        m_commandListRefs.clear();
+        return m_renderPass.get();
+    }
 
-        nvrhi::CommandListParameters commandListDesc{};
-        commandListDesc.enableImmediateExecution = false;
+    nvrhi::IShader& TriangleGraphicsPipeline::GetVertexShader() noexcept
+    {
+        return *m_nvrhiVertexShader;
+    }
 
-        nvrhi::IDevice& nvrhiDevice = m_core.get().GetRawDevice();
-        const nvrhi::CommandListHandle triangleCommandList = nvrhiDevice.createCommandList(commandListDesc);
-        m_commandLists.emplace_back(triangleCommandList);
-        {
-            GraphicsCommandListGuard commandList{*triangleCommandList};
+    nvrhi::IInputLayout& TriangleGraphicsPipeline::GetInputLayout() noexcept
+    {
+        return *m_nvrhiInputLayout;
+    }
 
-            nvrhi::IFramebuffer& currentFramebuffer = m_renderPass.get().GetFramebuffer();
-            const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer.getFramebufferInfo();
+    nvrhi::IShader& TriangleGraphicsPipeline::GetPixelShader() noexcept
+    {
+        return *m_nvrhiPixelShader;
+    }
 
-            nvrhi::GraphicsState graphicsState{};
-            graphicsState.pipeline = m_nvrhiGraphicsPipeline;
-            graphicsState.framebuffer = &currentFramebuffer;
-            graphicsState.bindings = {m_nvrhiBindingSet};
-            graphicsState.vertexBuffers = {
-                nvrhi::VertexBufferBinding{.buffer = m_nvrhiVertexBuffer, .slot = 0, .offset = 0},
-            };
-            graphicsState.viewport.addViewportAndScissorRect(framebufferInfo.getViewport());
-            commandList->setGraphicsState(graphicsState);
+    nvrhi::IBindingLayout& TriangleGraphicsPipeline::GetBindingLayout() noexcept
+    {
+        return *m_nvrhiBindingLayout;
+    }
 
-            nvrhi::DrawArguments drawArguments{};
-            drawArguments.vertexCount = static_cast<std::uint32_t>(g_vertices.size());
-            commandList->draw(drawArguments);
-        }
-
-        m_commandListRefs.reserve(m_commandLists.size());
-        for (const auto& commandList : m_commandLists)
-        {
-            m_commandListRefs.emplace_back(*commandList);
-        }
-        return m_commandListRefs;
+    nvrhi::IGraphicsPipeline& TriangleGraphicsPipeline::GetGraphicsPipeline() noexcept
+    {
+        return *m_nvrhiGraphicsPipeline;
     }
 }

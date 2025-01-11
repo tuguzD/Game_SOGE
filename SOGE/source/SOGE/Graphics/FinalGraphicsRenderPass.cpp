@@ -96,7 +96,7 @@ namespace soge
         return *m_nvrhiFramebuffers[currentFrameIndex];
     }
 
-    nvrhi::CommandListHandle FinalGraphicsRenderPass::CreateClearCommandList()
+    nvrhi::CommandListHandle FinalGraphicsRenderPass::CreateClearFramebufferCommandList()
     {
         nvrhi::CommandListParameters commandListDesc{};
         commandListDesc.enableImmediateExecution = false;

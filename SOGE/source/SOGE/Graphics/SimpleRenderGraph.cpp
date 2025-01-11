@@ -2,6 +2,7 @@
 
 #include "SOGE/Graphics/SimpleRenderGraph.hpp"
 
+#include "SOGE/Graphics/GraphicsEntity.hpp"
 #include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
 
 
@@ -13,22 +14,32 @@ namespace soge
     {
     }
 
-    void SimpleRenderGraph::Execute(const float aDeltaTime)
+    void SimpleRenderGraph::Execute(const Entities aEntities)
     {
-        nvrhi::IDevice& device = m_core.get().GetRawDevice();
+        const auto clearCommandList = m_finalRenderPass.get().CreateClearFramebufferCommandList();
 
-        const auto clearCommandList = m_finalRenderPass.get().CreateClearCommandList();
-        const auto drawCommandLists = m_trianglePipeline.get().Update(aDeltaTime);
-
-        m_commandLists.reserve(drawCommandLists.size() + 1);
+        m_commandLists.reserve(aEntities.size() + 1);
+        m_commandLists.emplace_back(clearCommandList);
+        for (const auto& entity : aEntities)
         {
-            m_commandLists.emplace_back(clearCommandList);
-            for (const auto& drawCommandList : drawCommandLists)
+            auto commandList = entity.get().Update(m_finalRenderPass, m_trianglePipeline);
+            if (commandList == nullptr)
             {
-                m_commandLists.emplace_back(&drawCommandList.get());
+                continue;
             }
+            m_commandLists.emplace_back(commandList);
         }
-        device.executeCommandLists(m_commandLists.data(), m_commandLists.size(), nvrhi::CommandQueue::Graphics);
+
+        m_commandListPtrs.reserve(m_commandLists.size());
+        for (const auto& commandList : m_commandLists)
+        {
+            m_commandListPtrs.emplace_back(commandList.Get());
+        }
+
+        nvrhi::IDevice& device = m_core.get().GetRawDevice();
+        device.executeCommandLists(m_commandListPtrs.data(), m_commandListPtrs.size(), nvrhi::CommandQueue::Graphics);
+
+        m_commandListPtrs.clear();
         m_commandLists.clear();
     }
 }

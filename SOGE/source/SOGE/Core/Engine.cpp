@@ -16,9 +16,9 @@
 
 namespace soge
 {
-    UniquePtr<Engine> Engine::s_instance(nullptr);
-    std::mutex Engine::s_mutex;
-    thread_local std::atomic_bool Engine::s_mutexLocked;
+    UniquePtr<Engine> Engine::s_instance{nullptr};
+    std::mutex Engine::s_mutex{};
+    thread_local std::atomic_bool Engine::s_mutexLocked{};
 
     Engine* Engine::GetInstance()
     {
@@ -128,7 +128,7 @@ namespace soge
                 layer->OnUpdate();
             }
 
-            GetModule<GraphicsModule>()->Update(Timestep::DeltaTime());
+            GetModule<GraphicsModule>()->Update();
         }
 
         Unload(AccessTag{});

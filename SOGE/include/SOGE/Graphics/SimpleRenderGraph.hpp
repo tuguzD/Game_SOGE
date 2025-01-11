@@ -15,13 +15,14 @@ namespace soge
         eastl::reference_wrapper<FinalGraphicsRenderPass> m_finalRenderPass;
         eastl::reference_wrapper<TriangleGraphicsPipeline> m_trianglePipeline;
 
-        eastl::vector<nvrhi::ICommandList*> m_commandLists;
+        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
+        eastl::vector<nvrhi::ICommandList*> m_commandListPtrs;
 
     public:
         explicit SimpleRenderGraph(GraphicsCore& aCore, FinalGraphicsRenderPass& aFinalRenderPass,
                                    TriangleGraphicsPipeline& aTrianglePipeline);
 
-        void Execute(float aDeltaTime) override;
+        void Execute(Entities aEntities) override;
     };
 }
 

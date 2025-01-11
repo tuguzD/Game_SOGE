@@ -16,18 +16,11 @@ namespace soge
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<FinalGraphicsRenderPass> m_renderPass;
 
-        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
-        eastl::vector<CommandListRef> m_commandListRefs;
-
         nvrhi::ShaderHandle m_nvrhiVertexShader;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
         nvrhi::ShaderHandle m_nvrhiPixelShader;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
-
-        // TODO: move this into component class which can pass data to multiple pipelines
-        nvrhi::BufferHandle m_nvrhiVertexBuffer;
-        nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
         struct Vertex
@@ -50,7 +43,17 @@ namespace soge
         void swap(TriangleGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
-        CommandLists Update(float aDeltaTime) override;
+        FinalGraphicsRenderPass& GetRenderPass() noexcept;
+        [[nodiscard]]
+        nvrhi::IShader& GetVertexShader() noexcept;
+        [[nodiscard]]
+        nvrhi::IInputLayout& GetInputLayout() noexcept;
+        [[nodiscard]]
+        nvrhi::IShader& GetPixelShader() noexcept;
+        [[nodiscard]]
+        nvrhi::IBindingLayout& GetBindingLayout() noexcept;
+        [[nodiscard]]
+        nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
     };
 }
 

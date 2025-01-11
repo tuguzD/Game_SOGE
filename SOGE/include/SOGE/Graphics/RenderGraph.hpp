@@ -3,10 +3,14 @@
 
 #include "SOGE/DI/Dependency.hpp"
 
+#include <EASTL/functional.h>
+#include <EASTL/span.h>
+
 
 namespace soge
 {
     class GraphicsCore;
+    class GraphicsEntity;
 
     class RenderGraph
     {
@@ -21,7 +25,10 @@ namespace soge
 
         constexpr virtual ~RenderGraph() = default;
 
-        constexpr virtual void Execute(float aDeltaTime) = 0;
+        using EntityRef = eastl::reference_wrapper<GraphicsEntity>;
+        using Entities = eastl::span<EntityRef>;
+
+        constexpr virtual void Execute(Entities aEntities) = 0;
     };
 
     constexpr RenderGraph::RenderGraph(GraphicsCore&) noexcept

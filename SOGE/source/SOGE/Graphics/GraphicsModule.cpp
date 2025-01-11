@@ -5,6 +5,7 @@
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
 #include "SOGE/Graphics/GraphicsCompilePreproc.hpp"
+#include "SOGE/Graphics/TriangleEntity.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 #include SOGE_ABS_COMPILED_GRAPHICS_IMPL_HEADER(SOGE/Graphics, GraphicsCore.hpp)
@@ -31,6 +32,7 @@ namespace soge
 
     void GraphicsModule::Unload(di::Container& aContainer, ModuleManager& aModuleManager)
     {
+        m_graphicsEntity = nullptr;
         m_renderGraph = nullptr;
         m_graphicsCore = nullptr;
         m_container = nullptr;
@@ -48,14 +50,40 @@ namespace soge
         m_graphicsCore->SetRenderTarget(aWindow);
     }
 
-    void GraphicsModule::Update(const float aDeltaTime)
+    void GraphicsModule::Update()
     {
         if (m_graphicsCore == nullptr && m_renderGraph == nullptr)
         {
             return;
         }
 
-        m_graphicsCore->Update(*m_renderGraph, aDeltaTime);
+        if (m_graphicsEntity == nullptr)
+        {
+            using Vertex = TriangleEntity::Vertex;
+
+            constexpr std::array vertices{
+                Vertex{
+                    .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
+                    .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
+                },
+                Vertex{
+                    .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
+                    .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
+                },
+                Vertex{
+                    .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
+                    .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
+                },
+            };
+
+            auto entity = m_container->Provide<TriangleEntity>();
+            entity.UpdateVertices(vertices);
+
+            m_graphicsEntity = CreateUnique<TriangleEntity>(std::move(entity));
+        }
+        auto graphicsEntityRef = eastl::ref(*m_graphicsEntity);
+        const GraphicsCore::Entities entities{&graphicsEntityRef, 1};
+        m_graphicsCore->Update(*m_renderGraph, entities);
     }
 
     std::filesystem::path GetCompiledShaderPath(const GraphicsCore& aCore, const std::filesystem::path& aSourcePath,

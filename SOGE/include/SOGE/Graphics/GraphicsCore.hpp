@@ -3,6 +3,8 @@
 
 #include "SOGE/DI/Dependency.hpp"
 
+#include <EASTL/functional.h>
+#include <EASTL/span.h>
 #include <nvrhi/nvrhi.h>
 
 
@@ -10,6 +12,7 @@ namespace soge
 {
     class Window;
     class GraphicsSwapchain;
+    class GraphicsEntity;
 
     class RenderGraph;
 
@@ -30,7 +33,10 @@ namespace soge
         [[nodiscard]]
         constexpr virtual GraphicsSwapchain* GetSwapchain() = 0;
 
-        constexpr virtual void Update(RenderGraph& aRenderGraph, float aDeltaTime) = 0;
+        using EntityRef = eastl::reference_wrapper<GraphicsEntity>;
+        using Entities = eastl::span<EntityRef>;
+
+        constexpr virtual void Update(RenderGraph& aRenderGraph, Entities aEntities) = 0;
 
         [[nodiscard]]
         constexpr virtual nvrhi::IDevice& GetRawDevice() = 0;

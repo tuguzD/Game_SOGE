@@ -2,6 +2,7 @@
 
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
+#include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
@@ -220,14 +221,14 @@ namespace soge
         return m_swapChain.get();
     }
 
-    void D3D12GraphicsCore::Update(RenderGraph& aRenderGraph, float aDeltaTime)
+    void D3D12GraphicsCore::Update(RenderGraph& aRenderGraph, const Entities aEntities)
     {
-        SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, aDeltaTime);
+        SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, Timestep::DeltaTime());
 
         m_swapChain->WaitForPresent();
         m_nvrhiDevice->runGarbageCollection();
 
-        aRenderGraph.Execute(aDeltaTime);
+        aRenderGraph.Execute(aEntities);
 
         m_swapChain->Present();
         m_totalFrameCount++;

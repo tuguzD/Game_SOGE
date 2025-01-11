@@ -4,6 +4,7 @@
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsRenderPass.hpp"
 
+#include <EASTL/functional.h>
 #include <EASTL/vector.h>
 
 
@@ -34,7 +35,7 @@ namespace soge
         nvrhi::IFramebuffer& GetFramebuffer() override;
 
         [[nodiscard]]
-        nvrhi::CommandListHandle CreateClearCommandList();
+        nvrhi::CommandListHandle CreateClearFramebufferCommandList();
     };
 }
 

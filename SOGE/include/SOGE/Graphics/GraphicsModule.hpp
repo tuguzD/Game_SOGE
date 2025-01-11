@@ -18,6 +18,9 @@ namespace soge
         GraphicsCore* m_graphicsCore;
         RenderGraph* m_renderGraph;
 
+        // TODO: map of graphics entities to draw
+        UniquePtr<GraphicsEntity> m_graphicsEntity;
+
     public:
         explicit GraphicsModule();
 
@@ -26,7 +29,7 @@ namespace soge
         template <typename T, typename... Args>
         void SetRenderGraph(Args&&... args);
 
-        virtual void Update(float aDeltaTime);
+        virtual void Update();
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
