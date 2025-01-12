@@ -33,6 +33,8 @@ namespace soge_game
         PushLayer(new MainGameLayer());
 
         auto& container = GetDependencyContainer();
+        const auto eventModule = GetModule<soge::EventModule>();
+        const auto inputModule = GetModule<soge::InputModule>();
         const auto windowModule = GetModule<soge::WindowModule>();
         const auto graphicsModule = GetModule<soge::GraphicsModule>();
 
@@ -66,10 +68,23 @@ namespace soge_game
         };
         entity.UpdateVertices(vertices);
 
-        constexpr soge::Transform transform{
+        soge::Transform transform{
             .m_position = glm::vec3{-0.5f, 0.0f, 0.0f},
         };
         entity.UpdateMatrix(transform.WorldMatrix());
+
+        auto update = [inputModule, &entity, transform](const soge::UpdateEvent& aEvent) mutable {
+            if (inputModule->IsKeyPressed(soge::Keys::A))
+            {
+                transform.m_position.x -= aEvent.GetDeltaTime();
+            }
+            if (inputModule->IsKeyPressed(soge::Keys::D))
+            {
+                transform.m_position.x += aEvent.GetDeltaTime();
+            }
+            entity.UpdateMatrix(transform.WorldMatrix());
+        };
+        eventModule->PushBack<soge::UpdateEvent>(update);
     }
 }
 
