@@ -4,15 +4,10 @@
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
-#include "SOGE/Graphics/SimpleRenderGraph.hpp"
-#include "SOGE/Graphics/TriangleEntity.hpp"
 #include "SOGE/Input/InputModule.hpp"
-#include "SOGE/Utils/StringHelpers.hpp"
 #include "SOGE/Window/WindowModule.hpp"
 
 #include <ranges>
-
-#undef CreateWindow
 
 
 namespace soge
@@ -105,35 +100,6 @@ namespace soge
             module.Load(m_container, m_moduleManager);
         }
         Load(AccessTag{});
-
-        const auto [window, windowUuid] = GetModule<WindowModule>()->CreateWindow();
-        SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
-                      EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(), windowUuid.str());
-
-        GetModule<GraphicsModule>()->SetRenderTarget(window);
-
-        auto& renderGraph = m_container.Provide<SimpleRenderGraph>();
-        GetModule<GraphicsModule>()->SetRenderGraph(renderGraph);
-
-        const auto [entity, entityUuid] =
-            GetModule<GraphicsModule>()->CreateEntity<TriangleEntity>(m_container.Provide<TriangleEntity>());
-        SOGE_INFO_LOG(R"(Created graphics entity with UUID {})", entityUuid.str());
-
-        constexpr std::array vertices{
-            TriangleEntity::Vertex{
-                .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
-                .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
-            },
-            TriangleEntity::Vertex{
-                .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
-                .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
-            },
-            TriangleEntity::Vertex{
-                .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
-                .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
-            },
-        };
-        entity.UpdateVertices(vertices);
 
         m_shutdownRequested = false;
         while (!m_shutdownRequested)

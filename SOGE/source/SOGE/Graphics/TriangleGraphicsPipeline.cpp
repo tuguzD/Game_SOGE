@@ -12,23 +12,6 @@
 
 namespace
 {
-    using Vertex = soge::TriangleGraphicsPipeline::Vertex;
-
-    constexpr std::array g_vertices{
-        Vertex{
-            .m_position = glm::vec4{-0.5f, 0.5f, 0.0f, 0.0f},
-            .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
-        },
-        Vertex{
-            .m_position = glm::vec4{0.5f, 0.5f, 0.0f, 0.0f},
-            .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
-        },
-        Vertex{
-            .m_position = glm::vec4{0.0f, -0.5f, 0.0f, 0.0f},
-            .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
-        },
-    };
-
     nvrhi::ShaderHandle LoadShader(soge::GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
                                    const std::filesystem::path& aSourcePath, const eastl::string_view aEntryName)
     {
@@ -85,6 +68,7 @@ namespace soge
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
+        bindingLayoutDesc.addItem(nvrhi::BindingLayoutItem::ConstantBuffer(0));
         m_nvrhiBindingLayout = nvrhiDevice.createBindingLayout(bindingLayoutDesc);
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};

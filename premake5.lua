@@ -67,6 +67,7 @@ workspace "SOGE"
         {
             "_CRT_SECURE_NO_WARNINGS",
             "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
+            "GLM_ENABLE_EXPERIMENTAL",
 
             "SOGE_INPUT_IMPL=SDL",
             "SOGE_WINDOW_IMPL=SDL",
@@ -218,6 +219,11 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
+        }
+
+        defines
+        {
+            "GLM_ENABLE_EXPERIMENTAL"
         }
 
         links

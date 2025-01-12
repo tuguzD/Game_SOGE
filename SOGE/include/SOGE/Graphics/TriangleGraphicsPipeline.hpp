@@ -5,6 +5,7 @@
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 
@@ -25,7 +26,7 @@ namespace soge
     public:
         struct Vertex
         {
-            glm::vec4 m_position;
+            alignas(16) glm::vec3 m_position;
             glm::vec4 m_color;
         };
 

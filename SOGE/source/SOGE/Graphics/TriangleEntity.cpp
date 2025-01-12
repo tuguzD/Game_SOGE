@@ -7,15 +7,27 @@
 
 namespace soge
 {
-    TriangleEntity::TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aPipeline, const Vertices aVertices)
+    TriangleEntity::TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aPipeline)
         : m_core{aCore}, m_pipeline{aPipeline}
     {
+        nvrhi::IDevice& device = aCore.GetRawDevice();
+
+        SOGE_INFO_LOG("Creating NVRHI constant buffer...");
+        nvrhi::BufferDesc bufferDesc{};
+        bufferDesc.byteSize = sizeof(glm::mat4x4);
+        bufferDesc.isConstantBuffer = true;
+        bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
+        bufferDesc.keepInitialState = true;
+        bufferDesc.debugName = "SOGE constant buffer";
+        m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
+
         SOGE_INFO_LOG("Creating NVRHI binding set...");
         nvrhi::BindingSetDesc bindingSetDesc{};
         bindingSetDesc.trackLiveness = true;
-        m_nvrhiBindingSet = aCore.GetRawDevice().createBindingSet(bindingSetDesc, &aPipeline.GetBindingLayout());
+        bindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
+        m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, &aPipeline.GetBindingLayout());
 
-        UpdateVertices(aVertices);
+        UpdateMatrix(glm::mat4x4{1.0f});
     }
 
     void TriangleEntity::UpdateVertices(const Vertices aVertices)
@@ -32,22 +44,33 @@ namespace soge
         if (m_nvrhiVertexBuffer == nullptr || m_nvrhiVertexBuffer->getDesc().byteSize != inputByteSize)
         {
             SOGE_INFO_LOG("Creating NVRHI vertex buffer...");
-            nvrhi::BufferDesc vertexBufferDesc{};
-            vertexBufferDesc.byteSize = inputByteSize;
-            vertexBufferDesc.isVertexBuffer = true;
-            vertexBufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
-            vertexBufferDesc.keepInitialState = true;
-            vertexBufferDesc.debugName = "SOGE vertex buffer";
-            m_nvrhiVertexBuffer = device.createBuffer(vertexBufferDesc);
+            nvrhi::BufferDesc bufferDesc{};
+            bufferDesc.byteSize = inputByteSize;
+            bufferDesc.isVertexBuffer = true;
+            bufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
+            bufferDesc.keepInitialState = true;
+            bufferDesc.debugName = "SOGE vertex buffer";
+            m_nvrhiVertexBuffer = device.createBuffer(bufferDesc);
         }
 
         SOGE_INFO_LOG("Updating NVRHI vertex buffer...");
-        const nvrhi::CommandListHandle verticesCommandList = device.createCommandList();
+        const nvrhi::CommandListHandle updateCommandList = device.createCommandList();
         {
-            GraphicsCommandListGuard commandList{*verticesCommandList};
+            GraphicsCommandListGuard commandList{*updateCommandList};
             commandList->writeBuffer(m_nvrhiVertexBuffer, aVertices.data(), inputByteSize);
         }
-        m_core.get().ExecuteCommandList(verticesCommandList, nvrhi::CommandQueue::Graphics);
+        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
+    }
+
+    void TriangleEntity::UpdateMatrix(const glm::mat4x4& aMatrix)
+    {
+        SOGE_INFO_LOG("Updating NVRHI constant buffer...");
+        const nvrhi::CommandListHandle updateCommandList = m_core.get().GetRawDevice().createCommandList();
+        {
+            GraphicsCommandListGuard commandList{*updateCommandList};
+            commandList->writeBuffer(m_nvrhiConstantBuffer, &aMatrix, sizeof(glm::mat4x4));
+        }
+        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
     nvrhi::CommandListHandle TriangleEntity::Update(GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline)
@@ -74,9 +97,9 @@ namespace soge
         commandListDesc.enableImmediateExecution = false;
 
         nvrhi::IDevice& device = m_core.get().GetRawDevice();
-        const nvrhi::CommandListHandle triangleCommandList = device.createCommandList(commandListDesc);
+        const nvrhi::CommandListHandle drawCommandList = device.createCommandList(commandListDesc);
         {
-            GraphicsCommandListGuard commandList{*triangleCommandList};
+            GraphicsCommandListGuard commandList{*drawCommandList};
 
             nvrhi::IFramebuffer& currentFramebuffer = aRenderPass.GetFramebuffer();
             const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer.getFramebufferInfo();
@@ -99,6 +122,6 @@ namespace soge
             commandList->draw(drawArguments);
         }
 
-        return triangleCommandList;
+        return drawCommandList;
     }
 }
