@@ -2,11 +2,10 @@
 
 #include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
 
+#include "SOGE/Graphics/GetCompiledShaderPath.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
-#include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsCore.hpp"
 
-#include <filesystem>
 #include <fstream>
 
 
