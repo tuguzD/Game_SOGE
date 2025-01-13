@@ -8,7 +8,7 @@
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Graphics/SimpleRenderGraph.hpp>
 #include <SOGE/Graphics/TriangleEntity.hpp>
-#include <SOGE/Math/Transform.hpp>
+#include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
 
 #undef CreateWindow
@@ -69,16 +69,24 @@ namespace soge_game
         entity.UpdateVertices(vertices);
 
         soge::Transform transform{};
-        soge::Transform cameraTransform{
-            .m_position = glm::vec3{0.0f, 0.0f, -1.0f},
-        };
-        const float aspectRatio = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
-        const glm::mat4x4 cameraProjection = glm::perspectiveLH_ZO(glm::radians(60.0f), aspectRatio, 0.01f, 100.0f);
+        // share state with lambda (it should be copyable)
+        const auto camera = soge::CreateShared<soge::Camera>(soge::Camera{
+            .m_width = static_cast<float>(window.GetWidth()),
+            .m_height = static_cast<float>(window.GetHeight()),
+            .m_nearPlane = 0.01f,
+            .m_farPlane = 100.0f,
+            .m_transform = soge::Transform{.m_position = glm::vec3{0.0f, 0.0f, -1.0f}},
+            .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
+        });
 
         // share state between two lambdas
         auto mouseDeltaX = soge::CreateShared<float>(0.0f);
         auto mouseDeltaY = soge::CreateShared<float>(0.0f);
-        auto mouseMoved = [mouseDeltaX, mouseDeltaY](const soge::MouseMovedEvent& aEvent) mutable {
+        auto mouseMoved = [mouseDeltaX, mouseDeltaY, inputModule](const soge::MouseMovedEvent& aEvent) {
+            if (!inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
+            {
+                return;
+            }
             *mouseDeltaX = aEvent.GetXOffset();
             *mouseDeltaY = aEvent.GetYOffset();
         };
@@ -94,21 +102,23 @@ namespace soge_game
                 const float z = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::W)) -
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::S));
                 const auto direction =
-                    cameraTransform.Right() * x + cameraTransform.Up() * y + cameraTransform.Forward() * z;
-                cameraTransform.m_position += direction * aEvent.GetDeltaTime();
+                    camera->m_transform.Right() * x + camera->m_transform.Up() * y + camera->m_transform.Forward() * z;
+                camera->m_transform.m_position += direction * aEvent.GetDeltaTime();
             }
 
             if (*mouseDeltaX != 0.0f || *mouseDeltaY != 0.0f)
             {
                 yaw += *mouseDeltaX * aEvent.GetDeltaTime();
                 pitch += *mouseDeltaY * aEvent.GetDeltaTime();
-                cameraTransform.m_rotation = glm::quat{glm::vec3{pitch, yaw, 0.0f}};
+                camera->m_transform.m_rotation = glm::quat{glm::vec3{pitch, yaw, 0.0f}};
 
                 *mouseDeltaX = 0.0f;
                 *mouseDeltaY = 0.0f;
             }
 
-            entity.UpdateMatrix(cameraProjection * cameraTransform.ViewMatrix() * transform.WorldMatrix());
+            const auto modelViewProjection =
+                camera->GetProjectionMatrix() * camera->m_transform.ViewMatrix() * transform.WorldMatrix();
+            entity.UpdateMatrix(modelViewProjection);
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }
