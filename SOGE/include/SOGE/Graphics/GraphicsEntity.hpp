@@ -14,8 +14,8 @@ namespace soge
     public:
         constexpr explicit GraphicsEntity() noexcept = default;
 
-        constexpr GraphicsEntity(const GraphicsEntity&) noexcept = default;
-        constexpr GraphicsEntity& operator=(const GraphicsEntity&) noexcept = default;
+        constexpr GraphicsEntity(const GraphicsEntity&) = delete;
+        constexpr GraphicsEntity& operator=(const GraphicsEntity&) = delete;
 
         constexpr GraphicsEntity(GraphicsEntity&&) noexcept = default;
         constexpr GraphicsEntity& operator=(GraphicsEntity&&) noexcept = default;

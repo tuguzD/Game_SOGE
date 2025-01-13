@@ -75,27 +75,16 @@ namespace soge_game
         const float aspectRatio = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
         const glm::mat4x4 cameraProjection = glm::perspectiveLH_ZO(glm::radians(60.0f), aspectRatio, 0.01f, 100.0f);
 
-        static float mouseLastX, mouseLastY, mouseDeltaX, mouseDeltaY;
-        auto mouseMoved = [](const soge::MouseMovedEvent& aEvent) {
-            static bool mouseDeltaFlag;
-
-            const auto currentX = aEvent.GetRelativeX(), currentY = aEvent.GetRelativeY();
-            if (!mouseDeltaFlag)
-            {
-                mouseLastX = currentX;
-                mouseLastY = currentY;
-                mouseDeltaFlag = true;
-                return;
-            }
-            mouseDeltaX = currentX - mouseLastX;
-            mouseDeltaY = currentY - mouseLastY;
-            mouseLastX = currentX;
-            mouseLastY = currentY;
+        // share state between two lambdas
+        auto mouseDeltaX = soge::CreateShared<float>(0.0f);
+        auto mouseDeltaY = soge::CreateShared<float>(0.0f);
+        auto mouseMoved = [mouseDeltaX, mouseDeltaY](const soge::MouseMovedEvent& aEvent) mutable {
+            *mouseDeltaX = aEvent.GetXOffset();
+            *mouseDeltaY = aEvent.GetYOffset();
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        auto update = [inputModule, &entity, transform, cameraTransform,
-                       cameraProjection](const soge::UpdateEvent& aEvent) mutable {
+        auto update = [=, &entity](const soge::UpdateEvent& aEvent) mutable {
             {
                 const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::A));
@@ -105,14 +94,14 @@ namespace soge_game
                 cameraTransform.m_position += direction * aEvent.GetDeltaTime();
             }
 
-            if (mouseDeltaX != 0.0f || mouseDeltaY != 0.0f)
+            if (*mouseDeltaX != 0.0f || *mouseDeltaY != 0.0f)
             {
                 auto euler = glm::eulerAngles(cameraTransform.m_rotation);
-                euler.y -= mouseDeltaX * aEvent.GetDeltaTime();
+                euler.y += *mouseDeltaX * aEvent.GetDeltaTime();
                 cameraTransform.m_rotation = glm::quat{euler};
 
-                mouseDeltaX = 0.0f;
-                mouseDeltaY = 0.0f;
+                *mouseDeltaX = 0.0f;
+                *mouseDeltaY = 0.0f;
             }
 
             entity.UpdateMatrix(cameraProjection * cameraTransform.ViewMatrix() * transform.WorldMatrix());
