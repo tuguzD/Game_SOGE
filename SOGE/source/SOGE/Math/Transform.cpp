@@ -9,21 +9,21 @@ namespace soge
     {
         constexpr glm::vec3 right{1.0f, 0.0f, 0.0f};
 
-        return glm::rotate(m_rotation, right * m_scale);
+        return glm::rotate(m_rotation, right);
     }
 
     glm::vec3 Transform::Up() const
     {
         constexpr glm::vec3 up{0.0f, 1.0f, 0.0f};
 
-        return glm::rotate(m_rotation, up * m_scale);
+        return glm::rotate(m_rotation, up);
     }
 
     glm::vec3 Transform::Forward() const
     {
         constexpr glm::vec3 forward{0.0f, 0.0f, 1.0f};
 
-        return glm::rotate(m_rotation, forward * m_scale);
+        return glm::rotate(m_rotation, forward);
     }
 
     glm::mat4x4 Transform::WorldMatrix() const
@@ -38,6 +38,6 @@ namespace soge
 
     glm::mat4x4 Transform::ViewMatrix() const
     {
-        return glm::lookAt(m_position, m_position + Forward(), Up());
+        return glm::lookAtLH(m_position, m_position + Forward(), Up());
     }
 }

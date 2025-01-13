@@ -73,7 +73,7 @@ namespace soge_game
             .m_position = glm::vec3{0.0f, 0.0f, -1.0f},
         };
         const float aspectRatio = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
-        const glm::mat4x4 cameraProjection = glm::perspectiveZO(glm::radians(60.0f), aspectRatio, 0.1f, 100.0f);
+        const glm::mat4x4 cameraProjection = glm::perspectiveLH_ZO(glm::radians(60.0f), aspectRatio, 0.01f, 100.0f);
 
         static float mouseLastX, mouseLastY, mouseDeltaX, mouseDeltaY;
         auto mouseMoved = [](const soge::MouseMovedEvent& aEvent) {
@@ -115,17 +115,7 @@ namespace soge_game
                 mouseDeltaY = 0.0f;
             }
 
-            const soge::Transform transformLh{
-                .m_position = transform.m_position * glm::vec3{1.0f, 1.0f, -1.0f},
-                .m_rotation = transform.m_rotation,
-                .m_scale = transform.m_scale * glm::vec3{1.0f, 1.0f, -1.0f},
-            };
-            const soge::Transform cameraTransformLh{
-                .m_position = cameraTransform.m_position * glm::vec3{1.0f, 1.0f, -1.0f},
-                .m_rotation = cameraTransform.m_rotation,
-                .m_scale = cameraTransform.m_scale * glm::vec3{1.0f, 1.0f, -1.0f},
-            };
-            entity.UpdateMatrix(cameraProjection * cameraTransformLh.ViewMatrix() * transformLh.WorldMatrix());
+            entity.UpdateMatrix(cameraProjection * cameraTransform.ViewMatrix() * transform.WorldMatrix());
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }
