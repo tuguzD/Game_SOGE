@@ -48,8 +48,8 @@ namespace soge_game
         auto& renderGraph = container.Provide<soge::SimpleRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
-        const auto [entity, entityUuid] =
-            graphicsModule->CreateEntity<soge::TriangleEntity>(container.Provide<soge::TriangleEntity>());
+        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
+            container.Provide<soge::TriangleEntity>());
         SOGE_INFO_LOG(R"(Created graphics triangle entity with UUID {})", entityUuid.str());
 
         constexpr std::array vertices{
