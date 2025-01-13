@@ -68,21 +68,64 @@ namespace soge_game
         };
         entity.UpdateVertices(vertices);
 
-        soge::Transform transform{
-            .m_position = glm::vec3{-0.5f, 0.0f, 0.0f},
+        soge::Transform transform{};
+        soge::Transform cameraTransform{
+            .m_position = glm::vec3{0.0f, 0.0f, -1.0f},
         };
-        entity.UpdateMatrix(transform.WorldMatrix());
+        const float aspectRatio = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
+        const glm::mat4x4 cameraProjection = glm::perspectiveZO(glm::radians(60.0f), aspectRatio, 0.1f, 100.0f);
 
-        auto update = [inputModule, &entity, transform](const soge::UpdateEvent& aEvent) mutable {
-            if (inputModule->IsKeyPressed(soge::Keys::A))
+        static float mouseLastX, mouseLastY, mouseDeltaX, mouseDeltaY;
+        auto mouseMoved = [](const soge::MouseMovedEvent& aEvent) {
+            static bool mouseDeltaFlag;
+
+            const auto currentX = aEvent.GetRelativeX(), currentY = aEvent.GetRelativeY();
+            if (!mouseDeltaFlag)
             {
-                transform.m_position.x -= aEvent.GetDeltaTime();
+                mouseLastX = currentX;
+                mouseLastY = currentY;
+                mouseDeltaFlag = true;
+                return;
             }
-            if (inputModule->IsKeyPressed(soge::Keys::D))
+            mouseDeltaX = currentX - mouseLastX;
+            mouseDeltaY = currentY - mouseLastY;
+            mouseLastX = currentX;
+            mouseLastY = currentY;
+        };
+        eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
+
+        auto update = [inputModule, &entity, transform, cameraTransform,
+                       cameraProjection](const soge::UpdateEvent& aEvent) mutable {
             {
-                transform.m_position.x += aEvent.GetDeltaTime();
+                const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
+                                static_cast<float>(inputModule->IsKeyPressed(soge::Keys::A));
+                const float z = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::W)) -
+                                static_cast<float>(inputModule->IsKeyPressed(soge::Keys::S));
+                const auto direction = cameraTransform.Right() * x + cameraTransform.Forward() * z;
+                cameraTransform.m_position += direction * aEvent.GetDeltaTime();
             }
-            entity.UpdateMatrix(transform.WorldMatrix());
+
+            if (mouseDeltaX != 0.0f || mouseDeltaY != 0.0f)
+            {
+                auto euler = glm::eulerAngles(cameraTransform.m_rotation);
+                euler.y -= mouseDeltaX * aEvent.GetDeltaTime();
+                cameraTransform.m_rotation = glm::quat{euler};
+
+                mouseDeltaX = 0.0f;
+                mouseDeltaY = 0.0f;
+            }
+
+            const soge::Transform transformLh{
+                .m_position = transform.m_position * glm::vec3{1.0f, 1.0f, -1.0f},
+                .m_rotation = transform.m_rotation,
+                .m_scale = transform.m_scale * glm::vec3{1.0f, 1.0f, -1.0f},
+            };
+            const soge::Transform cameraTransformLh{
+                .m_position = cameraTransform.m_position * glm::vec3{1.0f, 1.0f, -1.0f},
+                .m_rotation = cameraTransform.m_rotation,
+                .m_scale = cameraTransform.m_scale * glm::vec3{1.0f, 1.0f, -1.0f},
+            };
+            entity.UpdateMatrix(cameraProjection * cameraTransformLh.ViewMatrix() * transformLh.WorldMatrix());
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }
