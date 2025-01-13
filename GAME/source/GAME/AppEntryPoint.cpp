@@ -84,21 +84,25 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
+        float pitch{}, yaw{};
         auto update = [=, &entity](const soge::UpdateEvent& aEvent) mutable {
             {
                 const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::A));
+                const float y = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::SpaceBar)) -
+                                static_cast<float>(inputModule->IsKeyPressed(soge::Keys::LeftShift));
                 const float z = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::W)) -
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::S));
-                const auto direction = cameraTransform.Right() * x + cameraTransform.Forward() * z;
+                const auto direction =
+                    cameraTransform.Right() * x + cameraTransform.Up() * y + cameraTransform.Forward() * z;
                 cameraTransform.m_position += direction * aEvent.GetDeltaTime();
             }
 
             if (*mouseDeltaX != 0.0f || *mouseDeltaY != 0.0f)
             {
-                auto euler = glm::eulerAngles(cameraTransform.m_rotation);
-                euler.y += *mouseDeltaX * aEvent.GetDeltaTime();
-                cameraTransform.m_rotation = glm::quat{euler};
+                yaw += *mouseDeltaX * aEvent.GetDeltaTime();
+                pitch += *mouseDeltaY * aEvent.GetDeltaTime();
+                cameraTransform.m_rotation = glm::quat{glm::vec3{pitch, yaw, 0.0f}};
 
                 *mouseDeltaX = 0.0f;
                 *mouseDeltaY = 0.0f;
