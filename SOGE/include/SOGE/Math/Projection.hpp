@@ -30,7 +30,7 @@ namespace soge
     public:
         float m_fovY;
 
-        explicit PerspectiveProjection(float aFovY);
+        explicit PerspectiveProjection(float aFovY = glm::radians(60.0f));
 
         [[nodiscard]]
         glm::mat4x4 ToMatrix(float aWidth, float aHeight, float aNearPlane, float aFarPlane) const override;
@@ -41,7 +41,7 @@ namespace soge
     public:
         glm::vec2 m_units;
 
-        explicit OrthographicProjection(glm::vec2 aUnits);
+        explicit OrthographicProjection(glm::vec2 aUnits = glm::vec2{1.0f});
 
         [[nodiscard]]
         glm::mat4x4 ToMatrix(float aWidth, float aHeight, float aNearPlane, float aFarPlane) const override;

@@ -12,8 +12,8 @@ namespace soge
     {
         float m_width{};
         float m_height{};
-        float m_nearPlane{};
-        float m_farPlane{};
+        float m_nearPlane{0.1f};
+        float m_farPlane{10.0f};
         Transform m_transform{};
         UniquePtr<Projection> m_projection{};
 
