@@ -2,6 +2,7 @@
 #define SOGE_GRAPHICS_GRAPHICSMODULE_HPP
 
 #include "SOGE/Core/Module.hpp"
+#include "SOGE/Graphics/CameraManager.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsEntityManager.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
@@ -12,6 +13,7 @@ namespace soge
     class GraphicsModule : public Module
     {
     private:
+        CameraManager m_cameraManager;
         GraphicsEntityManager m_entityManager;
 
         GraphicsCore* m_graphicsCore;
@@ -27,6 +29,8 @@ namespace soge
 
         [[nodiscard]]
         GraphicsEntityManager& GetEntityManager() noexcept;
+        [[nodiscard]]
+        CameraManager& GetCameraManager() noexcept;
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;

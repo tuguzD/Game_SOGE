@@ -68,4 +68,9 @@ namespace soge
     {
         return m_entityManager;
     }
+
+    CameraManager& GraphicsModule::GetCameraManager() noexcept
+    {
+        return m_cameraManager;
+    }
 }

@@ -5,7 +5,7 @@
 
 namespace soge
 {
-    auto GraphicsEntityManager::CreateEntity(UniqueEntity aEntity) -> Key
+    auto GraphicsEntityManager::CreateEntity(UniqueEntity aEntity) -> eastl::pair<GraphicsEntity&, Key>
     {
         const auto key = UUID::Generate();
 
@@ -15,7 +15,7 @@ namespace soge
             m_entityRefs.push_back(*iter->second);
         }
 
-        return key;
+        return {*iter->second, key};
     }
 
     auto GraphicsEntityManager::GetEntity(const Key& aKey) const -> GraphicsEntity*

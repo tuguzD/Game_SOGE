@@ -19,8 +19,6 @@ namespace soge
         using Key = UUIDv4::UUID;
         using UniqueEntity = UniquePtr<GraphicsEntity>;
 
-        Key CreateEntity(UniqueEntity aEntity);
-
         using Entities = eastl::hash_map<Key, UniqueEntity>;
         Entities m_entities;
 
@@ -31,6 +29,9 @@ namespace soge
         template <typename T, typename... Args>
         [[nodiscard]]
         eastl::pair<T&, Key> CreateEntity(Args&&... args);
+
+        [[nodiscard]]
+        eastl::pair<GraphicsEntity&, Key> CreateEntity(UniqueEntity aEntity);
 
         [[nodiscard]]
         GraphicsEntity* GetEntity(const Key& aKey) const;
@@ -50,7 +51,7 @@ namespace soge
         UniquePtr<T> entity = CreateUnique<T>(std::forward<Args>(args)...);
         T* entityPtr = entity.get();
 
-        const auto key = CreateEntity(std::move(entity));
+        const auto [_, key] = CreateEntity(std::move(entity));
         return {*entityPtr, key};
     }
 }
