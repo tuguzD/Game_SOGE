@@ -42,4 +42,24 @@ namespace soge
     {
         m_cameras.clear();
     }
+
+    auto CameraManager::begin() noexcept -> Iterator
+    {
+        return m_cameras.begin();
+    }
+
+    auto CameraManager::begin() const noexcept -> ConstIterator
+    {
+        return m_cameras.begin();
+    }
+
+    auto CameraManager::end() noexcept -> Iterator
+    {
+        return m_cameras.end();
+    }
+
+    auto CameraManager::end() const noexcept -> ConstIterator
+    {
+        return m_cameras.end();
+    }
 }

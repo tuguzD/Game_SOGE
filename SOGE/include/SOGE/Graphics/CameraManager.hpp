@@ -19,6 +19,9 @@ namespace soge
         Cameras m_cameras;
 
     public:
+        using Iterator = Cameras::iterator;
+        using ConstIterator = Cameras::const_iterator;
+
         template <typename... Args>
         [[nodiscard]]
         eastl::pair<Camera&, Key> CreateCamera(Args&&... args);
@@ -32,6 +35,14 @@ namespace soge
         eastl::optional<Camera> DestroyCamera(const Key& aKey);
 
         void Clear();
+
+        // NOLINTBEGIN(readability-identifier-naming)
+        Iterator begin() noexcept;
+        ConstIterator begin() const noexcept;
+
+        Iterator end() noexcept;
+        ConstIterator end() const noexcept;
+        // NOLINTEND(readability-identifier-naming)
     };
 
     template <typename... Args>

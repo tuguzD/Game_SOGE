@@ -7,6 +7,7 @@
 
 #include <EASTL/hash_map.h>
 #include <EASTL/list.h>
+#include <ranges>
 #include <typeindex>
 
 
@@ -140,7 +141,7 @@ namespace soge
         friend ModuleManager;
         using KeyIter = ModulesOrder::iterator;
 
-        explicit Iterator(KeyIter aKeyIter, ModuleManager* aManager) noexcept;
+        explicit Iterator(KeyIter aKeyIter, ModuleManager& aManager) noexcept;
 
         KeyIter m_keyIter;
         ModuleManager* m_manager;
@@ -174,7 +175,7 @@ namespace soge
         friend ModuleManager;
         using KeyIter = ModulesOrder::const_iterator;
 
-        explicit ConstIterator(KeyIter aKeyIter, const ModuleManager* aManager) noexcept;
+        explicit ConstIterator(KeyIter aKeyIter, const ModuleManager& aManager) noexcept;
 
         KeyIter m_keyIter;
         const ModuleManager* m_manager;
