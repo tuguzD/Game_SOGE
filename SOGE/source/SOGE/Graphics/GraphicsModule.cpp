@@ -61,7 +61,15 @@ namespace soge
             return;
         }
 
-        m_graphicsCore->Update(*m_renderGraph, m_entityManager.GetEntities());
+        for (const auto& [_, viewport] : m_viewportManager)
+        {
+            const auto camera = m_cameraManager.GetCamera(viewport.m_cameraId);
+            if (camera == nullptr)
+            {
+                continue;
+            }
+            m_graphicsCore->Update(*m_renderGraph, viewport.m_viewport, *camera, m_entityManager.GetEntities());
+        }
     }
 
     GraphicsEntityManager& GraphicsModule::GetEntityManager() noexcept
@@ -72,5 +80,10 @@ namespace soge
     CameraManager& GraphicsModule::GetCameraManager() noexcept
     {
         return m_cameraManager;
+    }
+
+    ViewportManager& GraphicsModule::GetViewportManager() noexcept
+    {
+        return m_viewportManager;
     }
 }

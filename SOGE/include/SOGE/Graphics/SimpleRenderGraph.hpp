@@ -4,6 +4,7 @@
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
 #include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
+#include "SOGE/Math/Camera.hpp"
 
 
 namespace soge
@@ -21,7 +22,7 @@ namespace soge
         explicit SimpleRenderGraph(GraphicsCore& aCore, FinalGraphicsRenderPass& aFinalRenderPass,
                                    TriangleGraphicsPipeline& aTrianglePipeline);
 
-        void Execute(Entities aEntities) override;
+        void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
     };
 }
 

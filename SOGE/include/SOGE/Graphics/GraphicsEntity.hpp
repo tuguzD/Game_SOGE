@@ -1,6 +1,8 @@
 ﻿#ifndef SOGE_GRAPHICS_GRAPHICSENTITY_HPP
 #define SOGE_GRAPHICS_GRAPHICSENTITY_HPP
 
+#include "SOGE/Math/Camera.hpp"
+
 #include <nvrhi/nvrhi.h>
 
 
@@ -23,7 +25,8 @@ namespace soge
         constexpr virtual ~GraphicsEntity() noexcept = default;
 
         [[nodiscard]]
-        constexpr virtual nvrhi::CommandListHandle Update(GraphicsRenderPass& aRenderPass,
+        constexpr virtual nvrhi::CommandListHandle Update(const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                                                          GraphicsRenderPass& aRenderPass,
                                                           GraphicsPipeline& aPipeline) = 0;
     };
 }

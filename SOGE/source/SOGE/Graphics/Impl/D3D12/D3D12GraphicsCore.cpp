@@ -221,14 +221,15 @@ namespace soge
         return m_swapChain.get();
     }
 
-    void D3D12GraphicsCore::Update(RenderGraph& aRenderGraph, const Entities aEntities)
+    void D3D12GraphicsCore::Update(RenderGraph& aRenderGraph, const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                                   const Entities aEntities)
     {
         SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, Timestep::DeltaTime());
 
         m_swapChain->WaitForPresent();
         m_nvrhiDevice->runGarbageCollection();
 
-        aRenderGraph.Execute(aEntities);
+        aRenderGraph.Execute(aViewport, aCamera, aEntities);
 
         m_swapChain->Present();
         m_totalFrameCount++;

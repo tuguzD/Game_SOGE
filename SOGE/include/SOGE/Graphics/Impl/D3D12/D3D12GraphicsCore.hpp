@@ -86,7 +86,8 @@ namespace soge
         [[nodiscard]]
         GraphicsSwapchain* GetSwapchain() override;
 
-        void Update(RenderGraph& aRenderGraph, Entities aEntities) override;
+        void Update(RenderGraph& aRenderGraph, const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                    Entities aEntities) override;
 
         [[nodiscard]]
         nvrhi::IDevice& GetRawDevice() override;

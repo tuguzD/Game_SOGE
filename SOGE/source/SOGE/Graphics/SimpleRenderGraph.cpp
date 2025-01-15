@@ -14,7 +14,7 @@ namespace soge
     {
     }
 
-    void SimpleRenderGraph::Execute(const Entities aEntities)
+    void SimpleRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities)
     {
         const auto clearCommandList = m_finalRenderPass.get().CreateClearFramebufferCommandList();
 
@@ -22,7 +22,7 @@ namespace soge
         m_commandLists.emplace_back(clearCommandList);
         for (const auto& entity : aEntities)
         {
-            auto commandList = entity.get().Update(m_finalRenderPass, m_trianglePipeline);
+            auto commandList = entity.get().Update(aViewport, aCamera, m_finalRenderPass, m_trianglePipeline);
             m_commandLists.emplace_back(commandList);
         }
 

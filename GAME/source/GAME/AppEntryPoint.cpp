@@ -68,7 +68,7 @@ namespace soge_game
         };
         entity.UpdateVertices(vertices);
 
-        const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera(soge::Camera{
+        const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
             .m_height = static_cast<float>(window.GetHeight()),
             .m_nearPlane = 0.01f,
@@ -77,6 +77,12 @@ namespace soge_game
             .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
         });
         SOGE_INFO_LOG(R"(Created camera with UUID {})", cameraUuid.str());
+
+        const auto [viewport, viewportUuid] = graphicsModule->GetViewportManager().CreateViewport({
+            .m_viewport = {static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight())},
+            .m_cameraId = cameraUuid,
+        });
+        SOGE_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
 
         // share state between two lambdas
         auto mouseDeltaX = soge::CreateShared<float>(0.0f);
@@ -91,9 +97,8 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        soge::Transform entityTransform{};
         float cameraPitch{}, cameraYaw{};
-        auto update = [=, &entity, &camera](const soge::UpdateEvent& aEvent) mutable {
+        auto update = [=, &camera](const soge::UpdateEvent& aEvent) mutable {
             {
                 const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::A));
@@ -115,10 +120,6 @@ namespace soge_game
                 *mouseDeltaX = 0.0f;
                 *mouseDeltaY = 0.0f;
             }
-
-            const auto modelViewProjection =
-                camera.GetProjectionMatrix() * camera.m_transform.ViewMatrix() * entityTransform.WorldMatrix();
-            entity.UpdateMatrix(modelViewProjection);
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }

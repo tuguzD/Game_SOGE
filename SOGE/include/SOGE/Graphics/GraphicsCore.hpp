@@ -3,6 +3,7 @@
 
 #include "SOGE/DI/Dependency.hpp"
 #include "SOGE/Graphics/ExecuteCommandLists.hpp"
+#include "SOGE/Math/Camera.hpp"
 
 #include <EASTL/functional.h>
 #include <EASTL/span.h>
@@ -36,7 +37,8 @@ namespace soge
         using EntityRef = eastl::reference_wrapper<GraphicsEntity>;
         using Entities = eastl::span<EntityRef>;
 
-        constexpr virtual void Update(RenderGraph& aRenderGraph, Entities aEntities) = 0;
+        constexpr virtual void Update(RenderGraph& aRenderGraph, const nvrhi::Viewport& aViewport,
+                                      const Camera& aCamera, Entities aEntities) = 0;
 
         [[nodiscard]]
         constexpr virtual nvrhi::IDevice& GetRawDevice() = 0;

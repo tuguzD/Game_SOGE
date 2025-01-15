@@ -28,7 +28,7 @@ namespace soge
         using EntityRef = eastl::reference_wrapper<GraphicsEntity>;
         using Entities = eastl::span<EntityRef>;
 
-        constexpr virtual void Execute(Entities aEntities) = 0;
+        constexpr virtual void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) = 0;
     };
 
     constexpr RenderGraph::RenderGraph(GraphicsCore&) noexcept

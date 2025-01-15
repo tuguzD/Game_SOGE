@@ -26,8 +26,16 @@ namespace soge
         bindingSetDesc.trackLiveness = true;
         bindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, &aPipeline.GetBindingLayout());
+    }
 
-        UpdateMatrix(glm::mat4x4{1.0f});
+    Transform& TriangleEntity::GetTransform()
+    {
+        return m_transform;
+    }
+
+    const Transform& TriangleEntity::GetTransform() const
+    {
+        return m_transform;
     }
 
     void TriangleEntity::UpdateVertices(const Vertices aVertices)
@@ -62,18 +70,8 @@ namespace soge
         m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    void TriangleEntity::UpdateMatrix(const glm::mat4x4& aMatrix)
-    {
-        SOGE_INFO_LOG("Updating NVRHI constant buffer...");
-        const nvrhi::CommandListHandle updateCommandList = m_core.get().GetRawDevice().createCommandList();
-        {
-            GraphicsCommandListGuard commandList{*updateCommandList};
-            commandList->writeBuffer(m_nvrhiConstantBuffer, &aMatrix, sizeof(glm::mat4x4));
-        }
-        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
-    }
-
-    nvrhi::CommandListHandle TriangleEntity::Update(GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline)
+    nvrhi::CommandListHandle TriangleEntity::Update(const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                                                    GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline)
     {
         if (m_nvrhiVertexBuffer == nullptr)
         {
@@ -101,17 +99,18 @@ namespace soge
         {
             GraphicsCommandListGuard commandList{*drawCommandList};
 
-            nvrhi::IFramebuffer& currentFramebuffer = aRenderPass.GetFramebuffer();
-            const nvrhi::FramebufferInfoEx& framebufferInfo = currentFramebuffer.getFramebufferInfo();
+            const glm::mat4x4 mvp =
+                aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix() * m_transform.WorldMatrix();
+            commandList->writeBuffer(m_nvrhiConstantBuffer, &mvp, sizeof(glm::mat4x4));
 
             nvrhi::GraphicsState graphicsState{};
             graphicsState.pipeline = &aPipeline.GetGraphicsPipeline();
-            graphicsState.framebuffer = &currentFramebuffer;
+            graphicsState.framebuffer = &aRenderPass.GetFramebuffer();
             graphicsState.bindings = {m_nvrhiBindingSet};
             graphicsState.vertexBuffers = {
                 nvrhi::VertexBufferBinding{.buffer = m_nvrhiVertexBuffer, .slot = 0, .offset = 0},
             };
-            graphicsState.viewport.addViewportAndScissorRect(framebufferInfo.getViewport());
+            graphicsState.viewport.addViewportAndScissorRect(aViewport);
             commandList->setGraphicsState(graphicsState);
 
             const auto& vertexBufferDesc = m_nvrhiVertexBuffer->getDesc();

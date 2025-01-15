@@ -6,7 +6,6 @@
 #include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
 
 #include <EASTL/span.h>
-#include <glm/mat4x4.hpp>
 
 
 namespace soge
@@ -16,6 +15,8 @@ namespace soge
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<TriangleGraphicsPipeline> m_pipeline;
+
+        Transform m_transform;
 
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
@@ -27,11 +28,16 @@ namespace soge
 
         explicit TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aPipeline);
 
+        [[nodiscard]]
+        Transform& GetTransform();
+        [[nodiscard]]
+        const Transform& GetTransform() const;
+
         void UpdateVertices(Vertices aVertices);
-        void UpdateMatrix(const glm::mat4x4& aMatrix);
 
         [[nodiscard]]
-        nvrhi::CommandListHandle Update(GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline) override;
+        nvrhi::CommandListHandle Update(const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                                        GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline) override;
     };
 }
 

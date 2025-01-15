@@ -6,6 +6,7 @@
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsEntityManager.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
+#include "SOGE/Graphics/ViewportManager.hpp"
 
 
 namespace soge
@@ -14,6 +15,7 @@ namespace soge
     {
     private:
         CameraManager m_cameraManager;
+        ViewportManager m_viewportManager;
         GraphicsEntityManager m_entityManager;
 
         GraphicsCore* m_graphicsCore;
@@ -31,6 +33,8 @@ namespace soge
         GraphicsEntityManager& GetEntityManager() noexcept;
         [[nodiscard]]
         CameraManager& GetCameraManager() noexcept;
+        [[nodiscard]]
+        ViewportManager& GetViewportManager() noexcept;
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
