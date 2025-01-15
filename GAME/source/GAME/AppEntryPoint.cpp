@@ -14,6 +14,88 @@
 #undef CreateWindow
 
 
+namespace
+{
+    using Vertex = soge::TriangleEntity::Vertex;
+
+    constexpr std::array<Vertex, 24> BoxVertices(const float aLength = 1.0f, const float aHeight = 1.0f,
+                                                 const float aWidth = 1.0f, const glm::vec4& aColor = glm::vec4{1.0f})
+    {
+        constexpr glm::vec4 red{0.91f, 0.36f, 0.36f, 1.0f};
+        constexpr glm::vec4 green{0.37f, 0.82f, 0.47f, 1.0f};
+        constexpr glm::vec4 blue{0.42f, 0.49f, 0.95f, 1.0f};
+        constexpr glm::vec4 gray{0.28f, 0.28f, 0.28f, 1.0f};
+
+        const float right = aLength / 2;
+        const float left = -aLength / 2;
+        const float top = aHeight / 2;
+        const float bottom = -aHeight / 2;
+        const float forward = aWidth / 2;
+        const float backward = -aWidth / 2;
+
+        return {
+            // Front face
+            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{0.0f, 1.0f}*/},
+            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{0.0f, 0.0f}*/},
+            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{1.0f, 0.0f}*/},
+            // Back face
+            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{0.0f, 1.0f}*/},
+            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{0.0f, 0.0f}*/},
+            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{1.0f, 1.0f}*/},
+            // Top Face
+            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{0.0f, 1.0f}*/},
+            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{0.0f, 0.0f}*/},
+            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{1.0f, 1.0f}*/},
+            // Bottom Face
+            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{0.0f, 1.0f}*/},
+            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{0.0f, 0.0f}*/},
+            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{1.0f, 0.0f}*/},
+            // Left Face
+            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{0.0f, 1.0f}*/},
+            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{0.0f, 0.0f}*/},
+            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{1.0f, 1.0f}*/},
+            // Right Face
+            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{0.0f, 1.0f}*/},
+            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{0.0f, 0.0f}*/},
+            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{1.0f, 1.0f}*/},
+        };
+    }
+
+    using Index = soge::TriangleEntity::Index;
+
+    constexpr std::array<Index, 36> BoxIndices()
+    {
+        // clang-format off
+        return {
+            // Front face
+            0u, 1u, 2u,
+            0u, 2u, 3u,
+            // Back face
+            4u, 5u, 6u,
+            4u, 6u, 7u,
+            // Top Face
+            8u, 9u, 10u,
+            8u, 10u, 11u,
+            // Bottom Face
+            12u, 13u, 14u,
+            12u, 14u, 15u,
+            // Left Face
+            16u, 17u, 18u,
+            16u, 18u, 19u,
+            // Right Face
+            20u, 21u, 22u,
+            20u, 22u, 23u,
+        };
+        // clang-format on
+    }
+}
+
 namespace soge_game
 {
     Game::Game(AccessTag&& aTag) : Engine(std::move(aTag))
@@ -52,23 +134,10 @@ namespace soge_game
             container.Provide<soge::TriangleEntity>());
         SOGE_INFO_LOG(R"(Created graphics triangle entity with UUID {})", entityUuid.str());
 
-        constexpr std::array vertices{
-            soge::TriangleEntity::Vertex{
-                .m_position = glm::vec3{-0.5f, 0.5f, 0.0f},
-                .m_color = glm::vec4{0.0f, 0.0f, 1.0f, 1.0f},
-            },
-            soge::TriangleEntity::Vertex{
-                .m_position = glm::vec3{0.5f, 0.5f, 0.0f},
-                .m_color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f},
-            },
-            soge::TriangleEntity::Vertex{
-                .m_position = glm::vec3{0.0f, -0.5f, 0.0f},
-                .m_color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f},
-            },
-        };
+        constexpr std::array vertices = BoxVertices();
         entity.UpdateVertices(vertices);
 
-        constexpr std::array indices{0u, 1u, 2u, 2u, 1u, 0u};
+        constexpr std::array indices = BoxIndices();
         entity.UpdateIndices(indices);
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
@@ -76,7 +145,7 @@ namespace soge_game
             .m_height = static_cast<float>(window.GetHeight()),
             .m_nearPlane = 0.01f,
             .m_farPlane = 100.0f,
-            .m_transform = soge::Transform{.m_position = glm::vec3{0.0f, 0.0f, -1.0f}},
+            .m_transform = soge::Transform{.m_position = glm::vec3{0.0f, 0.0f, -2.0f}},
             .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
         });
         SOGE_INFO_LOG(R"(Created camera with UUID {})", cameraUuid.str());
