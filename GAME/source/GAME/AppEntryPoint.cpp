@@ -68,6 +68,9 @@ namespace soge_game
         };
         entity.UpdateVertices(vertices);
 
+        constexpr std::array indices{0u, 1u, 2u, 2u, 1u, 0u};
+        entity.UpdateIndices(indices);
+
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
             .m_height = static_cast<float>(window.GetHeight()),

@@ -18,13 +18,17 @@ namespace soge
 
         Transform m_transform;
 
-        nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
+        nvrhi::BufferHandle m_nvrhiVertexBuffer;
+        nvrhi::BufferHandle m_nvrhiIndexBuffer;
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
         using Vertex = TriangleGraphicsPipeline::Vertex;
         using Vertices = eastl::span<const Vertex>;
+
+        using Index = std::uint32_t;
+        using Indices = eastl::span<const Index>;
 
         explicit TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aPipeline);
 
@@ -34,6 +38,7 @@ namespace soge
         const Transform& GetTransform() const;
 
         void UpdateVertices(Vertices aVertices);
+        void UpdateIndices(Indices aIndices);
 
         [[nodiscard]]
         nvrhi::CommandListHandle Update(const nvrhi::Viewport& aViewport, const Camera& aCamera,
