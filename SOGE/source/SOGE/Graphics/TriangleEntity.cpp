@@ -25,7 +25,9 @@ namespace soge
         nvrhi::BindingSetDesc bindingSetDesc{};
         bindingSetDesc.trackLiveness = true;
         bindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
-        m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, &aPipeline.GetBindingLayout());
+
+        const auto bindingLayout = aPipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
+        m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, bindingLayout);
     }
 
     Transform& TriangleEntity::GetTransform()

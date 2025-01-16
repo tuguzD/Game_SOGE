@@ -45,14 +45,7 @@ namespace soge
 
         [[nodiscard]]
         FinalGraphicsRenderPass& GetRenderPass() noexcept;
-        [[nodiscard]]
-        nvrhi::IShader& GetVertexShader() noexcept;
-        [[nodiscard]]
-        nvrhi::IInputLayout& GetInputLayout() noexcept;
-        [[nodiscard]]
-        nvrhi::IShader& GetPixelShader() noexcept;
-        [[nodiscard]]
-        nvrhi::IBindingLayout& GetBindingLayout() noexcept;
+
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
     };

@@ -121,26 +121,6 @@ namespace soge
         return m_renderPass.get();
     }
 
-    nvrhi::IShader& TriangleGraphicsPipeline::GetVertexShader() noexcept
-    {
-        return *m_nvrhiVertexShader;
-    }
-
-    nvrhi::IInputLayout& TriangleGraphicsPipeline::GetInputLayout() noexcept
-    {
-        return *m_nvrhiInputLayout;
-    }
-
-    nvrhi::IShader& TriangleGraphicsPipeline::GetPixelShader() noexcept
-    {
-        return *m_nvrhiPixelShader;
-    }
-
-    nvrhi::IBindingLayout& TriangleGraphicsPipeline::GetBindingLayout() noexcept
-    {
-        return *m_nvrhiBindingLayout;
-    }
-
     nvrhi::IGraphicsPipeline& TriangleGraphicsPipeline::GetGraphicsPipeline() noexcept
     {
         return *m_nvrhiGraphicsPipeline;
