@@ -1,6 +1,6 @@
 ﻿cbuffer VS_ConstantBuffer : register(b0)
 {
-    float4x4 mvp;
+    float4x4 modelViewProjection;
 }
 
 struct VS_Input
@@ -19,7 +19,7 @@ VS_Output VSMain(VS_Input input)
 {
     VS_Output output = (VS_Output)0;
 
-    output.position = mul(mvp, float4(input.position, 1.0f));
+    output.position = mul(modelViewProjection, float4(input.position, 1.0f));
     output.color = input.color;
 
     return output;

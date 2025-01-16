@@ -13,6 +13,8 @@ namespace soge
     class TriangleEntity : public GraphicsEntity
     {
     private:
+        using ConstantBuffer = TriangleGraphicsPipeline::ConstantBuffer;
+
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<TriangleGraphicsPipeline> m_pipeline;
 

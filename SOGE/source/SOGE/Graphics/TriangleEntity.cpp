@@ -14,7 +14,7 @@ namespace soge
 
         SOGE_INFO_LOG("Creating NVRHI constant buffer for triangle entity...");
         nvrhi::BufferDesc bufferDesc{};
-        bufferDesc.byteSize = sizeof(glm::mat4x4);
+        bufferDesc.byteSize = sizeof(ConstantBuffer);
         bufferDesc.isConstantBuffer = true;
         bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
         bufferDesc.keepInitialState = true;
@@ -130,9 +130,11 @@ namespace soge
         {
             GraphicsCommandListGuard commandList{*drawCommandList};
 
-            const glm::mat4x4 mvp =
-                aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix() * m_transform.WorldMatrix();
-            commandList->writeBuffer(m_nvrhiConstantBuffer, &mvp, sizeof(glm::mat4x4));
+            const ConstantBuffer constantBuffer{
+                .m_modelViewProjection =
+                    aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix() * m_transform.WorldMatrix(),
+            };
+            commandList->writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
 
             nvrhi::GraphicsState graphicsState{};
             graphicsState.pipeline = &aPipeline.GetGraphicsPipeline();

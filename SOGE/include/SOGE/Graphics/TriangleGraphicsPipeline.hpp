@@ -24,6 +24,11 @@ namespace soge
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
 
     public:
+        struct ConstantBuffer
+        {
+            glm::mat4x4 m_modelViewProjection;
+        };
+
         struct Vertex
         {
             alignas(16) glm::vec3 m_position;
