@@ -27,7 +27,7 @@ namespace soge
         void SetPaused(bool aPause) noexcept;
 
     public:
-        SoundResource(const eastl::string& aName, const cppfs::FilePath& aFullPath);
+        SoundResource(const eastl::string_view& aName, const cppfs::FilePath& aFullPath);
         ~SoundResource() = default;
 
         bool Reload()  override;

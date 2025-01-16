@@ -17,7 +17,7 @@ namespace soge
     {
     private:
         FMOD::Sound* m_fmodSound;
-        SoundResource& m_soundResource;
+        SoundResource* m_soundResource;
 
     public:
         /**
@@ -25,7 +25,7 @@ namespace soge
         * @brief Initialize class with reference to it's sound resource.
         * @param[in] aSoundResource - Reference to sound resource located in filesystem.
         */
-        FMODSound(SoundResource& aSoundResource);
+        FMODSound(SoundResource* aSoundResource);
 
         /**
         * @public
@@ -33,7 +33,7 @@ namespace soge
         * @param[in] aFMODSound - Pointer to native FMOD::Sound.
         * @param[in] aSoundResource - Reference to sound resource located in filesystem.
         */
-        FMODSound(FMOD::Sound* aFMODSound, SoundResource& aSoundResource);
+        FMODSound(FMOD::Sound* aFMODSound, SoundResource* aSoundResource);
         ~FMODSound();
 
         /**
@@ -41,7 +41,7 @@ namespace soge
         * @brief Loads sound resource to FMOD system.
         * @param[in] aFMODSystem - Pointer to FMOD::System.
         */
-        bool Load(FMOD::System* aFMODSystem, const FMODConfig& aFMODConfig);
+        bool Load(const FMODConfig& aFMODConfig);
 
         /**
         * @public
@@ -49,7 +49,7 @@ namespace soge
         * @param[in] aFMODSystem - Pointer to FMOD::System.
         * @note Not implemented yet.
         */
-        bool Reload(FMOD::System* aFMODSystem, const FMODConfig& aFMODConfig);
+        bool Reload(const FMODConfig& aFMODConfig);
 
         /**
         * @public
@@ -57,7 +57,7 @@ namespace soge
         * @param[in] aFMODSystem - Pointer to FMOD::System.
         * @note Not implemented yet.
         */
-        bool Unload(FMOD::System* aFMODSystem);
+        bool Unload();
 
         /**
         * @public

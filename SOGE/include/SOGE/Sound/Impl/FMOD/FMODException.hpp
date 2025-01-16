@@ -13,7 +13,7 @@ namespace soge
     * @extends std::exception
     * @brief General exception class for FMOD_RESULT errors.
     */
-    class FMODException : public std::exception
+    class FMODException final : public std::exception
     {
     private:
         FMOD_RESULT m_fmodResult;

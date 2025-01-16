@@ -15,7 +15,7 @@ namespace soge
         cppfs::FilePath m_fullPath;
 
     protected:
-        eastl::string m_name;
+        eastl::string_view m_name;
         bool m_loaded;
 
         void SetFilePath(const eastl::string& aFullPath);
@@ -23,7 +23,7 @@ namespace soge
         void SetLoaded(bool aLoaded);
 
     public:
-        ResourceBase(const eastl::string& aName, const cppfs::FilePath& aFullPath);
+        ResourceBase(const eastl::string_view& aName, const cppfs::FilePath& aFullPath);
         ~ResourceBase();
 
         // True if reload was successful
@@ -35,7 +35,7 @@ namespace soge
         // Free all memory
         virtual void Destroy() = 0;
 
-        const eastl::string& GetName() const;
+        const eastl::string_view& GetName() const;
         const eastl::string& GetFullPath() const;
 
         bool IsLoaded() const;

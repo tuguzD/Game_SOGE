@@ -1,6 +1,10 @@
 #include "sogepch.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODSoundCore.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODException.hpp"
+#include "SOGE/Sound/Impl/FMOD/FMODChannelMixer.hpp"
+
+#include "SOGE/Sound/Public/ChannelMixer.hpp"
+#include "SOGE/Sound/Public/Listener.hpp"
 
 
 namespace soge
@@ -12,73 +16,130 @@ namespace soge
         m_config.m_maxChannelCount = 255;
         m_config.m_distanceFactor = 1.0f;
 
-        FMODThrowIfFailed(FMOD::Studio::System::create(&m_fmodStudioSystem));
-        FMODThrowIfFailed(m_fmodStudioSystem->getCoreSystem(&m_fmodSystem));
-        FMODThrowIfFailed(m_fmodStudioSystem->initialize(255, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_NORMAL, nullptr));
-        m_defaultSoundChannel = new FMODSoundChannel();
+        m_listener = SharedPtr<Listener>(new Listener());
+        m_fmodSystem = FMODSystem::GetInstance();
+        m_fmodSystem->Initialize();
+
+        m_fmodSystem->m_defaultSoundChannel = new FMODSoundChannel();
     }
 
     FMODSoundCore::~FMODSoundCore()
     {
-        FMODThrowIfFailed(m_fmodSystem->close());
-        FMODThrowIfFailed(m_fmodStudioSystem->release());
+        m_fmodSystem->Destroy();
     }
 
     void FMODSoundCore::Update()
     {
-        FMODThrowIfFailed(m_fmodStudioSystem->update());
+        FMODThrowIfFailed(m_fmodSystem->GetStudioSystem()->update());
     }
 
     void FMODSoundCore::Update3DListener(const glm::vec3& aPos,
                                          const glm::vec3& aForwardVec,
                                          const glm::vec3& aUpwardVec)
     {
-        FMOD_VECTOR pos     = { aPos.x, aPos.y, aPos.z };
-        FMOD_VECTOR forward = { aForwardVec.x, aForwardVec.y, aForwardVec.z };
-        FMOD_VECTOR upward  = { aUpwardVec.x, aUpwardVec.y, aUpwardVec.z };
-        m_listener.Set3DListenerPosition(pos, forward, upward);
+        m_listener->Update(aPos, aForwardVec, aUpwardVec);
     }
 
-    void FMODSoundCore::LoadSoundResource(SoundResource& aSoundResource)
+    ChannelMixer* FMODSoundCore::GetChannelMixer()
+    {
+        return FMODChannelMixer::GetInstance();
+    }
+
+    SoundResource* FMODSoundCore::CreateSoundResource(const eastl::string_view& aName, const cppfs::FilePath& aFilePath,
+                                                      bool aIs3D)
+    {
+        SoundResource* resource = new SoundResource(aName, aFilePath);
+        resource->Enable3D(aIs3D);
+        return resource;
+    }
+
+    void FMODSoundCore::LoadSoundResource(SoundResource* aSoundResource)
     {
         FMODSound* sound = new FMODSound(aSoundResource);
-        if (sound->Load(m_fmodSystem, m_config))
+        if (sound->Load(m_config))
         {
-            m_loadedSounds.insert({aSoundResource.GetUUID(), sound});
+            m_fmodSystem->m_loadedSounds.insert({aSoundResource->GetUUID(), sound});
         }
-        aSoundResource.SetLoaded(true);
+        aSoundResource->SetLoaded(true);
     }
 
-    void FMODSoundCore::PlaySoundResource(SoundResource& aSoundResource)
+    void FMODSoundCore::PlaySoundResource(SoundResource* aSoundResource)
     {
-        FMODSound* sound = m_loadedSounds[aSoundResource.GetUUID()];
-        m_defaultSoundChannel->SetSoundToChannel(m_fmodSystem, sound);
-        m_defaultSoundChannel->BeginChannelPlayback();
-        aSoundResource.SetPlaying(true);
+        FMODSound* sound = m_fmodSystem->m_loadedSounds[aSoundResource->GetUUID()];
+        m_fmodSystem->m_defaultSoundChannel->SetSoundToChannel(m_fmodSystem->GetSystem(), sound);
+        m_fmodSystem->m_defaultSoundChannel->BeginChannelPlayback();
+        aSoundResource->SetPlaying(true);
     }
 
-    void FMODSoundCore::PauseSoundResource(SoundResource& aSoundResource)
+    void FMODSoundCore::PauseSoundResource(SoundResource* aSoundResource)
     {
-        m_defaultSoundChannel->PauseChannelPlayback();
-        aSoundResource.SetPaused(true);
+        m_fmodSystem->m_defaultSoundChannel->PauseChannelPlayback();
+        aSoundResource->SetPaused(true);
     }
 
-    void FMODSoundCore::UnpauseSoundResource(SoundResource& aSoundResource)
+    void FMODSoundCore::UnpauseSoundResource(SoundResource* aSoundResource)
     {
-        aSoundResource.SetPaused(false);
+        aSoundResource->SetPaused(false);
     }
 
-    void FMODSoundCore::StopSoundResource(SoundResource& aSoundResource)
+    void FMODSoundCore::StopSoundResource(SoundResource* aSoundResource)
     {
-        if (aSoundResource.IsPlaying())
+        if (aSoundResource->IsPlaying())
         {
-            m_defaultSoundChannel->StopChannelPlayback();
-            aSoundResource.SetStopped(true);
+            m_fmodSystem->m_defaultSoundChannel->StopChannelPlayback();
+            aSoundResource->SetStopped(true);
         }
     }
 
-    bool FMODSoundCore::IsSoundResourcePlaying(SoundResource& aSoundResource)
+    bool FMODSoundCore::IsSoundResourcePlaying(SoundResource* aSoundResource)
     {
         return false;
+    }
+
+    ////////////////
+    // FMODSystem
+    ////////////////
+
+    SharedPtr<FMODSystem> FMODSystem::s_instance = nullptr;
+    FMODSystem* FMODSystem::GetInstance()
+    {
+        if (s_instance == nullptr)
+        {
+            s_instance = SharedPtr<FMODSystem>(new FMODSystem());
+        }
+
+        return s_instance.get();
+    }
+
+    FMODSystem::FMODSystem()
+    {
+    }
+
+    FMODSystem::~FMODSystem()
+    {
+        Destroy();
+    }
+
+    void FMODSystem::Initialize()
+    {
+        FMODThrowIfFailed(m_fmodStudioSystem->create(&m_fmodStudioSystem));
+        FMODThrowIfFailed(m_fmodStudioSystem->getCoreSystem(&m_fmodSystem));
+        FMODThrowIfFailed(m_fmodStudioSystem->initialize(255, FMOD_STUDIO_INIT_NORMAL, FMOD_INIT_3D_RIGHTHANDED, nullptr));
+    }
+
+    void FMODSystem::Destroy()
+    {
+        m_fmodSystem->close();
+        m_fmodStudioSystem->release();
+    }
+
+    FMOD::Studio::System* FMODSystem::GetStudioSystem() const
+    {
+        return m_fmodStudioSystem;
+    }
+
+    FMOD::System* FMODSystem::GetSystem() const
+    {
+        return m_fmodSystem;
     }
 }

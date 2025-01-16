@@ -5,7 +5,7 @@
 
 namespace soge
 {
-    ResourceBase::ResourceBase(const eastl::string& aName, const cppfs::FilePath& aFullPath)
+    ResourceBase::ResourceBase(const eastl::string_view& aName, const cppfs::FilePath& aFullPath)
         : m_name(aName), m_fullPath(aFullPath), m_loaded(false)
     {
         m_resourceUUID = UUID::Generate();
@@ -30,7 +30,7 @@ namespace soge
         m_loaded = aLoaded;
     }
 
-    const eastl::string& ResourceBase::GetName() const
+    const eastl::string_view& ResourceBase::GetName() const
     {
         return m_name;
     }

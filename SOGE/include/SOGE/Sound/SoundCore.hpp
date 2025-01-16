@@ -9,6 +9,8 @@
 
 namespace soge
 {
+    class ChannelMixer;
+
     class SoundCore
     {
     private:
@@ -36,13 +38,17 @@ namespace soge
                                       const glm::vec3& aForwardVec,
                                       const glm::vec3& aUpwardVec) = 0;
 
-        virtual void LoadSoundResource(SoundResource& aSoundResource) = 0;
-        virtual void PlaySoundResource(SoundResource& aSoundResource) = 0;
-        virtual void PauseSoundResource(SoundResource& aSoundResource) = 0;
-        virtual void UnpauseSoundResource(SoundResource& aSoundResource) = 0;
-        virtual void StopSoundResource(SoundResource& aSoundResource) = 0;
+        virtual ChannelMixer* GetChannelMixer() = 0;
+        virtual SoundResource* CreateSoundResource(const eastl::string_view& aName, const cppfs::FilePath& aFilePath,
+                                                   bool aIs3D) = 0;
 
-        virtual bool IsSoundResourcePlaying(SoundResource& aSoundResource) = 0;
+        virtual void LoadSoundResource(SoundResource* aSoundResource) = 0;
+        virtual void PlaySoundResource(SoundResource* aSoundResource) = 0;
+        virtual void PauseSoundResource(SoundResource* aSoundResource) = 0;
+        virtual void UnpauseSoundResource(SoundResource* aSoundResource) = 0;
+        virtual void StopSoundResource(SoundResource* aSoundResource) = 0;
+
+        virtual bool IsSoundResourcePlaying(SoundResource* aSoundResource) = 0;
         //void Stop(const SoundResource& aSoundResource);
 
     };

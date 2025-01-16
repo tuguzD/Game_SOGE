@@ -2,15 +2,16 @@
 #include "SOGE/Sound/Impl/FMOD/FMODSound.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODConfig.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODException.hpp"
+#include "SOGE/Sound/Impl/FMOD/FMODSoundCore.hpp"
 
 
 namespace soge
 {
-    FMODSound::FMODSound(SoundResource& aSoundResource) : m_fmodSound(nullptr), m_soundResource(aSoundResource)
+    FMODSound::FMODSound(SoundResource* aSoundResource) : m_fmodSound(nullptr), m_soundResource(aSoundResource)
     {
     }
 
-    FMODSound::FMODSound(FMOD::Sound* aFMODSound, SoundResource& aSoundResource)
+    FMODSound::FMODSound(FMOD::Sound* aFMODSound, SoundResource* aSoundResource)
         : m_fmodSound(aFMODSound), m_soundResource(aSoundResource)
     {
     }
@@ -20,16 +21,18 @@ namespace soge
         m_fmodSound->release();
     }
 
-    bool FMODSound::Load(FMOD::System* aFMODSystem, const FMODConfig& aFMODConfig)
+    bool FMODSound::Load(const FMODConfig& aFMODConfig)
     {
-        if (!m_soundResource.IsLoaded())
+        FMOD::System* fmodSystem = FMODSystem::GetInstance()->GetSystem();
+
+        if (!m_soundResource->IsLoaded())
         {
-            FMOD_MODE dimMode = m_soundResource.Is3D() ? FMOD_3D : FMOD_2D;
-            FMOD_MODE loopMode = m_soundResource.IsLooping() ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
-            SOGE_WARN_LOG("Loop mode: {}", m_soundResource.IsLooping());
+            FMOD_MODE dimMode = m_soundResource->Is3D() ? FMOD_3D : FMOD_2D;
+            FMOD_MODE loopMode = m_soundResource->IsLooping() ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
+            SOGE_WARN_LOG("Loop mode: {}", m_soundResource->IsLooping());
 
             FMODThrowIfFailed(
-                aFMODSystem->createSound(m_soundResource.GetFullPath().c_str(), dimMode, nullptr, &m_fmodSound));
+                fmodSystem->createSound(m_soundResource->GetFullPath().c_str(), dimMode, nullptr, &m_fmodSound));
             FMODThrowIfFailed(m_fmodSound->setMode(loopMode));
 
             if (dimMode == FMOD_3D)
@@ -38,16 +41,16 @@ namespace soge
 
             return true;
         }
-        SOGE_WARN_LOG("Sound resource {} already loaded!", m_soundResource.GetName().c_str());
+        SOGE_WARN_LOG("Sound resource {} already loaded!", m_soundResource->GetName().data());
         return false;
     }
 
-    bool FMODSound::Reload(FMOD::System* aFMODSystem, const FMODConfig& aFMODConfig)
+    bool FMODSound::Reload(const FMODConfig& aFMODConfig)
     {
         return false;
     }
 
-    bool FMODSound::Unload(FMOD::System* aFMODSystem)
+    bool FMODSound::Unload()
     {
         return false;
     }

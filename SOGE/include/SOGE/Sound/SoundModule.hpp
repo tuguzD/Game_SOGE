@@ -4,7 +4,7 @@
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/System/Memory.hpp"
 #include "SOGE/Sound/SoundCore.hpp"
-
+#include "SOGE/Sound/Public/ChannelMixer.hpp"
 
 namespace soge
 {
@@ -19,16 +19,20 @@ namespace soge
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;
 
-        void LoadSoundResource(SoundResource& aSoundResource) const;
-        //void UnloadSoundResource(SoundResource& aSoundResource) const;
-        //void ReloadSoundResource(SoundResource& aSoundResource) const;
 
-        void PlaySoundResource(SoundResource& aSoundResource) const;
-        void PauseSoundResource(SoundResource& aSoundResource) const;
-        void StopSoundResource(SoundResource& aSoundResource) const;
-        //void StopSoundResource(SoundResource& aSoundResource)
+        ChannelMixer* GetChannelMixer() const;
+        SoundResource* CreateSoundResource(const eastl::string_view& aName, const cppfs::FilePath& aFilePath,
+                                           bool aIs3D);
+
+        void LoadSoundResource(SoundResource* aSoundResource) const;
+        void PlaySoundResource(SoundResource* aSoundResource) const;
+        void PauseSoundResource(SoundResource* aSoundResource) const;
+        void StopSoundResource(SoundResource* aSoundResource) const;
 
         void Update() const;
+        void Update3DListener(const glm::vec3& aPosition,
+                              const glm::vec3& aForwardVec,
+                              const glm::vec3& aUpwardVec) const;
 
     };
 }

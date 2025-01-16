@@ -28,22 +28,33 @@ namespace soge
         SOGE_INFO_LOG("Sound module unloaded...");
     }
 
-    void SoundModule::LoadSoundResource(SoundResource& aSoundResource) const
+    ChannelMixer* SoundModule::GetChannelMixer() const
+    {
+        return m_soundCore->GetChannelMixer();
+    }
+
+    SoundResource* SoundModule::CreateSoundResource(const eastl::string_view& aName, const cppfs::FilePath& aFilePath,
+                                                    bool aIs3D)
+    {
+        return m_soundCore->CreateSoundResource(aName, aFilePath, aIs3D);
+    }
+
+    void SoundModule::LoadSoundResource(SoundResource* aSoundResource) const
     {
         m_soundCore->LoadSoundResource(aSoundResource);
     }
 
-    void SoundModule::PlaySoundResource(SoundResource& aSoundResource) const
+    void SoundModule::PlaySoundResource(SoundResource* aSoundResource) const
     {
         m_soundCore->PlaySoundResource(aSoundResource);
     }
 
-    void SoundModule::PauseSoundResource(SoundResource& aSoundResource) const
+    void SoundModule::PauseSoundResource(SoundResource* aSoundResource) const
     {
         m_soundCore->PauseSoundResource(aSoundResource);
     }
 
-    void SoundModule::StopSoundResource(SoundResource& aSoundResource) const
+    void SoundModule::StopSoundResource(SoundResource* aSoundResource) const
     {
         m_soundCore->StopSoundResource(aSoundResource);
     }
@@ -51,5 +62,12 @@ namespace soge
     void SoundModule::Update() const
     {
         m_soundCore->Update();
+    }
+
+    void SoundModule::Update3DListener(const glm::vec3& aPosition,
+                                       const glm::vec3& aForwardVec,
+                                       const glm::vec3& aUpwardVec) const
+    {
+        m_soundCore->Update3DListener(aPosition, aForwardVec, aUpwardVec);
     }
 }

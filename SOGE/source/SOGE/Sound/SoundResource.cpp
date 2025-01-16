@@ -4,7 +4,7 @@
 
 namespace soge
 {
-    SoundResource::SoundResource(const eastl::string& aName, const cppfs::FilePath& aFullPath)
+    SoundResource::SoundResource(const eastl::string_view& aName, const cppfs::FilePath& aFullPath)
         : ResourceBase(aName, aFullPath)
     {
         m_is3d      = true;
