@@ -130,15 +130,36 @@ namespace soge_game
         auto& renderGraph = container.Provide<soge::SimpleRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
-        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
-            container.Provide<soge::TriangleEntity>());
-        SOGE_INFO_LOG(R"(Created graphics triangle entity with UUID {})", entityUuid.str());
+        constexpr std::size_t gridSize = 3;
+        constexpr glm::vec3 gridOffset{-0.5f * (gridSize - 1)};
+        for (std::size_t i = 0; i < gridSize; ++i)
+        {
+            for (std::size_t j = 0; j < gridSize; ++j)
+            {
+                for (std::size_t k = 0; k < gridSize; ++k)
+                {
+                    const auto [entity, entityUuid] =
+                        graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
+                            container.Provide<soge::TriangleEntity>());
+                    SOGE_INFO_LOG(R"(Created graphics triangle entity ({}, {}, {}) with UUID {})", i, j, k,
+                                  entityUuid.str());
 
-        constexpr std::array vertices = BoxVertices();
-        entity.UpdateVertices(vertices);
+                    constexpr std::array vertices = BoxVertices();
+                    entity.UpdateVertices(vertices);
 
-        constexpr std::array indices = BoxIndices();
-        entity.UpdateIndices(indices);
+                    constexpr std::array indices = BoxIndices();
+                    entity.UpdateIndices(indices);
+
+                    const auto x = static_cast<float>(i);
+                    const auto y = static_cast<float>(j);
+                    const auto z = static_cast<float>(k);
+                    entity.GetTransform() = soge::Transform{
+                        .m_position = glm::vec3{x, y, z} + gridOffset,
+                        .m_scale = glm::vec3{0.5f},
+                    };
+                }
+            }
+        }
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
@@ -170,6 +191,7 @@ namespace soge_game
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
         float cameraPitch{}, cameraYaw{};
+        constexpr float cameraSensitivity = 0.005f;
         auto update = [=, &camera](const soge::UpdateEvent& aEvent) mutable {
             {
                 const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
@@ -185,8 +207,8 @@ namespace soge_game
 
             if (*mouseDeltaX != 0.0f || *mouseDeltaY != 0.0f)
             {
-                cameraYaw += *mouseDeltaX * aEvent.GetDeltaTime();
-                cameraPitch += *mouseDeltaY * aEvent.GetDeltaTime();
+                cameraYaw += *mouseDeltaX * cameraSensitivity;
+                cameraPitch += *mouseDeltaY * cameraSensitivity;
                 camera.m_transform.m_rotation = glm::quat{glm::vec3{cameraPitch, cameraYaw, 0.0f}};
 
                 *mouseDeltaX = 0.0f;
