@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
+#include "SOGE/Graphics/GeometryGraphicsPipeline.hpp"
 
 #include "SOGE/Graphics/GetCompiledShaderPath.hpp"
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
@@ -29,23 +29,23 @@ namespace
 
 namespace soge
 {
-    TriangleGraphicsPipeline::TriangleGraphicsPipeline(GraphicsCore& aCore, FinalGraphicsRenderPass& aRenderPass)
+    GeometryGraphicsPipeline::GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass)
         : m_core{aCore}, m_renderPass{aRenderPass}
     {
-        SOGE_INFO_LOG("Creating NVRHI triangle pipeline...");
+        SOGE_INFO_LOG("Creating NVRHI geometry pipeline...");
         nvrhi::IDevice& nvrhiDevice = aCore.GetRawDevice();
 
         nvrhi::ShaderDesc vertexShaderDesc{};
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
-        vertexShaderDesc.debugName = "SOGE triangle pipeline vertex shader";
+        vertexShaderDesc.debugName = "SOGE geometry pipeline vertex shader";
         vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, "./resources/shaders/simple.hlsl", "VSMain");
+        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, "./resources/shaders/geometry.hlsl", "VSMain");
 
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
-        pixelShaderDesc.debugName = "SOGE triangle pipeline pixel shader";
+        pixelShaderDesc.debugName = "SOGE geometry pipeline pixel shader";
         pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, "./resources/shaders/simple.hlsl", "PSMain");
+        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, "./resources/shaders/geometry.hlsl", "PSMain");
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
@@ -75,24 +75,35 @@ namespace soge
         pipelineDesc.VS = m_nvrhiVertexShader;
         pipelineDesc.PS = m_nvrhiPixelShader;
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
-        // no need to create pipeline for each frame buffer, all of them are compatible with the first one
         nvrhi::IFramebuffer& compatibleFramebuffer = aRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
     }
 
-    TriangleGraphicsPipeline::TriangleGraphicsPipeline(TriangleGraphicsPipeline&& aOther) noexcept
+    GeometryGraphicsPipeline::GeometryGraphicsPipeline(GeometryGraphicsPipeline&& aOther) noexcept
         : m_core{aOther.m_core}, m_renderPass{aOther.m_renderPass}
     {
         swap(aOther);
     }
 
-    TriangleGraphicsPipeline& TriangleGraphicsPipeline::operator=(TriangleGraphicsPipeline&& aOther) noexcept
+    GeometryGraphicsPipeline& GeometryGraphicsPipeline::operator=(GeometryGraphicsPipeline&& aOther) noexcept
     {
         swap(aOther);
         return *this;
     }
 
-    void TriangleGraphicsPipeline::swap(TriangleGraphicsPipeline& aOther) noexcept
+    GeometryGraphicsPipeline::~GeometryGraphicsPipeline()
+    {
+        m_commandLists.clear();
+
+        SOGE_INFO_LOG("Destroying NVRHI geometry pipeline...");
+        m_nvrhiGraphicsPipeline = nullptr;
+        m_nvrhiBindingLayout = nullptr;
+        m_nvrhiPixelShader = nullptr;
+        m_nvrhiInputLayout = nullptr;
+        m_nvrhiVertexShader = nullptr;
+    }
+
+    void GeometryGraphicsPipeline::swap(GeometryGraphicsPipeline& aOther) noexcept
     {
         using std::swap;
 
@@ -106,24 +117,12 @@ namespace soge
         swap(m_nvrhiGraphicsPipeline, aOther.m_nvrhiGraphicsPipeline);
     }
 
-    TriangleGraphicsPipeline::~TriangleGraphicsPipeline()
-    {
-        m_commandLists.clear();
-
-        SOGE_INFO_LOG("Destroying NVRHI triangle pipeline...");
-        m_nvrhiGraphicsPipeline = nullptr;
-        m_nvrhiBindingLayout = nullptr;
-        m_nvrhiPixelShader = nullptr;
-        m_nvrhiInputLayout = nullptr;
-        m_nvrhiVertexShader = nullptr;
-    }
-
-    nvrhi::IGraphicsPipeline& TriangleGraphicsPipeline::GetGraphicsPipeline() noexcept
+    nvrhi::IGraphicsPipeline& GeometryGraphicsPipeline::GetGraphicsPipeline() noexcept
     {
         return *m_nvrhiGraphicsPipeline;
     }
 
-    auto TriangleGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
+    auto GeometryGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
                                            const Entities aEntities) -> CommandLists
     {
         m_commandLists.clear();
@@ -137,7 +136,7 @@ namespace soge
         {
             GraphicsCommandListGuard commandList{*drawCommandList};
 
-            FinalGraphicsRenderPass& renderPass = m_renderPass;
+            GeometryGraphicsRenderPass& renderPass = m_renderPass;
             renderPass.ClearFramebuffer(commandList);
 
             for (auto&& entityRef : aEntities)

@@ -1,18 +1,18 @@
-﻿#ifndef SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
-#define SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
+﻿#ifndef SOGE_GRAPHICS_GEOMETRYGRAPHICSPIPELINE_HPP
+#define SOGE_GRAPHICS_GEOMETRYGRAPHICSPIPELINE_HPP
 
-#include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/GeometryGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
 
 namespace soge
 {
-    class TriangleGraphicsPipeline : public GraphicsPipeline
+    class GeometryGraphicsPipeline : public GraphicsPipeline
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
-        eastl::reference_wrapper<FinalGraphicsRenderPass> m_renderPass;
+        eastl::reference_wrapper<GeometryGraphicsRenderPass> m_renderPass;
 
         nvrhi::ShaderHandle m_nvrhiVertexShader;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
@@ -66,18 +66,18 @@ namespace soge
             constexpr virtual glm::mat4x4 GetWorldMatrix(Tag) = 0;
         };
 
-        explicit TriangleGraphicsPipeline(GraphicsCore& aCore, FinalGraphicsRenderPass& aRenderPass);
+        explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass);
 
-        TriangleGraphicsPipeline(const TriangleGraphicsPipeline&) = delete;
-        TriangleGraphicsPipeline& operator=(const TriangleGraphicsPipeline&) = delete;
+        GeometryGraphicsPipeline(const GeometryGraphicsPipeline&) = delete;
+        GeometryGraphicsPipeline& operator=(const GeometryGraphicsPipeline&) = delete;
 
-        TriangleGraphicsPipeline(TriangleGraphicsPipeline&& aOther) noexcept;
-        TriangleGraphicsPipeline& operator=(TriangleGraphicsPipeline&& aOther) noexcept;
+        GeometryGraphicsPipeline(GeometryGraphicsPipeline&& aOther) noexcept;
+        GeometryGraphicsPipeline& operator=(GeometryGraphicsPipeline&& aOther) noexcept;
 
-        ~TriangleGraphicsPipeline() override;
+        ~GeometryGraphicsPipeline() override;
 
         // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(TriangleGraphicsPipeline& aOther) noexcept;
+        void swap(GeometryGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
@@ -87,7 +87,7 @@ namespace soge
     };
 }
 
-SOGE_DI_REGISTER_NS(soge, TriangleGraphicsPipeline,
-                    df::Single<TriangleGraphicsPipeline, GraphicsCore, FinalGraphicsRenderPass>)
+SOGE_DI_REGISTER_NS(soge, GeometryGraphicsPipeline,
+                    df::Single<GeometryGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass>)
 
-#endif // SOGE_GRAPHICS_TRIANGLEGRAPHICSPIPELINE_HPP
+#endif // SOGE_GRAPHICS_GEOMETRYGRAPHICSPIPELINE_HPP

@@ -7,8 +7,9 @@
 
 namespace soge
 {
-    TriangleEntity::TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aPipeline)
-        : m_core{aCore}, m_pipeline{aPipeline}
+    TriangleEntity::TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aTrianglePipeline,
+                                   GeometryGraphicsPipeline& aGeometryPipeline)
+        : m_core{aCore}, m_trianglePipeline{aTrianglePipeline}, m_geometryPipeline{aGeometryPipeline}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -21,13 +22,25 @@ namespace soge
         bufferDesc.debugName = "SOGE triangle entity constant buffer";
         m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
 
-        SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity...");
-        nvrhi::BindingSetDesc bindingSetDesc{};
-        bindingSetDesc.trackLiveness = true;
-        bindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
+        {
+            SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity (triangle pipeline)...");
+            nvrhi::BindingSetDesc triangleBindingSetDesc{};
+            triangleBindingSetDesc.trackLiveness = true;
+            triangleBindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
 
-        const auto bindingLayout = aPipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
-        m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, bindingLayout);
+            const auto triangleBindingLayout = aTrianglePipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
+            m_nvrhiTriangleBindingSet = device.createBindingSet(triangleBindingSetDesc, triangleBindingLayout);
+        }
+
+        {
+            SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity (geometry pipeline)...");
+            nvrhi::BindingSetDesc geometryBindingSetDesc{};
+            geometryBindingSetDesc.trackLiveness = true;
+            geometryBindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
+
+            const auto geometryBindingLayout = aGeometryPipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
+            m_nvrhiGeometryBindingSet = device.createBindingSet(geometryBindingSetDesc, geometryBindingLayout);
+        }
     }
 
     Transform& TriangleEntity::GetTransform()
@@ -106,27 +119,52 @@ namespace soge
         core.ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet()
+    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet(TriangleTag)
     {
-        return m_nvrhiBindingSet;
+        return m_nvrhiTriangleBindingSet;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer()
+    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer(TriangleTag)
     {
         return m_nvrhiConstantBuffer;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer()
+    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer(TriangleTag)
     {
         return m_nvrhiVertexBuffer;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer()
+    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(TriangleTag)
     {
         return m_nvrhiIndexBuffer;
     }
 
-    glm::mat4x4 TriangleEntity::GetWorldMatrix()
+    glm::mat4x4 TriangleEntity::GetWorldMatrix(TriangleTag)
+    {
+        return m_transform.WorldMatrix();
+    }
+
+    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet(GeometryTag)
+    {
+        return m_nvrhiGeometryBindingSet;
+    }
+
+    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer(GeometryTag)
+    {
+        return m_nvrhiConstantBuffer;
+    }
+
+    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer(GeometryTag)
+    {
+        return m_nvrhiVertexBuffer;
+    }
+
+    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(GeometryTag)
+    {
+        return m_nvrhiIndexBuffer;
+    }
+
+    glm::mat4x4 TriangleEntity::GetWorldMatrix(GeometryTag)
     {
         return m_transform.WorldMatrix();
     }

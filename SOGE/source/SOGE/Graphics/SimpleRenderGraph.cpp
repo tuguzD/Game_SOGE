@@ -5,16 +5,18 @@
 
 namespace soge
 {
-    SimpleRenderGraph::SimpleRenderGraph(GraphicsCore& aCore, FinalGraphicsRenderPass& aFinalRenderPass,
-                                         GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                         TriangleGraphicsPipeline& aTrianglePipeline)
-        : RenderGraph{aCore}, m_core{aCore}, m_finalRenderPass{aFinalRenderPass},
-          m_geometryRenderPass{aGeometryRenderPass}, m_trianglePipeline{aTrianglePipeline}
+    SimpleRenderGraph::SimpleRenderGraph(GraphicsCore& aCore, TriangleGraphicsPipeline& aTrianglePipeline,
+                                         GeometryGraphicsPipeline& aGeometryPipeline)
+        : RenderGraph{aCore}, m_core{aCore}, m_trianglePipeline{aTrianglePipeline},
+          m_geometryPipeline{aGeometryPipeline}
     {
     }
 
     void SimpleRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities)
     {
+        const auto geometryCommandLists = m_geometryPipeline.get().Execute(aViewport, aCamera, aEntities);
+        m_core.get().ExecuteCommandLists(geometryCommandLists, nvrhi::CommandQueue::Graphics);
+
         const auto triangleCommandLists = m_trianglePipeline.get().Execute(aViewport, aCamera, aEntities);
         m_core.get().ExecuteCommandLists(triangleCommandLists, nvrhi::CommandQueue::Graphics);
     }

@@ -92,7 +92,7 @@ workspace "SOGE"
             shadermake
             {
                 platform = shadermake_platform.DXIL,
-                config = "%{!wks.location}/SOGE/resources/shaders/simple.shadermake",
+                config = "%{!wks.location}/SOGE/resources/shaders/config.shadermake",
                 output = "%{!wks.location}/GAME/resources/shaders"
             }
         }
