@@ -1,9 +1,9 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/GeometryGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
 
-#include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
+#include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 
 #include <nvrhi/utils.h>
 

@@ -1,7 +1,7 @@
-﻿#ifndef SOGE_GRAPHICS_GEOMETRYGRAPHICSPIPELINE_HPP
-#define SOGE_GRAPHICS_GEOMETRYGRAPHICSPIPELINE_HPP
+﻿#ifndef SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP
+#define SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP
 
-#include "SOGE/Graphics/GeometryGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
@@ -90,4 +90,4 @@ namespace soge
 SOGE_DI_REGISTER_NS(soge, GeometryGraphicsPipeline,
                     df::Single<GeometryGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass>)
 
-#endif // SOGE_GRAPHICS_GEOMETRYGRAPHICSPIPELINE_HPP
+#endif // SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP

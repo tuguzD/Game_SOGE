@@ -2,7 +2,7 @@
 #define SOGE_GRAPHICS_GRAPHICSCORE_HPP
 
 #include "SOGE/DI/Dependency.hpp"
-#include "SOGE/Graphics/ExecuteCommandLists.hpp"
+#include "SOGE/Graphics/Utils/ExecuteCommandLists.hpp"
 #include "SOGE/Math/Camera.hpp"
 
 #include <EASTL/functional.h>

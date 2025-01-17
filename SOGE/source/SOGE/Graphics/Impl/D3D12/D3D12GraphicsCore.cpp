@@ -6,8 +6,8 @@
 #include "SOGE/Graphics/Impl/D3D12/D3D12GraphicsSwapchain.hpp"
 
 #include "SOGE/Graphics/Exceptions/NRIException.hpp"
-#include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
+#include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 #include "SOGE/Utils/PreprocessorHelpers.hpp"
 
 #include <Extensions/NRIWrapperD3D12.h>

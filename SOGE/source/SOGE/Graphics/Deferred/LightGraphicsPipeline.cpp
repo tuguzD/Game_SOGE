@@ -1,9 +1,9 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/LightGraphicsPipeline.hpp"
+#include "SOGE/Graphics/Deferred/LightGraphicsPipeline.hpp"
 
-#include "SOGE/Graphics/GetCompiledShaderPath.hpp"
-#include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
+#include "SOGE/Graphics/Utils/GetCompiledShaderPath.hpp"
+#include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 
 #include <fstream>
 

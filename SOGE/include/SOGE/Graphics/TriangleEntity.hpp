@@ -1,7 +1,7 @@
 ﻿#ifndef SOGE_GRAPHICS_TRIANGLEENTITY_HPP
 #define SOGE_GRAPHICS_TRIANGLEENTITY_HPP
 
-#include "SOGE/Graphics/GeometryGraphicsPipeline.hpp"
+#include "SOGE/Graphics/Deferred/GeometryGraphicsPipeline.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
 
 

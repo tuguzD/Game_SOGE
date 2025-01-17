@@ -2,7 +2,7 @@
 
 #include "SOGE/Graphics/TriangleEntity.hpp"
 
-#include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
+#include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 
 
 namespace soge

@@ -1,23 +1,23 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/SimpleRenderGraph.hpp"
+#include "SOGE/Graphics/Deferred/DeferredRenderGraph.hpp"
 
-#include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
+#include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 
 
 namespace soge
 {
-    SimpleRenderGraph::SimpleRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
-                                         FinalGraphicsRenderPass& aFinalPass,
-                                         GeometryGraphicsPipeline& aGeometryPipeline,
-                                         LightGraphicsPipeline& aLightPipeline)
+    DeferredRenderGraph::DeferredRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
+                                             FinalGraphicsRenderPass& aFinalPass,
+                                             GeometryGraphicsPipeline& aGeometryPipeline,
+                                             LightGraphicsPipeline& aLightPipeline)
         : RenderGraph{aCore}, m_core{aCore}, m_geometryPass{aGeometryPass}, m_finalPass{aFinalPass},
           m_geometryPipeline{aGeometryPipeline}, m_lightPipeline{aLightPipeline}
     {
     }
 
-    void SimpleRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities)
+    void DeferredRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities)
     {
         GraphicsCore& core = m_core;
         nvrhi::IDevice& device = core.GetRawDevice();

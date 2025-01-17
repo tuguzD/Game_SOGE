@@ -5,8 +5,8 @@
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
+#include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
-#include <SOGE/Graphics/SimpleRenderGraph.hpp>
 #include <SOGE/Graphics/TriangleEntity.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
@@ -127,7 +127,7 @@ namespace soge_game
 
         graphicsModule->SetRenderTarget(window);
 
-        auto& renderGraph = container.Provide<soge::SimpleRenderGraph>();
+        auto& renderGraph = container.Provide<soge::DeferredRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
         constexpr std::size_t gridSize = 3;

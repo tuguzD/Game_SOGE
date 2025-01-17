@@ -1,5 +1,5 @@
-﻿#ifndef SOGE_GRAPHICS_GETCOMPILEDSHADERPATH_HPP
-#define SOGE_GRAPHICS_GETCOMPILEDSHADERPATH_HPP
+﻿#ifndef SOGE_GRAPHICS_UTILS_GETCOMPILEDSHADERPATH_HPP
+#define SOGE_GRAPHICS_UTILS_GETCOMPILEDSHADERPATH_HPP
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
 
@@ -13,4 +13,4 @@ namespace soge
                                                 eastl::string_view aEntryName = "");
 }
 
-#endif // SOGE_GRAPHICS_GETCOMPILEDSHADERPATH_HPP
+#endif // SOGE_GRAPHICS_UTILS_GETCOMPILEDSHADERPATH_HPP

@@ -1,8 +1,8 @@
-﻿#ifndef SOGE_GRAPHICS_LIGHTGRAPHICSPIPELINE_HPP
-#define SOGE_GRAPHICS_LIGHTGRAPHICSPIPELINE_HPP
+﻿#ifndef SOGE_GRAPHICS_DEFERRED_LIGHTGRAPHICSPIPELINE_HPP
+#define SOGE_GRAPHICS_DEFERRED_LIGHTGRAPHICSPIPELINE_HPP
 
+#include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
-#include "SOGE/Graphics/GeometryGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
 
@@ -58,4 +58,4 @@ SOGE_DI_REGISTER_NS(
     soge, LightGraphicsPipeline,
     df::Single<LightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass>)
 
-#endif // SOGE_GRAPHICS_LIGHTGRAPHICSPIPELINE_HPP
+#endif // SOGE_GRAPHICS_DEFERRED_LIGHTGRAPHICSPIPELINE_HPP

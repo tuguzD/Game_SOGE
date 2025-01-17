@@ -1,8 +1,8 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/GeometryGraphicsPipeline.hpp"
+#include "SOGE/Graphics/Deferred/GeometryGraphicsPipeline.hpp"
 
-#include "SOGE/Graphics/GetCompiledShaderPath.hpp"
+#include "SOGE/Graphics/Utils/GetCompiledShaderPath.hpp"
 
 #include <fstream>
 

@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/GetCompiledShaderPath.hpp"
+#include "SOGE/Graphics/Utils/GetCompiledShaderPath.hpp"
 
 
 namespace soge
