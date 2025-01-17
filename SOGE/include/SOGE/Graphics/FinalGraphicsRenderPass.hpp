@@ -4,7 +4,6 @@
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsRenderPass.hpp"
 
-#include <EASTL/functional.h>
 #include <EASTL/vector.h>
 
 

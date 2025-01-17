@@ -6,8 +6,10 @@
 namespace soge
 {
     SimpleRenderGraph::SimpleRenderGraph(GraphicsCore& aCore, FinalGraphicsRenderPass& aFinalRenderPass,
+                                         GeometryGraphicsRenderPass& aGeometryRenderPass,
                                          TriangleGraphicsPipeline& aTrianglePipeline)
-        : RenderGraph{aCore}, m_core{aCore}, m_finalRenderPass{aFinalRenderPass}, m_trianglePipeline{aTrianglePipeline}
+        : RenderGraph{aCore}, m_core{aCore}, m_finalRenderPass{aFinalRenderPass},
+          m_geometryRenderPass{aGeometryRenderPass}, m_trianglePipeline{aTrianglePipeline}
     {
     }
 

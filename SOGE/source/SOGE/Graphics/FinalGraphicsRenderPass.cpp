@@ -3,7 +3,6 @@
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 
 #include "SOGE/Graphics/GraphicsCommandListGuard.hpp"
-#include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsSwapchain.hpp"
 
 #include <nvrhi/utils.h>
@@ -19,7 +18,7 @@ namespace soge
         assert(!swapChainTextures.empty());
         const auto& swapChainTextureDesc = swapChainTextures[0].get().getDesc();
 
-        SOGE_INFO_LOG("Creating NVRHI depth texture...");
+        SOGE_INFO_LOG("Creating NVRHI depth texture for final render pass...");
         nvrhi::TextureDesc nvrhiDepthTextureDesc{};
         nvrhiDepthTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
         nvrhiDepthTextureDesc.width = swapChainTextureDesc.width;
@@ -32,7 +31,7 @@ namespace soge
         nvrhiDepthTextureDesc.clearValue = nvrhi::Color{1.0f, 0.0f, 0.0f, 0.0f};
         nvrhiDepthTextureDesc.initialState = nvrhi::ResourceStates::DepthWrite;
         nvrhiDepthTextureDesc.keepInitialState = true;
-        nvrhiDepthTextureDesc.debugName = "SOGE depth texture";
+        nvrhiDepthTextureDesc.debugName = "SOGE final render pass depth texture";
 
         const nvrhi::FormatSupport requiredDepthFeatures =
             nvrhi::FormatSupport::Texture | nvrhi::FormatSupport::DepthStencil | nvrhi::FormatSupport::ShaderLoad;
@@ -52,7 +51,7 @@ namespace soge
         {
             nvrhi::ITexture* nvrhiColorTexture = &swapChainTextures[index].get();
 
-            SOGE_INFO_LOG("Creating NVRHI framebuffer (frame {})...", index);
+            SOGE_INFO_LOG("Creating NVRHI framebuffer (frame {}) for final render pass...", index);
             nvrhi::FramebufferDesc framebufferDesc{};
             framebufferDesc.addColorAttachment(nvrhiColorTexture);
             framebufferDesc.setDepthAttachment(nvrhiDepthTexture);
@@ -85,7 +84,7 @@ namespace soge
     {
         if (!m_nvrhiFramebuffers.empty())
         {
-            SOGE_INFO_LOG("Destroying NVRHI framebuffers...");
+            SOGE_INFO_LOG("Destroying NVRHI framebuffers of final render pass...");
             m_nvrhiFramebuffers.clear();
         }
     }
