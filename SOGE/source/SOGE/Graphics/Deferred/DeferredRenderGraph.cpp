@@ -46,6 +46,11 @@ namespace soge
             GraphicsCommandListGuard commandList{*lightCommandList};
 
             m_finalPass.get().ClearFramebuffer(commandList);
+            {
+                const auto destDepthTexture = m_finalPass.get().GetFramebuffer().getDesc().depthAttachment.texture;
+                const auto srcDepthTexture = m_geometryPass.get().GetFramebuffer().getDesc().depthAttachment.texture;
+                commandList->copyTexture(destDepthTexture, {}, srcDepthTexture, {});
+            }
 
             LightGraphicsPipeline::Entity entity{};
             m_lightPipeline.get().Execute(aViewport, aCamera, entity, commandList);
