@@ -1,10 +1,7 @@
 ﻿#ifndef SOGE_GRAPHICS_RENDERGRAPH_HPP
 #define SOGE_GRAPHICS_RENDERGRAPH_HPP
 
-#include "SOGE/DI/Dependency.hpp"
-
-#include <EASTL/functional.h>
-#include <EASTL/span.h>
+#include "SOGE/Graphics/GraphicsCore.hpp"
 
 
 namespace soge
@@ -25,8 +22,7 @@ namespace soge
 
         constexpr virtual ~RenderGraph() = default;
 
-        using EntityRef = eastl::reference_wrapper<GraphicsEntity>;
-        using Entities = eastl::span<EntityRef>;
+        using Entities = GraphicsCore::Entities;
 
         constexpr virtual void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) = 0;
     };

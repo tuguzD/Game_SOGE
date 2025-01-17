@@ -96,24 +96,14 @@ namespace soge
         return *m_nvrhiFramebuffers[currentFrameIndex];
     }
 
-    nvrhi::CommandListHandle FinalGraphicsRenderPass::CreateClearFramebufferCommandList()
+    void FinalGraphicsRenderPass::ClearFramebuffer(nvrhi::ICommandList& aCommandList)
     {
-        nvrhi::CommandListParameters commandListDesc{};
-        commandListDesc.enableImmediateExecution = false;
-
-        nvrhi::IDevice& device = m_core.get().GetRawDevice();
-        const nvrhi::CommandListHandle clearCommandList = device.createCommandList(commandListDesc);
+        nvrhi::IFramebuffer& currentFramebuffer = GetFramebuffer();
+        const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer.getDesc();
+        for (std::uint32_t index = 0; index < framebufferDesc.colorAttachments.size(); index++)
         {
-            GraphicsCommandListGuard commandList{*clearCommandList};
-
-            nvrhi::IFramebuffer& currentFramebuffer = GetFramebuffer();
-            const nvrhi::FramebufferDesc& framebufferDesc = currentFramebuffer.getDesc();
-            for (std::uint32_t index = 0; index < framebufferDesc.colorAttachments.size(); index++)
-            {
-                nvrhi::utils::ClearColorAttachment(commandList, &currentFramebuffer, index, nvrhi::Color{});
-            }
-            nvrhi::utils::ClearDepthStencilAttachment(commandList, &currentFramebuffer, 1.0f, 0);
+            nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, index, nvrhi::Color{});
         }
-        return clearCommandList;
+        nvrhi::utils::ClearDepthStencilAttachment(&aCommandList, &currentFramebuffer, 1.0f, 0);
     }
 }

@@ -1,20 +1,14 @@
 ﻿#ifndef SOGE_GRAPHICS_TRIANGLEENTITY_HPP
 #define SOGE_GRAPHICS_TRIANGLEENTITY_HPP
 
-#include "SOGE/DI/Dependency.hpp"
-#include "SOGE/Graphics/GraphicsEntity.hpp"
 #include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
-
-#include <EASTL/span.h>
 
 
 namespace soge
 {
-    class TriangleEntity : public GraphicsEntity
+    class TriangleEntity : public TriangleGraphicsPipeline::Entity
     {
     private:
-        using ConstantBuffer = TriangleGraphicsPipeline::ConstantBuffer;
-
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<TriangleGraphicsPipeline> m_pipeline;
 
@@ -26,11 +20,7 @@ namespace soge
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
-        using Vertex = TriangleGraphicsPipeline::Vertex;
-        using Vertices = eastl::span<const Vertex>;
-
         using Index = std::uint32_t;
-        using Indices = eastl::span<const Index>;
 
         explicit TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aPipeline);
 
@@ -39,12 +29,23 @@ namespace soge
         [[nodiscard]]
         const Transform& GetTransform() const;
 
+        using Vertices = eastl::span<const Vertex>;
         void UpdateVertices(Vertices aVertices);
+
+        using Indices = eastl::span<const Index>;
         void UpdateIndices(Indices aIndices);
 
         [[nodiscard]]
-        nvrhi::CommandListHandle Update(const nvrhi::Viewport& aViewport, const Camera& aCamera,
-                                        GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline) override;
+        nvrhi::BindingSetHandle GetBindingSet() override;
+        [[nodiscard]]
+        nvrhi::BufferHandle GetConstantBuffer() override;
+        [[nodiscard]]
+        nvrhi::BufferHandle GetVertexBuffer() override;
+        [[nodiscard]]
+        nvrhi::BufferHandle GetIndexBuffer() override;
+
+        [[nodiscard]]
+        glm::mat4x4 GetWorldMatrix() override;
     };
 }
 

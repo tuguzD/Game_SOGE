@@ -2,9 +2,6 @@
 
 #include "SOGE/Graphics/SimpleRenderGraph.hpp"
 
-#include "SOGE/Graphics/GraphicsEntity.hpp"
-#include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
-
 
 namespace soge
 {
@@ -16,18 +13,7 @@ namespace soge
 
     void SimpleRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities)
     {
-        const auto clearCommandList = m_finalRenderPass.get().CreateClearFramebufferCommandList();
-
-        m_commandLists.reserve(aEntities.size() + 1);
-        m_commandLists.emplace_back(clearCommandList);
-        for (const auto& entity : aEntities)
-        {
-            auto commandList = entity.get().Update(aViewport, aCamera, m_finalRenderPass, m_trianglePipeline);
-            m_commandLists.emplace_back(commandList);
-        }
-
-        m_core.get().ExecuteCommandLists(m_commandLists, nvrhi::CommandQueue::Graphics);
-
-        m_commandLists.clear();
+        const auto triangleCommandLists = m_trianglePipeline.get().Execute(aViewport, aCamera, aEntities);
+        m_core.get().ExecuteCommandLists(triangleCommandLists, nvrhi::CommandQueue::Graphics);
     }
 }

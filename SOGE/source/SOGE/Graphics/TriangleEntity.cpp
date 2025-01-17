@@ -106,77 +106,28 @@ namespace soge
         core.ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    nvrhi::CommandListHandle TriangleEntity::Update(const nvrhi::Viewport& aViewport, const Camera& aCamera,
-                                                    GraphicsRenderPass& aRenderPass, GraphicsPipeline& aPipeline)
+    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet()
     {
-        // check if render passes are the same
-        if (&aRenderPass != &m_pipeline.get().GetRenderPass())
-        {
-            return {};
-        }
+        return m_nvrhiBindingSet;
+    }
 
-        // check for pipeline framebuffer compatibility
-        if (aPipeline.GetGraphicsPipeline().getFramebufferInfo() !=
-            m_pipeline.get().GetGraphicsPipeline().getFramebufferInfo())
-        {
-            return {};
-        }
+    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer()
+    {
+        return m_nvrhiConstantBuffer;
+    }
 
-        nvrhi::CommandListParameters commandListDesc{};
-        commandListDesc.enableImmediateExecution = false;
+    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer()
+    {
+        return m_nvrhiVertexBuffer;
+    }
 
-        nvrhi::IDevice& device = m_core.get().GetRawDevice();
-        const nvrhi::CommandListHandle drawCommandList = device.createCommandList(commandListDesc);
-        {
-            GraphicsCommandListGuard commandList{*drawCommandList};
+    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer()
+    {
+        return m_nvrhiIndexBuffer;
+    }
 
-            const ConstantBuffer constantBuffer{
-                .m_modelViewProjection =
-                    aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix() * m_transform.WorldMatrix(),
-            };
-            commandList->writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
-
-            nvrhi::GraphicsState graphicsState{};
-            graphicsState.pipeline = &aPipeline.GetGraphicsPipeline();
-            graphicsState.framebuffer = &aRenderPass.GetFramebuffer();
-            graphicsState.bindings = {m_nvrhiBindingSet};
-            if (m_nvrhiVertexBuffer != nullptr)
-            {
-                const nvrhi::VertexBufferBinding vertexBufferBinding{
-                    .buffer = m_nvrhiVertexBuffer,
-                    .slot = 0,
-                    .offset = 0,
-                };
-                graphicsState.addVertexBuffer(vertexBufferBinding);
-            }
-            if (m_nvrhiIndexBuffer != nullptr)
-            {
-                graphicsState.indexBuffer = nvrhi::IndexBufferBinding{
-                    .buffer = m_nvrhiIndexBuffer,
-                    .format = nvrhi::Format::R32_UINT,
-                    .offset = 0,
-                };
-            }
-            graphicsState.viewport.addViewportAndScissorRect(aViewport);
-            commandList->setGraphicsState(graphicsState);
-
-            nvrhi::DrawArguments drawArguments{};
-            if (m_nvrhiIndexBuffer != nullptr)
-            {
-                const auto& desc = m_nvrhiIndexBuffer->getDesc();
-                drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(Index));
-
-                commandList->drawIndexed(drawArguments);
-            }
-            else if (m_nvrhiVertexBuffer != nullptr)
-            {
-                const auto& desc = m_nvrhiVertexBuffer->getDesc();
-                drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(Vertex));
-
-                commandList->draw(drawArguments);
-            }
-        }
-
-        return drawCommandList;
+    glm::mat4x4 TriangleEntity::GetWorldMatrix()
+    {
+        return m_transform.WorldMatrix();
     }
 }

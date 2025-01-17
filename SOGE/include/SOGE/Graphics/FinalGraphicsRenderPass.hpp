@@ -31,11 +31,10 @@ namespace soge
         // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
         void swap(FinalGraphicsRenderPass& aOther) noexcept;
 
-        [[nodiscard]]
-        nvrhi::IFramebuffer& GetFramebuffer() override;
+        void ClearFramebuffer(nvrhi::ICommandList& aCommandList);
 
         [[nodiscard]]
-        nvrhi::CommandListHandle CreateClearFramebufferCommandList();
+        nvrhi::IFramebuffer& GetFramebuffer() override;
     };
 }
 

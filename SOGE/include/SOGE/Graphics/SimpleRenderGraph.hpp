@@ -16,8 +16,6 @@ namespace soge
         eastl::reference_wrapper<FinalGraphicsRenderPass> m_finalRenderPass;
         eastl::reference_wrapper<TriangleGraphicsPipeline> m_trianglePipeline;
 
-        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
-
     public:
         explicit SimpleRenderGraph(GraphicsCore& aCore, FinalGraphicsRenderPass& aFinalRenderPass,
                                    TriangleGraphicsPipeline& aTrianglePipeline);

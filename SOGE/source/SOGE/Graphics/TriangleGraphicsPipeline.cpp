@@ -51,14 +51,14 @@ namespace soge
             nvrhi::VertexAttributeDesc{
                 .name = "position",
                 .format = nvrhi::Format::RGB32_FLOAT,
-                .offset = offsetof(Vertex, m_position),
-                .elementStride = sizeof(Vertex),
+                .offset = offsetof(Entity::Vertex, m_position),
+                .elementStride = sizeof(Entity::Vertex),
             },
             nvrhi::VertexAttributeDesc{
                 .name = "color",
                 .format = nvrhi::Format::RGBA32_FLOAT,
-                .offset = offsetof(Vertex, m_color),
-                .elementStride = sizeof(Vertex),
+                .offset = offsetof(Entity::Vertex, m_color),
+                .elementStride = sizeof(Entity::Vertex),
             },
         };
         m_nvrhiInputLayout = nvrhiDevice.createInputLayout(vertexAttributeDescArray.data(),
@@ -108,6 +108,8 @@ namespace soge
 
     TriangleGraphicsPipeline::~TriangleGraphicsPipeline()
     {
+        m_commandLists.clear();
+
         SOGE_INFO_LOG("Destroying NVRHI simple pipeline...");
         m_nvrhiGraphicsPipeline = nullptr;
         m_nvrhiBindingLayout = nullptr;
@@ -116,13 +118,88 @@ namespace soge
         m_nvrhiVertexShader = nullptr;
     }
 
-    FinalGraphicsRenderPass& TriangleGraphicsPipeline::GetRenderPass() noexcept
-    {
-        return m_renderPass.get();
-    }
-
     nvrhi::IGraphicsPipeline& TriangleGraphicsPipeline::GetGraphicsPipeline() noexcept
     {
         return *m_nvrhiGraphicsPipeline;
+    }
+
+    auto TriangleGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                                           const Entities aEntities) -> CommandLists
+    {
+        m_commandLists.clear();
+
+        nvrhi::CommandListParameters commandListDesc{};
+        commandListDesc.enableImmediateExecution = false;
+
+        nvrhi::IDevice& device = m_core.get().GetRawDevice();
+        const nvrhi::CommandListHandle drawCommandList = device.createCommandList(commandListDesc);
+
+        {
+            GraphicsCommandListGuard commandList{*drawCommandList};
+
+            FinalGraphicsRenderPass& renderPass = m_renderPass;
+            renderPass.ClearFramebuffer(commandList);
+
+            for (auto&& entityRef : aEntities)
+            {
+                const auto entity = dynamic_cast<Entity*>(&entityRef.get());
+                if (entity == nullptr)
+                {
+                    continue;
+                }
+
+                const Entity::ConstantBuffer constantBuffer{
+                    .m_modelViewProjection =
+                        aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix() * entity->GetWorldMatrix(),
+                };
+                commandList->writeBuffer(entity->GetConstantBuffer(), &constantBuffer, sizeof(constantBuffer));
+
+                auto vertexBuffer = entity->GetVertexBuffer();
+                auto indexBuffer = entity->GetIndexBuffer();
+
+                nvrhi::GraphicsState graphicsState{};
+                graphicsState.pipeline = &GetGraphicsPipeline();
+                graphicsState.framebuffer = &renderPass.GetFramebuffer();
+                graphicsState.bindings = {entity->GetBindingSet()};
+                if (vertexBuffer != nullptr)
+                {
+                    const nvrhi::VertexBufferBinding vertexBufferBinding{
+                        .buffer = vertexBuffer,
+                        .slot = 0,
+                        .offset = 0,
+                    };
+                    graphicsState.addVertexBuffer(vertexBufferBinding);
+                }
+                if (indexBuffer != nullptr)
+                {
+                    graphicsState.indexBuffer = nvrhi::IndexBufferBinding{
+                        .buffer = indexBuffer,
+                        .format = nvrhi::Format::R32_UINT,
+                        .offset = 0,
+                    };
+                }
+                graphicsState.viewport.addViewportAndScissorRect(aViewport);
+                commandList->setGraphicsState(graphicsState);
+
+                nvrhi::DrawArguments drawArguments{};
+                if (indexBuffer != nullptr)
+                {
+                    const auto& desc = indexBuffer->getDesc();
+                    drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(Entity::Index));
+
+                    commandList->drawIndexed(drawArguments);
+                }
+                else if (vertexBuffer != nullptr)
+                {
+                    const auto& desc = vertexBuffer->getDesc();
+                    drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(Entity::Vertex));
+
+                    commandList->draw(drawArguments);
+                }
+            }
+        }
+
+        m_commandLists.push_back(drawCommandList);
+        return m_commandLists;
     }
 }

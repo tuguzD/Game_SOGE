@@ -3,10 +3,8 @@
 
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
+#include "SOGE/Graphics/GraphicsEntity.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
-
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
 
 
 namespace soge
@@ -23,16 +21,36 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
 
-    public:
-        struct ConstantBuffer
-        {
-            glm::mat4x4 m_modelViewProjection;
-        };
+        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
 
-        struct Vertex
+    public:
+        class Entity : public GraphicsEntity
         {
-            alignas(16) glm::vec3 m_position;
-            glm::vec4 m_color;
+        public:
+            struct ConstantBuffer
+            {
+                glm::mat4x4 m_modelViewProjection;
+            };
+
+            struct Vertex
+            {
+                alignas(16) glm::vec3 m_position;
+                glm::vec4 m_color;
+            };
+
+            using Index = std::uint32_t;
+
+            [[nodiscard]]
+            constexpr virtual nvrhi::BindingSetHandle GetBindingSet() = 0;
+            [[nodiscard]]
+            constexpr virtual nvrhi::BufferHandle GetConstantBuffer() = 0;
+            [[nodiscard]]
+            constexpr virtual nvrhi::BufferHandle GetVertexBuffer() = 0;
+            [[nodiscard]]
+            constexpr virtual nvrhi::BufferHandle GetIndexBuffer() = 0;
+
+            [[nodiscard]]
+            constexpr virtual glm::mat4x4 GetWorldMatrix() = 0;
         };
 
         explicit TriangleGraphicsPipeline(GraphicsCore& aCore, FinalGraphicsRenderPass& aRenderPass);
@@ -49,10 +67,10 @@ namespace soge
         void swap(TriangleGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
-        FinalGraphicsRenderPass& GetRenderPass() noexcept;
+        nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
 
         [[nodiscard]]
-        nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
+        CommandLists Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
     };
 }
 
