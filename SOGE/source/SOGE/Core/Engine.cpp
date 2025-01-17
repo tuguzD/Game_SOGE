@@ -3,21 +3,19 @@
 #include "SOGE/Core/Engine.hpp"
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
+#include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
-#include "SOGE/Utils/StringHelpers.hpp"
 #include "SOGE/Window/WindowModule.hpp"
 #include "SOGE/Sound/SoundModule.hpp"
 
 #include <ranges>
 
-#undef CreateWindow
-
 
 namespace soge
 {
-    UniquePtr<Engine> Engine::s_instance(nullptr);
-    std::mutex Engine::s_mutex;
-    thread_local std::atomic_bool Engine::s_mutexLocked;
+    UniquePtr<Engine> Engine::s_instance{nullptr};
+    std::mutex Engine::s_mutex{};
+    thread_local std::atomic_bool Engine::s_mutexLocked{};
 
     Engine* Engine::GetInstance()
     {
@@ -70,6 +68,7 @@ namespace soge
         CreateModule<InputModule>();
         CreateModule<SoundModule>();
         CreateModule<WindowModule>();
+        CreateModule<GraphicsModule>();
     }
 
     void Engine::Load(AccessTag)
@@ -104,10 +103,6 @@ namespace soge
         }
         Load(AccessTag{});
 
-        const auto [window, uuid] = GetModule<WindowModule>()->CreateWindow();
-        SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
-                      EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(), uuid.str());
-
         m_shutdownRequested = false;
         while (!m_shutdownRequested)
         {
@@ -125,6 +120,7 @@ namespace soge
                 layer->OnUpdate();
             }
 
+            GetModule<GraphicsModule>()->Update();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(60));
         }

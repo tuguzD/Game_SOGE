@@ -7,26 +7,26 @@ namespace soge
 {
     auto ModuleManager::begin() noexcept -> Iterator
     {
-        return Iterator{m_modulesOrder.begin(), this};
+        return Iterator{m_modulesOrder.begin(), *this};
     }
 
     auto ModuleManager::begin() const noexcept -> ConstIterator
     {
-        return ConstIterator{m_modulesOrder.begin(), this};
+        return ConstIterator{m_modulesOrder.begin(), *this};
     }
 
     auto ModuleManager::end() noexcept -> Iterator
     {
-        return Iterator{m_modulesOrder.end(), this};
+        return Iterator{m_modulesOrder.end(), *this};
     }
 
     auto ModuleManager::end() const noexcept -> ConstIterator
     {
-        return ConstIterator{m_modulesOrder.end(), this};
+        return ConstIterator{m_modulesOrder.end(), *this};
     }
 
-    ModuleManager::Iterator::Iterator(const KeyIter aKeyIter, ModuleManager* const aManager) noexcept
-        : m_keyIter(aKeyIter), m_manager(aManager)
+    ModuleManager::Iterator::Iterator(const KeyIter aKeyIter, ModuleManager& aManager) noexcept
+        : m_keyIter(aKeyIter), m_manager(&aManager)
     {
     }
 
@@ -70,8 +70,8 @@ namespace soge
         return temp;
     }
 
-    ModuleManager::ConstIterator::ConstIterator(const KeyIter aKeyIter, const ModuleManager* const aManager) noexcept
-        : m_keyIter(aKeyIter), m_manager(aManager)
+    ModuleManager::ConstIterator::ConstIterator(const KeyIter aKeyIter, const ModuleManager& aManager) noexcept
+        : m_keyIter(aKeyIter), m_manager(&aManager)
     {
     }
 
