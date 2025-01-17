@@ -1,4 +1,5 @@
 #include "GAME/Layers/MainGameLayer.hpp"
+#include "GAME/AppEntryPoint.hpp"
 
 
 namespace soge_game

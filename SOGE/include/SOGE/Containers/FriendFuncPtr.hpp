@@ -94,6 +94,11 @@ namespace soge
         {
             return (aTargetClass.*m_funcPtr)(std::forward<Args>(args)...);
         }
+
+        ReturnType Call(ClassType& aTargetClass, Args&... args) const
+        {
+            return (aTargetClass.*m_funcPtr)(std::forward<Args>(args)...);
+        }
     };
 }
 

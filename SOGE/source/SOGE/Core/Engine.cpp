@@ -6,6 +6,7 @@
 #include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
 #include "SOGE/Window/WindowModule.hpp"
+#include "SOGE/Sound/SoundModule.hpp"
 
 #include <ranges>
 
@@ -65,6 +66,7 @@ namespace soge
 
         CreateModule<EventModule>();
         CreateModule<InputModule>();
+        CreateModule<SoundModule>();
         CreateModule<WindowModule>();
         CreateModule<GraphicsModule>();
     }
@@ -108,6 +110,7 @@ namespace soge
             Timestep::CalculateDelta();
 
             GetModule<InputModule>()->Update();
+            GetModule<SoundModule>()->Update();
 
             const auto eventModule = GetModule<EventModule>();
             eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
@@ -118,6 +121,8 @@ namespace soge
             }
 
             GetModule<GraphicsModule>()->Update();
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
         }
 
         Unload(AccessTag{});

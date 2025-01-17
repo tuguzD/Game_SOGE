@@ -19,6 +19,12 @@
 [submodule "3rdparty/SDL/SDL"]
 	path = 3rdparty/SDL/SDL
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "3rdparty/FMOD/FMOD"]
+	path = 3rdparty/FMOD/FMOD
+	url = https://github.com/GaikanStudio/FMOD-Lib.git
+[submodule "3rdparty/cppfs/cppfs"]
+	path = 3rdparty/cppfs/cppfs
+	url = https://github.com/cginternals/cppfs.git
 [submodule "3rdparty/glm/glm"]
 	path = 3rdparty/glm/glm
 	url = https://github.com/g-truc/glm.git

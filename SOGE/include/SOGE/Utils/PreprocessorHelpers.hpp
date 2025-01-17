@@ -28,10 +28,14 @@
 /// END OF HELPERS FROM UNREAL ENGINE
 //////////////////////////////////
 
+#define SOGE_CONCAT_MACRO_AND_NAME(x, y) x##y
+#define SOGE_CONCAT_MACRO(x, y) SOGE_CONCAT_MACRO_AND_NAME(x, y)
+
 // NOLINTBEGIN(bugprone-macro-parentheses)
 #define SOGE_REL_COMPILED_IMPL_HEADER(LibName, Suffix) SOGE_STRINGIZE(SOGE_JOIN(Impl/LibName/LibName, Suffix))
 #define SOGE_ABS_COMPILED_IMPL_HEADER(LibName, IncludeDir, Suffix)                                                     \
     SOGE_STRINGIZE(SOGE_JOIN(IncludeDir, /SOGE_JOIN(Impl/LibName/LibName, Suffix)))
+#define SOGE_MAKE_IMPL_CLASS_FRIEND(LibName, ClassName) friend class SOGE_CONCAT_MACRO(LibName, ClassName)
 // NOLINTEND(bugprone-macro-parentheses)
 
 #define SOGE_REL_COMPILED_PLATFORM_HEADER(Suffix)                                                                      \
