@@ -37,6 +37,16 @@ namespace soge
         return narrow;
     }
 
+    std::string EANarrowToStd(const eastl::string& aNarrow)
+    {
+        return aNarrow.c_str();
+    }
+
+    std::wstring EAWideToStd(const eastl::wstring& aWide)
+    {
+        return aWide.c_str();
+    }
+
     eastl::wstring EAToWide(const eastl::string_view aNarrow)
     {
         eastl::wstring wide;

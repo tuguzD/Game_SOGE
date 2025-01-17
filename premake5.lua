@@ -15,6 +15,7 @@ workspace "SOGE"
         include "3rdparty/EASTL/premake5.lua"
         include "3rdparty/kangaru/premake5.lua"
         include "3rdparty/SDL/premake5.lua"
+        include "3rdparty/cppfs/premake5.lua"
         include "3rdparty/glm/premake5.lua"
     group ""
 
@@ -23,6 +24,7 @@ workspace "SOGE"
         kind "StaticLib"
         language "C++"
         cppdialect "C++20"
+        characterset "MBCS"
         staticruntime "on"
 
         targetdir("build/bin/" .. buildpattern .. "/%{prj.name}")
@@ -49,6 +51,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}",
             "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
             "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
@@ -58,15 +62,28 @@ workspace "SOGE"
             "_CRT_SECURE_NO_WARNINGS",
             "SPDLOG_WCHAR_TO_UTF8_SUPPORT",
 
-            "SOGE_INPUT_IMPL=SDL",
+            "SOGE_INPUT_IMPL=SDL", -- SDL
             "SOGE_WINDOW_IMPL=SDL",
-            "SOGE_SYSTEM_IMPL=SDL"
+            "SOGE_SOUND_IMPL=FMOD" -- FMOD/OAL
         }
 
         links
         {
             "EASTL",
-            "kangaru"
+            "kangaru",
+            "cppfs",
+
+            "%{wks.location}/%{Libraries.FMOD_WIN64_FSBANK_DLL}",
+            "%{wks.location}/%{Libraries.FMOD_WIN64_FSBANK}",
+            "%{wks.location}/%{Libraries.FMOD_WIN64_LIBFSVORBIS_DLL}",
+            "%{wks.location}/%{Libraries.FMOD_WIN64_OPUS_DLL}"
+        }
+
+        postbuildcommands
+        {
+            "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_FSBANK_DLL} %{wks.location}/GAME",
+            "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_LIBFSVORBIS_DLL} %{wks.location}/GAME",
+            "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_OPUS_DLL} %{wks.location}/GAME"
         }
 
         filter "system:windows"
@@ -89,14 +106,24 @@ workspace "SOGE"
 
             links 
             {
+                -- sdl
                 "%{wks.location}/%{Libraries.SDL_UCLIB_D}",
                 "%{wks.location}/%{Libraries.SDL3_DLL_D}",
-                "%{wks.location}/%{Libraries.SDL3_LIB_D}"
+                "%{wks.location}/%{Libraries.SDL3_LIB_D}",
+
+                -- fmod
+                "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D}",
+                "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_D}",
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D}",
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_D}"
             }
 
             postbuildcommands
             {
-                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME", -- For FMOD Studio 
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME"
             }
 
         filter "configurations:Release"
@@ -109,14 +136,23 @@ workspace "SOGE"
 
             links
             {
+                -- sdl
                 "%{wks.location}/%{Libraries.SDL_UCLIB_R}",
                 "%{wks.location}/%{Libraries.SDL3_DLL_R}",
-                "%{wks.location}/%{Libraries.SDL3_LIB_R}"
+                "%{wks.location}/%{Libraries.SDL3_LIB_R}",
+
+                -- fmod
+                "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R}",
+                "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_R}",
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R}",
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_R}"
             }
 
             postbuildcommands
             {
-                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME"
             }
 
 -----------------------
@@ -129,6 +165,7 @@ workspace "SOGE"
         language "C++"
         cppdialect "C++20"
         staticruntime "on"
+        characterset "MBCS"
 
         -- Executable will be placed in the root of application folder
         -- to have easier eaccess to game resources.
@@ -154,6 +191,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
             "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}",
             "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
             "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}"
         }
