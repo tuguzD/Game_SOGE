@@ -1,33 +1,36 @@
 ﻿#ifndef SOGE_GRAPHICS_GRAPHICSPIPELINE_HPP
 #define SOGE_GRAPHICS_GRAPHICSPIPELINE_HPP
 
-#include "SOGE/Graphics/GraphicsCore.hpp"
+#include <nvrhi/nvrhi.h>
 
 
 namespace soge
 {
-    class GraphicsPipeline
+    class GraphicsPipelineBase
     {
     public:
-        constexpr explicit GraphicsPipeline() = default;
+        constexpr explicit GraphicsPipelineBase() = default;
 
-        constexpr GraphicsPipeline(const GraphicsPipeline&) = delete;
-        constexpr GraphicsPipeline& operator=(const GraphicsPipeline&) = delete;
+        constexpr GraphicsPipelineBase(const GraphicsPipelineBase&) = delete;
+        constexpr GraphicsPipelineBase& operator=(const GraphicsPipelineBase&) = delete;
 
-        constexpr GraphicsPipeline(GraphicsPipeline&&) noexcept = default;
-        constexpr GraphicsPipeline& operator=(GraphicsPipeline&&) noexcept = default;
+        constexpr GraphicsPipelineBase(GraphicsPipelineBase&&) noexcept = default;
+        constexpr GraphicsPipelineBase& operator=(GraphicsPipelineBase&&) noexcept = default;
 
-        constexpr virtual ~GraphicsPipeline() = default;
+        constexpr virtual ~GraphicsPipelineBase() = default;
 
         [[nodiscard]]
         constexpr virtual nvrhi::IGraphicsPipeline& GetGraphicsPipeline() = 0;
+    };
 
-        using Entities = GraphicsCore::Entities;
-        using CommandLists = eastl::span<nvrhi::CommandListHandle>;
+    template <typename E>
+    class GraphicsPipeline : public GraphicsPipelineBase
+    {
+    public:
+        using Entity = E;
 
-        [[nodiscard]]
-        constexpr virtual CommandLists Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
-                                               Entities aEntities) = 0;
+        constexpr virtual void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
+                                       nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

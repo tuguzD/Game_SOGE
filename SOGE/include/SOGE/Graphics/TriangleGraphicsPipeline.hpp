@@ -8,7 +8,9 @@
 
 namespace soge
 {
-    class TriangleGraphicsPipeline : public GraphicsPipeline
+    class TriangleGraphicsPipelineEntity;
+
+    class TriangleGraphicsPipeline : public GraphicsPipeline<TriangleGraphicsPipelineEntity>
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
@@ -20,52 +22,7 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
 
-        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
-
     public:
-        class Entity
-        {
-        public:
-            struct Tag
-            {
-            };
-
-            struct ConstantBuffer
-            {
-                glm::mat4x4 m_modelViewProjection;
-            };
-
-            struct Vertex
-            {
-                alignas(16) glm::vec3 m_position;
-                glm::vec4 m_color;
-            };
-
-            using Index = std::uint32_t;
-
-            constexpr explicit Entity() noexcept = default;
-
-            constexpr Entity(const Entity&) = delete;
-            constexpr Entity& operator=(const Entity&) = delete;
-
-            constexpr Entity(Entity&&) noexcept = default;
-            constexpr Entity& operator=(Entity&&) noexcept = default;
-
-            constexpr virtual ~Entity() = default;
-
-            [[nodiscard]]
-            constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
-            [[nodiscard]]
-            constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
-            [[nodiscard]]
-            constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
-            [[nodiscard]]
-            constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
-
-            [[nodiscard]]
-            constexpr virtual glm::mat4x4 GetWorldMatrix(Tag) = 0;
-        };
-
         explicit TriangleGraphicsPipeline(GraphicsCore& aCore, FinalGraphicsRenderPass& aRenderPass);
 
         TriangleGraphicsPipeline(const TriangleGraphicsPipeline&) = delete;
@@ -82,8 +39,51 @@ namespace soge
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
 
+        void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
+                     nvrhi::ICommandList& aCommandList) override;
+    };
+
+    class TriangleGraphicsPipelineEntity
+    {
+    public:
+        struct Tag
+        {
+        };
+
+        struct ConstantBuffer
+        {
+            glm::mat4x4 m_modelViewProjection;
+        };
+
+        struct Vertex
+        {
+            alignas(16) glm::vec3 m_position;
+            glm::vec4 m_color;
+        };
+
+        using Index = std::uint32_t;
+
+        constexpr explicit TriangleGraphicsPipelineEntity() noexcept = default;
+
+        constexpr TriangleGraphicsPipelineEntity(const TriangleGraphicsPipelineEntity&) = delete;
+        constexpr TriangleGraphicsPipelineEntity& operator=(const TriangleGraphicsPipelineEntity&) = delete;
+
+        constexpr TriangleGraphicsPipelineEntity(TriangleGraphicsPipelineEntity&&) noexcept = default;
+        constexpr TriangleGraphicsPipelineEntity& operator=(TriangleGraphicsPipelineEntity&&) noexcept = default;
+
+        constexpr virtual ~TriangleGraphicsPipelineEntity() = default;
+
         [[nodiscard]]
-        CommandLists Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
+        constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
+        [[nodiscard]]
+        constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
+        [[nodiscard]]
+        constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
+        [[nodiscard]]
+        constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
+
+        [[nodiscard]]
+        constexpr virtual glm::mat4x4 GetWorldMatrix(Tag) = 0;
     };
 }
 

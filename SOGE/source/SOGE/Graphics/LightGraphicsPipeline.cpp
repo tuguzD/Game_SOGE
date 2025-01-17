@@ -135,8 +135,6 @@ namespace soge
 
     LightGraphicsPipeline::~LightGraphicsPipeline()
     {
-        m_commandLists.clear();
-
         m_nvrhiBindingSet = nullptr;
         m_nvrhiIndexBuffer = nullptr;
         m_nvrhiVertexBuffer = nullptr;
@@ -166,8 +164,6 @@ namespace soge
         swap(m_nvrhiVertexBuffer, aOther.m_nvrhiVertexBuffer);
         swap(m_nvrhiIndexBuffer, aOther.m_nvrhiIndexBuffer);
         swap(m_nvrhiBindingSet, aOther.m_nvrhiBindingSet);
-
-        swap(m_commandLists, aOther.m_commandLists);
     }
 
     nvrhi::IGraphicsPipeline& LightGraphicsPipeline::GetGraphicsPipeline()
@@ -175,52 +171,34 @@ namespace soge
         return *m_nvrhiGraphicsPipeline;
     }
 
-    auto LightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
-                                        const Entities aEntities) -> CommandLists
+    void LightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
+                                        nvrhi::ICommandList& aCommandList)
     {
-        m_commandLists.clear();
+        nvrhi::GraphicsState graphicsState{};
+        graphicsState.pipeline = &GetGraphicsPipeline();
+        graphicsState.framebuffer = &m_finalRenderPass.get().GetFramebuffer();
+        graphicsState.bindings = {m_nvrhiBindingSet};
 
-        nvrhi::CommandListParameters commandListDesc{};
-        commandListDesc.enableImmediateExecution = false;
+        const nvrhi::VertexBufferBinding vertexBufferBinding{
+            .buffer = m_nvrhiVertexBuffer,
+            .slot = 0,
+            .offset = 0,
+        };
+        graphicsState.addVertexBuffer(vertexBufferBinding);
 
-        nvrhi::IDevice& device = m_core.get().GetRawDevice();
-        const nvrhi::CommandListHandle drawCommandList = device.createCommandList(commandListDesc);
+        graphicsState.indexBuffer = nvrhi::IndexBufferBinding{
+            .buffer = m_nvrhiIndexBuffer,
+            .format = nvrhi::Format::R32_UINT,
+            .offset = 0,
+        };
 
-        {
-            GraphicsCommandListGuard commandList{*drawCommandList};
+        graphicsState.viewport.addViewportAndScissorRect(aViewport);
+        aCommandList.setGraphicsState(graphicsState);
 
-            FinalGraphicsRenderPass& renderPass = m_finalRenderPass;
-            renderPass.ClearFramebuffer(commandList);
+        nvrhi::DrawArguments drawArguments{};
+        const auto& desc = m_nvrhiIndexBuffer->getDesc();
+        drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(std::uint32_t));
 
-            nvrhi::GraphicsState graphicsState{};
-            graphicsState.pipeline = &GetGraphicsPipeline();
-            graphicsState.framebuffer = &renderPass.GetFramebuffer();
-            graphicsState.bindings = {m_nvrhiBindingSet};
-
-            const nvrhi::VertexBufferBinding vertexBufferBinding{
-                .buffer = m_nvrhiVertexBuffer,
-                .slot = 0,
-                .offset = 0,
-            };
-            graphicsState.addVertexBuffer(vertexBufferBinding);
-
-            graphicsState.indexBuffer = nvrhi::IndexBufferBinding{
-                .buffer = m_nvrhiIndexBuffer,
-                .format = nvrhi::Format::R32_UINT,
-                .offset = 0,
-            };
-
-            graphicsState.viewport.addViewportAndScissorRect(aViewport);
-            commandList->setGraphicsState(graphicsState);
-
-            nvrhi::DrawArguments drawArguments{};
-            const auto& desc = m_nvrhiIndexBuffer->getDesc();
-            drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(std::uint32_t));
-
-            commandList->drawIndexed(drawArguments);
-        }
-
-        m_commandLists.push_back(drawCommandList);
-        return m_commandLists;
+        aCommandList.drawIndexed(drawArguments);
     }
 }

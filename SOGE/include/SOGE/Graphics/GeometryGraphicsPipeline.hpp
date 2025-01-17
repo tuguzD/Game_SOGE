@@ -8,7 +8,9 @@
 
 namespace soge
 {
-    class GeometryGraphicsPipeline : public GraphicsPipeline
+    class GeometryGraphicsPipelineEntity;
+
+    class GeometryGraphicsPipeline : public GraphicsPipeline<GeometryGraphicsPipelineEntity>
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
@@ -20,52 +22,7 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
 
-        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
-
     public:
-        class Entity
-        {
-        public:
-            struct Tag
-            {
-            };
-
-            struct ConstantBuffer
-            {
-                glm::mat4x4 m_modelViewProjection;
-            };
-
-            struct Vertex
-            {
-                alignas(16) glm::vec3 m_position;
-                glm::vec4 m_color;
-            };
-
-            using Index = std::uint32_t;
-
-            constexpr explicit Entity() noexcept = default;
-
-            constexpr Entity(const Entity&) = delete;
-            constexpr Entity& operator=(const Entity&) = delete;
-
-            constexpr Entity(Entity&&) noexcept = default;
-            constexpr Entity& operator=(Entity&&) noexcept = default;
-
-            constexpr virtual ~Entity() = default;
-
-            [[nodiscard]]
-            constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
-            [[nodiscard]]
-            constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
-            [[nodiscard]]
-            constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
-            [[nodiscard]]
-            constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
-
-            [[nodiscard]]
-            constexpr virtual glm::mat4x4 GetWorldMatrix(Tag) = 0;
-        };
-
         explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass);
 
         GeometryGraphicsPipeline(const GeometryGraphicsPipeline&) = delete;
@@ -82,8 +39,51 @@ namespace soge
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
 
+        void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
+                     nvrhi::ICommandList& aCommandList) override;
+    };
+
+    class GeometryGraphicsPipelineEntity
+    {
+    public:
+        struct Tag
+        {
+        };
+
+        struct ConstantBuffer
+        {
+            glm::mat4x4 m_modelViewProjection;
+        };
+
+        struct Vertex
+        {
+            alignas(16) glm::vec3 m_position;
+            glm::vec4 m_color;
+        };
+
+        using Index = std::uint32_t;
+
+        constexpr explicit GeometryGraphicsPipelineEntity() noexcept = default;
+
+        constexpr GeometryGraphicsPipelineEntity(const GeometryGraphicsPipelineEntity&) = delete;
+        constexpr GeometryGraphicsPipelineEntity& operator=(const GeometryGraphicsPipelineEntity&) = delete;
+
+        constexpr GeometryGraphicsPipelineEntity(GeometryGraphicsPipelineEntity&&) noexcept = default;
+        constexpr GeometryGraphicsPipelineEntity& operator=(GeometryGraphicsPipelineEntity&&) noexcept = default;
+
+        constexpr virtual ~GeometryGraphicsPipelineEntity() = default;
+
         [[nodiscard]]
-        CommandLists Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
+        constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
+        [[nodiscard]]
+        constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
+        [[nodiscard]]
+        constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
+        [[nodiscard]]
+        constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
+
+        [[nodiscard]]
+        constexpr virtual glm::mat4x4 GetWorldMatrix(Tag) = 0;
     };
 }
 

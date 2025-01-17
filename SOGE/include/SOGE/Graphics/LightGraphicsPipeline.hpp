@@ -8,7 +8,9 @@
 
 namespace soge
 {
-    class LightGraphicsPipeline : public GraphicsPipeline
+    class LightGraphicsPipelineEntity;
+
+    class LightGraphicsPipeline : public GraphicsPipeline<LightGraphicsPipelineEntity>
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
@@ -24,8 +26,6 @@ namespace soge
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
-
-        eastl::vector<nvrhi::CommandListHandle> m_commandLists;
 
     public:
         explicit LightGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass,
@@ -45,8 +45,12 @@ namespace soge
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() override;
 
-        [[nodiscard]]
-        CommandLists Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
+        void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
+                     nvrhi::ICommandList& aCommandList) override;
+    };
+
+    class LightGraphicsPipelineEntity
+    {
     };
 }
 
