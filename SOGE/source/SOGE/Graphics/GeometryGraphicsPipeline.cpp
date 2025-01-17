@@ -115,6 +115,8 @@ namespace soge
         swap(m_nvrhiPixelShader, aOther.m_nvrhiPixelShader);
         swap(m_nvrhiBindingLayout, aOther.m_nvrhiBindingLayout);
         swap(m_nvrhiGraphicsPipeline, aOther.m_nvrhiGraphicsPipeline);
+
+        swap(m_commandLists, aOther.m_commandLists);
     }
 
     nvrhi::IGraphicsPipeline& GeometryGraphicsPipeline::GetGraphicsPipeline() noexcept
