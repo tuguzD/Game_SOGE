@@ -3,18 +3,14 @@
 
 #include "SOGE/Graphics/GeometryGraphicsPipeline.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
-#include "SOGE/Graphics/TriangleGraphicsPipeline.hpp"
 
 
 namespace soge
 {
-    class TriangleEntity : public GraphicsEntity,
-                           public TriangleGraphicsPipeline::Entity,
-                           public GeometryGraphicsPipeline::Entity
+    class TriangleEntity : public GraphicsEntity, public GeometryGraphicsPipeline::Entity
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
-        eastl::reference_wrapper<TriangleGraphicsPipeline> m_trianglePipeline;
         eastl::reference_wrapper<GeometryGraphicsPipeline> m_geometryPipeline;
 
         Transform m_transform;
@@ -23,16 +19,10 @@ namespace soge
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
 
-        nvrhi::BindingSetHandle m_nvrhiTriangleBindingSet;
-        nvrhi::BindingSetHandle m_nvrhiGeometryBindingSet;
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
-        using ConstantBuffer = TriangleGraphicsPipeline::Entity::ConstantBuffer;
-        using Vertex = TriangleGraphicsPipeline::Entity::Vertex;
-        using Index = TriangleGraphicsPipeline::Entity::Index;
-
-        explicit TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aTrianglePipeline,
-                                GeometryGraphicsPipeline& aGeometryPipeline);
+        explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aGeometryPipeline);
 
         [[nodiscard]]
         Transform& GetTransform();
@@ -45,35 +35,19 @@ namespace soge
         using Indices = eastl::span<const Index>;
         void UpdateIndices(Indices aIndices);
 
-        using TriangleTag = TriangleGraphicsPipeline::Entity::Tag;
-
         [[nodiscard]]
-        nvrhi::BindingSetHandle GetBindingSet(TriangleTag) override;
+        nvrhi::BindingSetHandle GetBindingSet(Tag) override;
         [[nodiscard]]
-        nvrhi::BufferHandle GetConstantBuffer(TriangleTag) override;
+        nvrhi::BufferHandle GetConstantBuffer(Tag) override;
         [[nodiscard]]
-        nvrhi::BufferHandle GetVertexBuffer(TriangleTag) override;
+        nvrhi::BufferHandle GetVertexBuffer(Tag) override;
         [[nodiscard]]
-        nvrhi::BufferHandle GetIndexBuffer(TriangleTag) override;
+        nvrhi::BufferHandle GetIndexBuffer(Tag) override;
         [[nodiscard]]
-        glm::mat4x4 GetWorldMatrix(TriangleTag) override;
-
-        using GeometryTag = GeometryGraphicsPipeline::Entity::Tag;
-
-        [[nodiscard]]
-        nvrhi::BindingSetHandle GetBindingSet(GeometryTag) override;
-        [[nodiscard]]
-        nvrhi::BufferHandle GetConstantBuffer(GeometryTag) override;
-        [[nodiscard]]
-        nvrhi::BufferHandle GetVertexBuffer(GeometryTag) override;
-        [[nodiscard]]
-        nvrhi::BufferHandle GetIndexBuffer(GeometryTag) override;
-        [[nodiscard]]
-        glm::mat4x4 GetWorldMatrix(GeometryTag) override;
+        glm::mat4x4 GetWorldMatrix(Tag) override;
     };
 }
 
-SOGE_DI_REGISTER_NS(soge, TriangleEntity,
-                    df::Factory<TriangleEntity, GraphicsCore, TriangleGraphicsPipeline, GeometryGraphicsPipeline>)
+SOGE_DI_REGISTER_NS(soge, TriangleEntity, df::Factory<TriangleEntity, GraphicsCore, GeometryGraphicsPipeline>)
 
 #endif // SOGE_GRAPHICS_TRIANGLEENTITY_HPP

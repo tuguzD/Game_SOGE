@@ -10,11 +10,10 @@ namespace soge
 {
     SimpleRenderGraph::SimpleRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
                                          FinalGraphicsRenderPass& aFinalPass,
-                                         TriangleGraphicsPipeline& aTrianglePipeline,
                                          GeometryGraphicsPipeline& aGeometryPipeline,
                                          LightGraphicsPipeline& aLightPipeline)
         : RenderGraph{aCore}, m_core{aCore}, m_geometryPass{aGeometryPass}, m_finalPass{aFinalPass},
-          m_trianglePipeline{aTrianglePipeline}, m_geometryPipeline{aGeometryPipeline}, m_lightPipeline{aLightPipeline}
+          m_geometryPipeline{aGeometryPipeline}, m_lightPipeline{aLightPipeline}
     {
     }
 
@@ -41,9 +40,6 @@ namespace soge
             }
         }
         core.ExecuteCommandList(geometryCommandList, nvrhi::CommandQueue::Graphics);
-
-        // const auto triangleCommandLists = m_trianglePipeline.get().Execute(aViewport, aCamera, aEntities);
-        // m_core.get().ExecuteCommandLists(triangleCommandLists, nvrhi::CommandQueue::Graphics);
 
         const nvrhi::CommandListHandle lightCommandList = device.createCommandList(commandListDesc);
         {

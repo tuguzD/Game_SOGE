@@ -7,9 +7,8 @@
 
 namespace soge
 {
-    TriangleEntity::TriangleEntity(GraphicsCore& aCore, TriangleGraphicsPipeline& aTrianglePipeline,
-                                   GeometryGraphicsPipeline& aGeometryPipeline)
-        : m_core{aCore}, m_trianglePipeline{aTrianglePipeline}, m_geometryPipeline{aGeometryPipeline}
+    TriangleEntity::TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aGeometryPipeline)
+        : m_core{aCore}, m_geometryPipeline{aGeometryPipeline}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -22,25 +21,13 @@ namespace soge
         bufferDesc.debugName = "SOGE triangle entity constant buffer";
         m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
 
-        {
-            SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity (triangle pipeline)...");
-            nvrhi::BindingSetDesc triangleBindingSetDesc{};
-            triangleBindingSetDesc.trackLiveness = true;
-            triangleBindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
+        SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity...");
+        nvrhi::BindingSetDesc geometryBindingSetDesc{};
+        geometryBindingSetDesc.trackLiveness = true;
+        geometryBindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
 
-            const auto triangleBindingLayout = aTrianglePipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
-            m_nvrhiTriangleBindingSet = device.createBindingSet(triangleBindingSetDesc, triangleBindingLayout);
-        }
-
-        {
-            SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity (geometry pipeline)...");
-            nvrhi::BindingSetDesc geometryBindingSetDesc{};
-            geometryBindingSetDesc.trackLiveness = true;
-            geometryBindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
-
-            const auto geometryBindingLayout = aGeometryPipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
-            m_nvrhiGeometryBindingSet = device.createBindingSet(geometryBindingSetDesc, geometryBindingLayout);
-        }
+        const auto geometryBindingLayout = aGeometryPipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
+        m_nvrhiBindingSet = device.createBindingSet(geometryBindingSetDesc, geometryBindingLayout);
     }
 
     Transform& TriangleEntity::GetTransform()
@@ -119,52 +106,27 @@ namespace soge
         core.ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet(TriangleTag)
+    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet(Tag)
     {
-        return m_nvrhiTriangleBindingSet;
+        return m_nvrhiBindingSet;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer(TriangleTag)
-    {
-        return m_nvrhiConstantBuffer;
-    }
-
-    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer(TriangleTag)
-    {
-        return m_nvrhiVertexBuffer;
-    }
-
-    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(TriangleTag)
-    {
-        return m_nvrhiIndexBuffer;
-    }
-
-    glm::mat4x4 TriangleEntity::GetWorldMatrix(TriangleTag)
-    {
-        return m_transform.WorldMatrix();
-    }
-
-    nvrhi::BindingSetHandle TriangleEntity::GetBindingSet(GeometryTag)
-    {
-        return m_nvrhiGeometryBindingSet;
-    }
-
-    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer(GeometryTag)
+    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer(Tag)
     {
         return m_nvrhiConstantBuffer;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer(GeometryTag)
+    nvrhi::BufferHandle TriangleEntity::GetVertexBuffer(Tag)
     {
         return m_nvrhiVertexBuffer;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(GeometryTag)
+    nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(Tag)
     {
         return m_nvrhiIndexBuffer;
     }
 
-    glm::mat4x4 TriangleEntity::GetWorldMatrix(GeometryTag)
+    glm::mat4x4 TriangleEntity::GetWorldMatrix(Tag)
     {
         return m_transform.WorldMatrix();
     }
