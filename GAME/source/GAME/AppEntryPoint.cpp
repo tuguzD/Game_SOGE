@@ -277,14 +277,25 @@ namespace soge_game
         ambientLightEntity2.SetIntensity(0.05f);
         ambientLightEntity2.SetColor(glm::vec3{1.0f, 0.0f, 0.0f});
 
-        const auto [directionalEntity, directionalEntityUuid] =
+        const auto [directionalLightEntity1, directionalLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
                 container.Provide<soge::DirectionalLightEntity>());
-        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalEntityUuid.str());
-        soge::Transform directionalTransform{
+        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
+        soge::Transform directionalLightTransform1{
             .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
         };
-        directionalEntity.SetDirection(directionalTransform.Forward());
+        directionalLightEntity1.SetDirection(directionalLightTransform1.Forward());
+
+        const auto [directionalLightEntity2, directionalLightEntityUuid2] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+                container.Provide<soge::DirectionalLightEntity>());
+        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid2.str());
+        soge::Transform directionalLightTransform2{
+            .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f}},
+        };
+        directionalLightEntity2.SetIntensity(0.5f);
+        directionalLightEntity2.SetColor(glm::vec3{0.0f, 1.0f, 0.0f});
+        directionalLightEntity2.SetDirection(directionalLightTransform2.Forward());
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
