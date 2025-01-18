@@ -1,14 +1,13 @@
 #include "sogepch.hpp"
 
 #include "SOGE/Core/Engine.hpp"
+
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
-#include "SOGE/Window/WindowModule.hpp"
 #include "SOGE/Sound/SoundModule.hpp"
-
-#include <ranges>
+#include "SOGE/Window/WindowModule.hpp"
 
 
 namespace soge
@@ -122,7 +121,8 @@ namespace soge
 
             GetModule<GraphicsModule>()->Update();
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+            // TODO: why are we still here?
+            // std::this_thread::sleep_for(std::chrono::milliseconds(60));
         }
 
         Unload(AccessTag{});
