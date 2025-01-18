@@ -35,35 +35,136 @@ namespace
 
         return {
             // Front face
-            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{1.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * blue /*glm::vec2{1.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * red /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * gray /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+
             // Back face
-            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * red /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * blue /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * gray /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+
             // Top Face
-            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, top, backward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, forward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, forward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, backward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+
             // Bottom Face
-            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{1.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, backward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, backward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, forward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, bottom, forward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+
             // Left Face
-            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, forward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, forward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, backward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, bottom, backward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+
             // Right Face
-            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{right, bottom, backward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, backward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, forward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, forward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{1.0f, 1.0f}*/,
+            },
         };
     }
 
@@ -155,6 +256,7 @@ namespace soge_game
                     const auto z = static_cast<float>(k);
                     entity.GetTransform() = soge::Transform{
                         .m_position = glm::vec3{x, y, z} + gridOffset,
+                        .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
                 }

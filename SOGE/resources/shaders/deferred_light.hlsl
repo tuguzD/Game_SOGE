@@ -27,6 +27,7 @@ cbuffer PS_ConstantBuffer : register(b0)
 
 Texture2D<float> gBuffer_depth : register(t0);
 Texture2D<float4> gBuffer_albedo : register(t1);
+Texture2D<float4> gBuffer_normal : register(t2);
 
 typedef VS_Output PS_Input;
 
@@ -43,16 +44,16 @@ float3 WorldPositionFromDepth(float2 clip_coord, float depth)
 
 float4 PSMain(PS_Input input) : SV_Target
 {
-    int3 gBuffer_position = int3(input.position.xy, 0);
+    int3 gBuffer_coord = int3(input.position.xy, 0);
 
-    float depth = gBuffer_depth.Load(gBuffer_position);
+    float depth = gBuffer_depth.Load(gBuffer_coord);
     if (depth == 1.0f)
     {
         discard;
     }
     float3 world_position = WorldPositionFromDepth(input.clip_coord, depth);
+    float4 albedo = gBuffer_albedo.Load(gBuffer_coord);
+    float3 normal = gBuffer_normal.Load(gBuffer_coord).xyz;
 
-    float4 color = float4(world_position, 1.0f);
-    // float4 color = gBuffer_albedo.Load(gBuffer_position);
-    return color;
+    return float4(normal, 1.0f);
 }

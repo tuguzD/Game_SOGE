@@ -50,14 +50,20 @@ namespace soge
             nvrhi::VertexAttributeDesc{
                 .name = "position",
                 .format = nvrhi::Format::RGB32_FLOAT,
-                .offset = offsetof(GeometryGraphicsPipelineEntity::Vertex, m_position),
-                .elementStride = sizeof(GeometryGraphicsPipelineEntity::Vertex),
+                .offset = offsetof(Entity::Vertex, m_position),
+                .elementStride = sizeof(Entity::Vertex),
+            },
+            nvrhi::VertexAttributeDesc{
+                .name = "normal",
+                .format = nvrhi::Format::RGB32_FLOAT,
+                .offset = offsetof(Entity::Vertex, m_normal),
+                .elementStride = sizeof(Entity::Vertex),
             },
             nvrhi::VertexAttributeDesc{
                 .name = "color",
                 .format = nvrhi::Format::RGBA32_FLOAT,
-                .offset = offsetof(GeometryGraphicsPipelineEntity::Vertex, m_color),
-                .elementStride = sizeof(GeometryGraphicsPipelineEntity::Vertex),
+                .offset = offsetof(Entity::Vertex, m_color),
+                .elementStride = sizeof(Entity::Vertex),
             },
         };
         m_nvrhiInputLayout = nvrhiDevice.createInputLayout(vertexAttributeDescArray.data(),
@@ -123,8 +129,9 @@ namespace soge
                                            nvrhi::ICommandList& aCommandList)
     {
         const Entity::ConstantBuffer constantBuffer{
-            .m_modelViewProjection =
-                aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix() * aEntity.GetWorldMatrix({}),
+            .m_model = aEntity.GetWorldMatrix({}),
+            .m_view = aCamera.m_transform.ViewMatrix(),
+            .m_projection = aCamera.GetProjectionMatrix(),
         };
         aCommandList.writeBuffer(aEntity.GetConstantBuffer({}), &constantBuffer, sizeof(constantBuffer));
 

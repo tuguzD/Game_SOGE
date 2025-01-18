@@ -71,6 +71,7 @@ namespace soge
             nvrhi::BindingLayoutItem::ConstantBuffer(0),
             nvrhi::BindingLayoutItem::Texture_SRV(0),
             nvrhi::BindingLayoutItem::Texture_SRV(1),
+            nvrhi::BindingLayoutItem::Texture_SRV(2),
         };
         m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
 
@@ -139,6 +140,7 @@ namespace soge
             nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer),
             nvrhi::BindingSetItem::Texture_SRV(0, depthTexture),
             nvrhi::BindingSetItem::Texture_SRV(1, &aGeometryRenderPass.GetAlbedoTexture()),
+            nvrhi::BindingSetItem::Texture_SRV(2, &aGeometryRenderPass.GetNormalTexture()),
         };
 
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);

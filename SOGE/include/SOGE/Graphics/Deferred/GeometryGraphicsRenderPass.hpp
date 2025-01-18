@@ -13,6 +13,7 @@ namespace soge
         eastl::reference_wrapper<GraphicsCore> m_core;
 
         nvrhi::TextureHandle m_nvrhiAlbedoTexture;
+        nvrhi::TextureHandle m_nvrhiNormalTexture;
 
         nvrhi::FramebufferHandle m_nvrhiFramebuffer;
 
@@ -34,6 +35,8 @@ namespace soge
 
         [[nodiscard]]
         nvrhi::ITexture& GetAlbedoTexture();
+        [[nodiscard]]
+        nvrhi::ITexture& GetNormalTexture();
 
         [[nodiscard]]
         nvrhi::IFramebuffer& GetFramebuffer() override;

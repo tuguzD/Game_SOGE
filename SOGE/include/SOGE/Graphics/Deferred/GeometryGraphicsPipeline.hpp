@@ -52,13 +52,16 @@ namespace soge
 
         struct ConstantBuffer
         {
-            glm::mat4x4 m_modelViewProjection;
+            glm::mat4x4 m_model;
+            glm::mat4x4 m_view;
+            glm::mat4x4 m_projection;
         };
 
         struct Vertex
         {
             alignas(16) glm::vec3 m_position;
-            glm::vec4 m_color;
+            alignas(16) glm::vec3 m_normal;
+            glm::vec4 m_color{1.0f};
         };
 
         using Index = std::uint32_t;
