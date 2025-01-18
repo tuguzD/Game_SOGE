@@ -16,3 +16,8 @@ deferred_ambient_light.hlsl -T ps -E PSMain
 deferred_directional_light.hlsl -T vs -E VSMain
 // will be named "deferred_directional_light_PSMain"
 deferred_directional_light.hlsl -T ps -E PSMain
+
+// will be named "deferred_point_light_VSMain"
+deferred_point_light.hlsl -T vs -E VSMain
+// will be named "deferred_point_light_PSMain"
+deferred_point_light.hlsl -T ps -E PSMain

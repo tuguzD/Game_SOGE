@@ -12,10 +12,11 @@ namespace soge
                                              FinalGraphicsRenderPass& aFinalPass,
                                              GeometryGraphicsPipeline& aGeometryPipeline,
                                              AmbientLightGraphicsPipeline& aAmbientLightPipeline,
-                                             DirectionalLightGraphicsPipeline& aDirectionalLightPipeline)
+                                             DirectionalLightGraphicsPipeline& aDirectionalLightPipeline,
+                                             PointLightGraphicsPipeline& aPointLightPipeline)
         : RenderGraph{aCore}, m_core{aCore}, m_geometryPass{aGeometryPass}, m_finalPass{aFinalPass},
           m_geometryPipeline{aGeometryPipeline}, m_ambientLightPipeline{aAmbientLightPipeline},
-          m_directionalLightPipeline{aDirectionalLightPipeline}
+          m_directionalLightPipeline{aDirectionalLightPipeline}, m_pointLightPipeline{aPointLightPipeline}
     {
     }
 
@@ -30,6 +31,7 @@ namespace soge
         FinalGraphicsRenderPass& finalPass = m_finalPass;
         AmbientLightGraphicsPipeline& ambientLightPipeline = m_ambientLightPipeline;
         DirectionalLightGraphicsPipeline& directionalLightPipeline = m_directionalLightPipeline;
+        PointLightGraphicsPipeline& pointLightPipeline = m_pointLightPipeline;
 
         nvrhi::CommandListParameters commandListDesc{};
         commandListDesc.enableImmediateExecution = false;
@@ -56,6 +58,7 @@ namespace soge
             }
 
             directionalLightPipeline.WriteConstantBuffer(aCamera, commandListGuard);
+            pointLightPipeline.WriteConstantBuffer(aCamera, commandListGuard);
             for (auto&& entityRef : aEntities)
             {
                 if (const auto entity = dynamic_cast<AmbientLightGraphicsPipeline::Entity*>(&entityRef.get()))
@@ -65,6 +68,10 @@ namespace soge
                 if (const auto entity = dynamic_cast<DirectionalLightGraphicsPipeline::Entity*>(&entityRef.get()))
                 {
                     directionalLightPipeline.Execute(aViewport, aCamera, *entity, commandListGuard);
+                }
+                if (const auto entity = dynamic_cast<PointLightGraphicsPipeline::Entity*>(&entityRef.get()))
+                {
+                    pointLightPipeline.Execute(aViewport, aCamera, *entity, commandListGuard);
                 }
             }
         }
