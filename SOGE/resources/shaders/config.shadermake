@@ -1,10 +1,12 @@
+// Instructions on how to properly use this can be found here:
 // https://github.com/NVIDIAGameWorks/ShaderMake?tab=readme-ov-file#config-file-structure
 
-// will be named "geometry_VSMain"
-geometry.hlsl -T vs -E VSMain
 
-// will be named "geometry_PSMain"
-geometry.hlsl -T ps -E PSMain
+// will be named "deferred_geometry_VSMain"
+deferred_geometry.hlsl -T vs -E VSMain
+
+// will be named "deferred_geometry_PSMain"
+deferred_geometry.hlsl -T ps -E PSMain
 
 // will be named "deferred_light_VSMain"
 deferred_light.hlsl -T vs -E VSMain

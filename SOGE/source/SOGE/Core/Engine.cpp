@@ -120,9 +120,6 @@ namespace soge
             }
 
             GetModule<GraphicsModule>()->Update();
-
-            // TODO: why are we still here?
-            // std::this_thread::sleep_for(std::chrono::milliseconds(60));
         }
 
         Unload(AccessTag{});
