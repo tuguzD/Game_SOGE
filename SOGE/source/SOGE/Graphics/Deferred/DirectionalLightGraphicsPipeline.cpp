@@ -79,13 +79,13 @@ namespace soge
         m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
 
         SOGE_INFO_LOG("Creating NVRHI constant buffer for directional light pipeline...");
-        nvrhi::BufferDesc bufferDesc{};
-        bufferDesc.byteSize = sizeof(ConstantBuffer);
-        bufferDesc.isConstantBuffer = true;
-        bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
-        bufferDesc.keepInitialState = true;
-        bufferDesc.debugName = "SOGE directional light pipeline constant buffer";
-        m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
+        nvrhi::BufferDesc constantBufferDesc{};
+        constantBufferDesc.byteSize = sizeof(ConstantBuffer);
+        constantBufferDesc.isConstantBuffer = true;
+        constantBufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
+        constantBufferDesc.keepInitialState = true;
+        constantBufferDesc.debugName = "SOGE directional light pipeline constant buffer";
+        m_nvrhiConstantBuffer = device.createBuffer(constantBufferDesc);
 
         SOGE_INFO_LOG("Creating NVRHI vertex buffer for directional light pipeline...");
         nvrhi::BufferDesc vertexBufferDesc{};

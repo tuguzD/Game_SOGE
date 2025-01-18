@@ -255,11 +255,11 @@ namespace soge_game
                     const auto x = static_cast<float>(i);
                     const auto y = static_cast<float>(j);
                     const auto z = static_cast<float>(k);
-                    entity.GetTransform() = soge::Transform{
+                    entity.SetTransform(soge::Transform{
                         .m_position = glm::vec3{x, y, z} + gridOffset,
                         // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
-                    };
+                    });
                 }
             }
         }

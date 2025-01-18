@@ -26,7 +26,9 @@ namespace soge
         SOGE_INFO_LOG("Creating NVRHI binding set for directional light entity...");
         nvrhi::BindingSetDesc bindingSetDesc{};
         bindingSetDesc.trackLiveness = true;
-        bindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(1, m_nvrhiConstantBuffer));
+        bindingSetDesc.bindings = {
+            nvrhi::BindingSetItem::ConstantBuffer(1, m_nvrhiConstantBuffer),
+        };
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, &aPipeline.GetEntityBindingLayout());
 
         SOGE_INFO_LOG("Updating NVRHI constant buffer for directional light entity...");

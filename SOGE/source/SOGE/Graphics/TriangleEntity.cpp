@@ -7,8 +7,8 @@
 
 namespace soge
 {
-    TriangleEntity::TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aGeometryPipeline)
-        : m_core{aCore}, m_geometryPipeline{aGeometryPipeline}
+    TriangleEntity::TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, Transform aTransform)
+        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -24,20 +24,48 @@ namespace soge
         SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity...");
         nvrhi::BindingSetDesc geometryBindingSetDesc{};
         geometryBindingSetDesc.trackLiveness = true;
-        geometryBindingSetDesc.addItem(nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer));
+        geometryBindingSetDesc.bindings = {
+            nvrhi::BindingSetItem::ConstantBuffer(1, m_nvrhiConstantBuffer),
+        };
+        m_nvrhiBindingSet = device.createBindingSet(geometryBindingSetDesc, &aPipeline.GetEntityBindingLayout());
 
-        const auto geometryBindingLayout = aGeometryPipeline.GetGraphicsPipeline().getDesc().bindingLayouts[0];
-        m_nvrhiBindingSet = device.createBindingSet(geometryBindingSetDesc, geometryBindingLayout);
+        SOGE_INFO_LOG("Updating NVRHI constant buffer for triangle entity...");
+        const nvrhi::CommandListHandle updateCommandList = m_core.get().GetRawDevice().createCommandList();
+        {
+            GraphicsCommandListGuard commandList{*updateCommandList};
+
+            const ConstantBuffer constantBuffer{
+                .m_model = m_transform.WorldMatrix(),
+            };
+            commandList->writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
+        }
+        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    Transform& TriangleEntity::GetTransform()
+    Transform TriangleEntity::GetTransform() const
     {
         return m_transform;
     }
 
-    const Transform& TriangleEntity::GetTransform() const
+    void TriangleEntity::SetTransform(const Transform& aTransform)
     {
-        return m_transform;
+        if (m_transform == aTransform)
+        {
+            return;
+        }
+        m_transform = aTransform;
+
+        SOGE_INFO_LOG("Updating NVRHI constant buffer for triangle entity...");
+        const nvrhi::CommandListHandle updateCommandList = m_core.get().GetRawDevice().createCommandList();
+        {
+            GraphicsCommandListGuard commandList{*updateCommandList};
+
+            const ConstantBuffer constantBuffer{
+                .m_model = m_transform.WorldMatrix(),
+            };
+            commandList->writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
+        }
+        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
     void TriangleEntity::UpdateVertices(const Vertices aVertices)
@@ -124,10 +152,5 @@ namespace soge
     nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(Tag)
     {
         return m_nvrhiIndexBuffer;
-    }
-
-    glm::mat4x4 TriangleEntity::GetWorldMatrix(Tag)
-    {
-        return m_transform.WorldMatrix();
     }
 }

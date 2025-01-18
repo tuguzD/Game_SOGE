@@ -11,7 +11,7 @@ namespace soge
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
-        eastl::reference_wrapper<GeometryGraphicsPipeline> m_geometryPipeline;
+        eastl::reference_wrapper<GeometryGraphicsPipeline> m_pipeline;
 
         Transform m_transform;
 
@@ -21,12 +21,12 @@ namespace soge
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
 
     public:
-        explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aGeometryPipeline);
+        explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
+                                Transform aTransform = Transform{});
 
         [[nodiscard]]
-        Transform& GetTransform();
-        [[nodiscard]]
-        const Transform& GetTransform() const;
+        Transform GetTransform() const;
+        void SetTransform(const Transform& aTransform);
 
         using Vertices = eastl::span<const Vertex>;
         void UpdateVertices(Vertices aVertices);
@@ -42,8 +42,6 @@ namespace soge
         nvrhi::BufferHandle GetVertexBuffer(Tag) override;
         [[nodiscard]]
         nvrhi::BufferHandle GetIndexBuffer(Tag) override;
-        [[nodiscard]]
-        glm::mat4x4 GetWorldMatrix(Tag) override;
     };
 }
 

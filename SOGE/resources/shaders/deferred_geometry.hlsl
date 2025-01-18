@@ -1,8 +1,11 @@
-﻿cbuffer VS_ConstantBuffer : register(b0)
+﻿cbuffer Pipeline_ConstantBuffer : register(b0)
+{
+    float4x4 viewProjection;
+}
+
+cbuffer Object_ConstantBuffer : register(b1)
 {
     float4x4 model;
-    float4x4 view;
-    float4x4 projection;
 }
 
 struct VS_Input
@@ -23,7 +26,7 @@ VS_Output VSMain(VS_Input input)
 {
     VS_Output output = (VS_Output)0;
 
-    output.position = mul(mul(mul(projection, view), model), float4(input.position, 1.0f));
+    output.position = mul(mul(viewProjection, model), float4(input.position, 1.0f));
     output.normal = normalize(mul(model, float4(input.normal, 0.0f)).xyz);
     output.color = input.color;
 

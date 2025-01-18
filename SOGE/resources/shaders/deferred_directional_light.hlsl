@@ -19,7 +19,7 @@ VS_Output VSMain(VS_Input input)
     return output;
 }
 
-cbuffer PS_ConstantBuffer : register(b0)
+cbuffer Pipeline_ConstantBuffer : register(b0)
 {
     float4x4 inv_projection;
     float4x4 inv_view;

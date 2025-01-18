@@ -11,7 +11,7 @@ namespace soge
         : m_core{aCore}, m_renderPass{aRenderPass}
     {
         SOGE_INFO_LOG("Creating NVRHI geometry pipeline...");
-        nvrhi::IDevice& nvrhiDevice = aCore.GetRawDevice();
+        nvrhi::IDevice& device = aCore.GetRawDevice();
 
         constexpr auto shaderSourcePath = "./resources/shaders/deferred_geometry.hlsl";
 
@@ -47,22 +47,53 @@ namespace soge
                 .elementStride = sizeof(Entity::Vertex),
             },
         };
-        m_nvrhiInputLayout = nvrhiDevice.createInputLayout(vertexAttributeDescArray.data(),
-                                                           static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
-                                                           m_nvrhiVertexShader);
+        m_nvrhiInputLayout =
+            device.createInputLayout(vertexAttributeDescArray.data(),
+                                     static_cast<std::uint32_t>(vertexAttributeDescArray.size()), m_nvrhiVertexShader);
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
-        bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
-        bindingLayoutDesc.addItem(nvrhi::BindingLayoutItem::ConstantBuffer(0));
-        m_nvrhiBindingLayout = nvrhiDevice.createBindingLayout(bindingLayoutDesc);
+        bindingLayoutDesc.visibility = nvrhi::ShaderType::Vertex;
+        bindingLayoutDesc.bindings = {
+            nvrhi::BindingLayoutItem::ConstantBuffer(0), // view & projection matrix
+        };
+        m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
+
+        nvrhi::BindingLayoutDesc entityBindingLayoutDesc{};
+        entityBindingLayoutDesc.visibility = nvrhi::ShaderType::Vertex;
+        entityBindingLayoutDesc.bindings = {
+            nvrhi::BindingLayoutItem::ConstantBuffer(1), // model matrix
+        };
+        m_nvrhiEntityBindingLayout = device.createBindingLayout(entityBindingLayoutDesc);
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};
         pipelineDesc.inputLayout = m_nvrhiInputLayout;
         pipelineDesc.VS = m_nvrhiVertexShader;
         pipelineDesc.PS = m_nvrhiPixelShader;
-        pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout};
+        pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         nvrhi::IFramebuffer& compatibleFramebuffer = aRenderPass.GetFramebuffer();
-        m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
+        m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
+
+        SOGE_INFO_LOG("Creating NVRHI constant buffer for geometry pipeline...");
+        nvrhi::BufferDesc constantBufferDesc{};
+        constantBufferDesc.byteSize = sizeof(ConstantBuffer);
+        constantBufferDesc.isConstantBuffer = true;
+        constantBufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
+        constantBufferDesc.keepInitialState = true;
+        constantBufferDesc.debugName = "SOGE geometry pipeline constant buffer";
+        m_nvrhiConstantBuffer = device.createBuffer(constantBufferDesc);
+
+        SOGE_INFO_LOG("Creating NVRHI binding set for geometry pipeline...");
+        nvrhi::BindingSetDesc bindingSetDesc{};
+        bindingSetDesc.trackLiveness = true;
+        bindingSetDesc.bindings = {
+            nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer),
+        };
+        m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
+    }
+
+    nvrhi::IBindingLayout& GeometryGraphicsPipeline::GetEntityBindingLayout()
+    {
+        return *m_nvrhiEntityBindingLayout;
     }
 
     nvrhi::IGraphicsPipeline& GeometryGraphicsPipeline::GetGraphicsPipeline() noexcept
@@ -73,12 +104,10 @@ namespace soge
     void GeometryGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                            nvrhi::ICommandList& aCommandList)
     {
-        const Entity::ConstantBuffer constantBuffer{
-            .m_model = aEntity.GetWorldMatrix({}),
-            .m_view = aCamera.m_transform.ViewMatrix(),
-            .m_projection = aCamera.GetProjectionMatrix(),
+        const ConstantBuffer constantBuffer{
+            .m_viewProjection = aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix(),
         };
-        aCommandList.writeBuffer(aEntity.GetConstantBuffer({}), &constantBuffer, sizeof(constantBuffer));
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
 
         const auto vertexBuffer = aEntity.GetVertexBuffer({});
         const auto indexBuffer = aEntity.GetIndexBuffer({});
@@ -86,7 +115,7 @@ namespace soge
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
         graphicsState.framebuffer = &m_renderPass.get().GetFramebuffer();
-        graphicsState.bindings = {aEntity.GetBindingSet({})};
+        graphicsState.bindings = {m_nvrhiBindingSet, aEntity.GetBindingSet({})};
         if (vertexBuffer != nullptr)
         {
             const nvrhi::VertexBufferBinding vertexBufferBinding{

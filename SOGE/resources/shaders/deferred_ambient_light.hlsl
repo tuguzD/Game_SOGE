@@ -17,7 +17,7 @@ VS_Output VSMain(VS_Input input)
     return output;
 }
 
-cbuffer PS_ConstantBuffer : register(b0)
+cbuffer AmbientLight_ConstantBuffer : register(b0)
 {
     float3 color;
     float intensity;
