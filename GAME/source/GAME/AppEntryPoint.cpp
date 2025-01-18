@@ -5,6 +5,7 @@
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
+#include <SOGE/Graphics/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Graphics/TriangleEntity.hpp>
@@ -242,8 +243,7 @@ namespace soge_game
                     const auto [entity, entityUuid] =
                         graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
                             container.Provide<soge::TriangleEntity>());
-                    SOGE_INFO_LOG(R"(Created graphics triangle entity ({}, {}, {}) with UUID {})", i, j, k,
-                                  entityUuid.str());
+                    SOGE_INFO_LOG(R"(Created triangle entity ({}, {}, {}) with UUID {})", i, j, k, entityUuid.str());
 
                     constexpr std::array vertices = BoxVertices();
                     entity.UpdateVertices(vertices);
@@ -256,12 +256,19 @@ namespace soge_game
                     const auto z = static_cast<float>(k);
                     entity.GetTransform() = soge::Transform{
                         .m_position = glm::vec3{x, y, z} + gridOffset,
-                        .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
+                        // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
                 }
             }
         }
+
+        const auto [ambientEntity, ambientEntityUuid] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
+                container.Provide<soge::AmbientLightEntity>());
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientEntityUuid.str());
+
+        ambientEntity.SetIntensity(0.05f);
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),

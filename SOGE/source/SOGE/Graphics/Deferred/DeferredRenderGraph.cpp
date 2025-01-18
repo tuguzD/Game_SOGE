@@ -11,9 +11,9 @@ namespace soge
     DeferredRenderGraph::DeferredRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
                                              FinalGraphicsRenderPass& aFinalPass,
                                              GeometryGraphicsPipeline& aGeometryPipeline,
-                                             LightGraphicsPipeline& aLightPipeline)
+                                             AmbientLightGraphicsPipeline& aAmbientLightPipeline)
         : RenderGraph{aCore}, m_core{aCore}, m_geometryPass{aGeometryPass}, m_finalPass{aFinalPass},
-          m_geometryPipeline{aGeometryPipeline}, m_lightPipeline{aLightPipeline}
+          m_geometryPipeline{aGeometryPipeline}, m_ambientLightPipeline{aAmbientLightPipeline}
     {
     }
 
@@ -45,15 +45,13 @@ namespace soge
                 commandListGuard->copyTexture(destDepthTexture, {}, srcDepthTexture, {});
             }
 
-            LightGraphicsPipeline::Entity entity{};
-            m_lightPipeline.get().Execute(aViewport, aCamera, entity, commandListGuard);
-            // for (auto&& entityRef : aEntities)
-            // {
-            //     if (const auto entity = dynamic_cast<LightGraphicsPipeline::Entity*>(&entityRef.get()))
-            //     {
-            //         m_lightPipeline.get().Execute(aViewport, aCamera, *entity, commandList);
-            //     }
-            // }
+            for (auto&& entityRef : aEntities)
+            {
+                if (const auto entity = dynamic_cast<AmbientLightGraphicsPipeline::Entity*>(&entityRef.get()))
+                {
+                    m_ambientLightPipeline.get().Execute(aViewport, aCamera, *entity, commandListGuard);
+                }
+            }
         }
         core.ExecuteCommandList(commandList, nvrhi::CommandQueue::Graphics);
     }
