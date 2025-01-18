@@ -17,6 +17,7 @@ namespace soge
         {
             glm::mat4x4 m_invProjection;
             glm::mat4x4 m_invView;
+            glm::vec3 m_viewPosition;
         };
 
         eastl::reference_wrapper<GraphicsCore> m_core;

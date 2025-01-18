@@ -143,12 +143,12 @@ namespace soge
         return *m_nvrhiEntityBindingLayout;
     }
 
-    void DirectionalLightGraphicsPipeline::WriteConstantBuffer(const Camera& aCamera,
-                                                                nvrhi::ICommandList& aCommandList)
+    void DirectionalLightGraphicsPipeline::WriteConstantBuffer(const Camera& aCamera, nvrhi::ICommandList& aCommandList)
     {
         const ConstantBufferData constantBuffer{
             .m_invProjection = glm::inverse(aCamera.GetProjectionMatrix()),
             .m_invView = glm::inverse(aCamera.m_transform.ViewMatrix()),
+            .m_viewPosition = aCamera.m_transform.m_position,
         };
         aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
     }
