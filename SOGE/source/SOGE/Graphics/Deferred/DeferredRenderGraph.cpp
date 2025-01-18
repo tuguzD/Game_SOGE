@@ -25,35 +25,28 @@ namespace soge
         nvrhi::CommandListParameters commandListDesc{};
         commandListDesc.enableImmediateExecution = false;
 
-        const nvrhi::CommandListHandle geometryCommandList = device.createCommandList(commandListDesc);
+        const nvrhi::CommandListHandle commandList = device.createCommandList(commandListDesc);
         {
-            GraphicsCommandListGuard commandList{*geometryCommandList};
+            GraphicsCommandListGuard commandListGuard{*commandList};
 
-            m_geometryPass.get().ClearFramebuffer(commandList);
-
+            m_geometryPass.get().ClearFramebuffer(commandListGuard);
             for (auto&& entityRef : aEntities)
             {
                 if (const auto entity = dynamic_cast<GeometryGraphicsPipeline::Entity*>(&entityRef.get()))
                 {
-                    m_geometryPipeline.get().Execute(aViewport, aCamera, *entity, commandList);
+                    m_geometryPipeline.get().Execute(aViewport, aCamera, *entity, commandListGuard);
                 }
             }
-        }
-        core.ExecuteCommandList(geometryCommandList, nvrhi::CommandQueue::Graphics);
 
-        const nvrhi::CommandListHandle lightCommandList = device.createCommandList(commandListDesc);
-        {
-            GraphicsCommandListGuard commandList{*lightCommandList};
-
-            m_finalPass.get().ClearFramebuffer(commandList);
+            m_finalPass.get().ClearFramebuffer(commandListGuard);
             {
                 const auto destDepthTexture = m_finalPass.get().GetFramebuffer().getDesc().depthAttachment.texture;
                 const auto srcDepthTexture = m_geometryPass.get().GetFramebuffer().getDesc().depthAttachment.texture;
-                commandList->copyTexture(destDepthTexture, {}, srcDepthTexture, {});
+                commandListGuard->copyTexture(destDepthTexture, {}, srcDepthTexture, {});
             }
 
             LightGraphicsPipeline::Entity entity{};
-            m_lightPipeline.get().Execute(aViewport, aCamera, entity, commandList);
+            m_lightPipeline.get().Execute(aViewport, aCamera, entity, commandListGuard);
             // for (auto&& entityRef : aEntities)
             // {
             //     if (const auto entity = dynamic_cast<LightGraphicsPipeline::Entity*>(&entityRef.get()))
@@ -62,6 +55,6 @@ namespace soge
             //     }
             // }
         }
-        core.ExecuteCommandList(lightCommandList, nvrhi::CommandQueue::Graphics);
+        core.ExecuteCommandList(commandList, nvrhi::CommandQueue::Graphics);
     }
 }
