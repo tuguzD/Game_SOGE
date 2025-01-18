@@ -16,8 +16,8 @@ namespace soge
         glm::vec3 m_color;
         float m_intensity;
 
-        nvrhi::BufferHandle m_nvrhiConstantBuffer;
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::BufferHandle m_nvrhiConstantBuffer;
 
     public:
         explicit AmbientLightEntity(GraphicsCore& aCore, AmbientLightGraphicsPipeline& aPipeline,

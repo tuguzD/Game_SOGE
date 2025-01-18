@@ -89,37 +89,6 @@ namespace soge
         m_nvrhiFramebuffer = device.createFramebuffer(framebufferDesc);
     }
 
-    GeometryGraphicsRenderPass::GeometryGraphicsRenderPass(GeometryGraphicsRenderPass&& aOther) noexcept
-        : m_core{aOther.m_core}
-    {
-        swap(aOther);
-    }
-
-    GeometryGraphicsRenderPass& GeometryGraphicsRenderPass::operator=(GeometryGraphicsRenderPass&& aOther) noexcept
-    {
-        swap(aOther);
-        return *this;
-    }
-
-    GeometryGraphicsRenderPass::~GeometryGraphicsRenderPass()
-    {
-        SOGE_INFO_LOG("Destroying NVRHI framebuffer of geometry render pass...");
-        m_nvrhiFramebuffer = nullptr;
-
-        SOGE_INFO_LOG("Destroying NVRHI albedo texture of geometry render pass...");
-        m_nvrhiAlbedoTexture = nullptr;
-    }
-
-    void GeometryGraphicsRenderPass::swap(GeometryGraphicsRenderPass& aOther) noexcept
-    {
-        using std::swap;
-
-        eastl::swap(m_core, aOther.m_core);
-
-        swap(m_nvrhiAlbedoTexture, aOther.m_nvrhiAlbedoTexture);
-        swap(m_nvrhiFramebuffer, aOther.m_nvrhiFramebuffer);
-    }
-
     void GeometryGraphicsRenderPass::ClearFramebuffer(nvrhi::ICommandList& aCommandList)
     {
         nvrhi::IFramebuffer& currentFramebuffer = GetFramebuffer();

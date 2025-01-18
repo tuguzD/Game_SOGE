@@ -17,31 +17,20 @@ namespace soge
         eastl::reference_wrapper<GeometryGraphicsRenderPass> m_geometryRenderPass;
         eastl::reference_wrapper<FinalGraphicsRenderPass> m_finalRenderPass;
 
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::BufferHandle m_nvrhiIndexBuffer;
+        nvrhi::BufferHandle m_nvrhiVertexBuffer;
+        nvrhi::BufferHandle m_nvrhiConstantBuffer;
+
+        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
         nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
-        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
-
-        nvrhi::BufferHandle m_nvrhiConstantBuffer;
-        nvrhi::BufferHandle m_nvrhiVertexBuffer;
-        nvrhi::BufferHandle m_nvrhiIndexBuffer;
-        nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit LightGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass,
                                        FinalGraphicsRenderPass& aFinalRenderPass);
-
-        LightGraphicsPipeline(const LightGraphicsPipeline&) = delete;
-        LightGraphicsPipeline& operator=(const LightGraphicsPipeline&) = delete;
-
-        LightGraphicsPipeline(LightGraphicsPipeline&& aOther) noexcept;
-        LightGraphicsPipeline& operator=(LightGraphicsPipeline&& aOther) noexcept;
-
-        ~LightGraphicsPipeline() override;
-
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(LightGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() override;

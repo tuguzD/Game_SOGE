@@ -19,17 +19,6 @@ namespace soge
     public:
         explicit FinalGraphicsRenderPass(GraphicsCore& aCore);
 
-        FinalGraphicsRenderPass(const FinalGraphicsRenderPass&) = delete;
-        FinalGraphicsRenderPass& operator=(const FinalGraphicsRenderPass&) = delete;
-
-        FinalGraphicsRenderPass(FinalGraphicsRenderPass&& aOther) noexcept;
-        FinalGraphicsRenderPass& operator=(FinalGraphicsRenderPass&& aOther) noexcept;
-
-        ~FinalGraphicsRenderPass() override;
-
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(FinalGraphicsRenderPass& aOther) noexcept;
-
         void ClearFramebuffer(nvrhi::ICommandList& aCommandList);
 
         [[nodiscard]]

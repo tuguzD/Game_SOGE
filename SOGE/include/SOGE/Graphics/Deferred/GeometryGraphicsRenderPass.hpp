@@ -12,24 +12,12 @@ namespace soge
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
 
-        nvrhi::TextureHandle m_nvrhiAlbedoTexture;
-        nvrhi::TextureHandle m_nvrhiNormalTexture;
-
         nvrhi::FramebufferHandle m_nvrhiFramebuffer;
+        nvrhi::TextureHandle m_nvrhiNormalTexture;
+        nvrhi::TextureHandle m_nvrhiAlbedoTexture;
 
     public:
         explicit GeometryGraphicsRenderPass(GraphicsCore& aCore);
-
-        GeometryGraphicsRenderPass(const GeometryGraphicsRenderPass&) = delete;
-        GeometryGraphicsRenderPass& operator=(const GeometryGraphicsRenderPass&) = delete;
-
-        GeometryGraphicsRenderPass(GeometryGraphicsRenderPass&& aOther) noexcept;
-        GeometryGraphicsRenderPass& operator=(GeometryGraphicsRenderPass&& aOther) noexcept;
-
-        ~GeometryGraphicsRenderPass() override;
-
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(GeometryGraphicsRenderPass& aOther) noexcept;
 
         void ClearFramebuffer(nvrhi::ICommandList& aCommandList);
 

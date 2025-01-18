@@ -16,25 +16,14 @@ namespace soge
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<GeometryGraphicsRenderPass> m_renderPass;
 
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
+        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
         nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
-        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass);
-
-        GeometryGraphicsPipeline(const GeometryGraphicsPipeline&) = delete;
-        GeometryGraphicsPipeline& operator=(const GeometryGraphicsPipeline&) = delete;
-
-        GeometryGraphicsPipeline(GeometryGraphicsPipeline&& aOther) noexcept;
-        GeometryGraphicsPipeline& operator=(GeometryGraphicsPipeline&& aOther) noexcept;
-
-        ~GeometryGraphicsPipeline() override;
-
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(GeometryGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;

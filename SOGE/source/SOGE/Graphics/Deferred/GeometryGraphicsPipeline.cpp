@@ -84,42 +84,6 @@ namespace soge
         m_nvrhiGraphicsPipeline = nvrhiDevice.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
     }
 
-    GeometryGraphicsPipeline::GeometryGraphicsPipeline(GeometryGraphicsPipeline&& aOther) noexcept
-        : m_core{aOther.m_core}, m_renderPass{aOther.m_renderPass}
-    {
-        swap(aOther);
-    }
-
-    GeometryGraphicsPipeline& GeometryGraphicsPipeline::operator=(GeometryGraphicsPipeline&& aOther) noexcept
-    {
-        swap(aOther);
-        return *this;
-    }
-
-    GeometryGraphicsPipeline::~GeometryGraphicsPipeline()
-    {
-        SOGE_INFO_LOG("Destroying NVRHI geometry pipeline...");
-        m_nvrhiGraphicsPipeline = nullptr;
-        m_nvrhiBindingLayout = nullptr;
-        m_nvrhiPixelShader = nullptr;
-        m_nvrhiInputLayout = nullptr;
-        m_nvrhiVertexShader = nullptr;
-    }
-
-    void GeometryGraphicsPipeline::swap(GeometryGraphicsPipeline& aOther) noexcept
-    {
-        using std::swap;
-
-        eastl::swap(m_core, aOther.m_core);
-        eastl::swap(m_renderPass, aOther.m_renderPass);
-
-        swap(m_nvrhiVertexShader, aOther.m_nvrhiVertexShader);
-        swap(m_nvrhiInputLayout, aOther.m_nvrhiInputLayout);
-        swap(m_nvrhiPixelShader, aOther.m_nvrhiPixelShader);
-        swap(m_nvrhiBindingLayout, aOther.m_nvrhiBindingLayout);
-        swap(m_nvrhiGraphicsPipeline, aOther.m_nvrhiGraphicsPipeline);
-    }
-
     nvrhi::IGraphicsPipeline& GeometryGraphicsPipeline::GetGraphicsPipeline() noexcept
     {
         return *m_nvrhiGraphicsPipeline;

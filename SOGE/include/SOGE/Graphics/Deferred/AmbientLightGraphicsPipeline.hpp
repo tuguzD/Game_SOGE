@@ -16,31 +16,20 @@ namespace soge
         eastl::reference_wrapper<GeometryGraphicsRenderPass> m_geometryRenderPass;
         eastl::reference_wrapper<FinalGraphicsRenderPass> m_finalRenderPass;
 
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::BufferHandle m_nvrhiIndexBuffer;
+        nvrhi::BufferHandle m_nvrhiVertexBuffer;
+
+        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+        nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
+        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
         nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
-        nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
-        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
-
-        nvrhi::BufferHandle m_nvrhiVertexBuffer;
-        nvrhi::BufferHandle m_nvrhiIndexBuffer;
-        nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit AmbientLightGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass,
                                               FinalGraphicsRenderPass& aFinalRenderPass);
-
-        AmbientLightGraphicsPipeline(const AmbientLightGraphicsPipeline&) = delete;
-        AmbientLightGraphicsPipeline& operator=(const AmbientLightGraphicsPipeline&) = delete;
-
-        AmbientLightGraphicsPipeline(AmbientLightGraphicsPipeline&& aOther) noexcept;
-        AmbientLightGraphicsPipeline& operator=(AmbientLightGraphicsPipeline&& aOther) noexcept;
-
-        ~AmbientLightGraphicsPipeline() override;
-
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(AmbientLightGraphicsPipeline& aOther) noexcept;
 
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();

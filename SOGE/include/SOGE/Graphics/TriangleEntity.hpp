@@ -15,11 +15,10 @@ namespace soge
 
         Transform m_transform;
 
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
-
-        nvrhi::BindingSetHandle m_nvrhiBindingSet;
 
     public:
         explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aGeometryPipeline);

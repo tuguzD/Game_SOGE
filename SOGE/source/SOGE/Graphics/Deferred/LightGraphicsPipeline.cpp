@@ -146,52 +146,6 @@ namespace soge
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
     }
 
-    LightGraphicsPipeline::LightGraphicsPipeline(LightGraphicsPipeline&& aOther) noexcept
-        : m_core{aOther.m_core}, m_geometryRenderPass{aOther.m_geometryRenderPass},
-          m_finalRenderPass{aOther.m_finalRenderPass}
-    {
-        swap(aOther);
-    }
-
-    LightGraphicsPipeline& LightGraphicsPipeline::operator=(LightGraphicsPipeline&& aOther) noexcept
-    {
-        swap(aOther);
-        return *this;
-    }
-
-    LightGraphicsPipeline::~LightGraphicsPipeline()
-    {
-        m_nvrhiBindingSet = nullptr;
-        m_nvrhiIndexBuffer = nullptr;
-        m_nvrhiVertexBuffer = nullptr;
-
-        SOGE_INFO_LOG("Destroying NVRHI light pipeline...");
-        m_nvrhiGraphicsPipeline = nullptr;
-        m_nvrhiBindingLayout = nullptr;
-        m_nvrhiPixelShader = nullptr;
-        m_nvrhiInputLayout = nullptr;
-        m_nvrhiVertexShader = nullptr;
-    }
-
-    void LightGraphicsPipeline::swap(LightGraphicsPipeline& aOther) noexcept
-    {
-        using std::swap;
-
-        eastl::swap(m_core, aOther.m_core);
-        eastl::swap(m_geometryRenderPass, aOther.m_geometryRenderPass);
-        eastl::swap(m_finalRenderPass, aOther.m_finalRenderPass);
-
-        swap(m_nvrhiVertexShader, aOther.m_nvrhiVertexShader);
-        swap(m_nvrhiInputLayout, aOther.m_nvrhiInputLayout);
-        swap(m_nvrhiPixelShader, aOther.m_nvrhiPixelShader);
-        swap(m_nvrhiBindingLayout, aOther.m_nvrhiBindingLayout);
-        swap(m_nvrhiGraphicsPipeline, aOther.m_nvrhiGraphicsPipeline);
-
-        swap(m_nvrhiVertexBuffer, aOther.m_nvrhiVertexBuffer);
-        swap(m_nvrhiIndexBuffer, aOther.m_nvrhiIndexBuffer);
-        swap(m_nvrhiBindingSet, aOther.m_nvrhiBindingSet);
-    }
-
     nvrhi::IGraphicsPipeline& LightGraphicsPipeline::GetGraphicsPipeline()
     {
         return *m_nvrhiGraphicsPipeline;
