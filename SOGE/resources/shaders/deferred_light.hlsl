@@ -30,12 +30,8 @@ Texture2D<float4> gBuffer_albedo : register(t1);
 
 typedef VS_Output PS_Input;
 
-float3 GetWorldPosition(float2 clip_coord, float depth)
+float3 WorldPositionFromDepth(float2 clip_coord, float depth)
 {
-    if (depth == 1.0f)
-    {
-        return float3(0.0f, 0.0f, 0.0f);
-    }
     float4 clip_position = float4(clip_coord, depth, 1.0f);
 
     float4 view_position = mul(inv_projection, clip_position);
@@ -50,8 +46,13 @@ float4 PSMain(PS_Input input) : SV_Target
     int3 gBuffer_position = int3(input.position.xy, 0);
 
     float depth = gBuffer_depth.Load(gBuffer_position);
-    float4 color = float4(GetWorldPosition(input.clip_coord, depth), 1.0f);
+    if (depth == 1.0f)
+    {
+        discard;
+    }
+    float3 world_position = WorldPositionFromDepth(input.clip_coord, depth);
 
+    float4 color = float4(world_position, 1.0f);
     // float4 color = gBuffer_albedo.Load(gBuffer_position);
     return color;
 }
