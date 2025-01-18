@@ -112,7 +112,8 @@ namespace soge
             GetModule<SoundModule>()->Update();
 
             const auto eventModule = GetModule<EventModule>();
-            eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
+            eventModule->Enqueue<UpdateEvent>(Timestep::DeltaTime());
+            eventModule->DispatchQueue<UpdateEvent>();
 
             for (const auto layer : m_renderLayers)
             {
