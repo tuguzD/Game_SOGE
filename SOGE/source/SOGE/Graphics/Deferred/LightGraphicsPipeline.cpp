@@ -10,6 +10,12 @@
 
 namespace
 {
+    struct ConstantBuffer
+    {
+        glm::mat4x4 m_invProjection;
+        glm::mat4x4 m_invView;
+    };
+
     nvrhi::ShaderHandle LoadShader(soge::GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
                                    const std::filesystem::path& aSourcePath, const eastl::string_view aEntryName)
     {
@@ -61,8 +67,11 @@ namespace soge
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
-        bindingLayoutDesc.addItem(nvrhi::BindingLayoutItem::Texture_SRV(0));
-        bindingLayoutDesc.addItem(nvrhi::BindingLayoutItem::Texture_SRV(1));
+        bindingLayoutDesc.bindings = {
+            nvrhi::BindingLayoutItem::ConstantBuffer(0),
+            nvrhi::BindingLayoutItem::Texture_SRV(0),
+            nvrhi::BindingLayoutItem::Texture_SRV(1),
+        };
         m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};
@@ -75,6 +84,15 @@ namespace soge
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
         nvrhi::IFramebuffer& compatibleFramebuffer = aFinalRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
+
+        SOGE_INFO_LOG("Creating NVRHI constant buffer for light pipeline...");
+        nvrhi::BufferDesc bufferDesc{};
+        bufferDesc.byteSize = sizeof(ConstantBuffer);
+        bufferDesc.isConstantBuffer = true;
+        bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
+        bufferDesc.keepInitialState = true;
+        bufferDesc.debugName = "SOGE light pipeline constant buffer";
+        m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
 
         SOGE_INFO_LOG("Creating NVRHI vertex buffer for light pipeline...");
         nvrhi::BufferDesc vertexBufferDesc{};
@@ -115,9 +133,13 @@ namespace soge
         SOGE_INFO_LOG("Creating NVRHI binding set for light pipeline...");
         nvrhi::BindingSetDesc bindingSetDesc{};
         bindingSetDesc.trackLiveness = true;
-        bindingSetDesc.addItem(nvrhi::BindingSetItem::Texture_SRV(
-            0, aGeometryRenderPass.GetFramebuffer().getDesc().depthAttachment.texture));
-        bindingSetDesc.addItem(nvrhi::BindingSetItem::Texture_SRV(1, &aGeometryRenderPass.GetAlbedoTexture()));
+
+        const auto depthTexture = aGeometryRenderPass.GetFramebuffer().getDesc().depthAttachment.texture;
+        bindingSetDesc.bindings = {
+            nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer),
+            nvrhi::BindingSetItem::Texture_SRV(0, depthTexture),
+            nvrhi::BindingSetItem::Texture_SRV(1, &aGeometryRenderPass.GetAlbedoTexture()),
+        };
 
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
     }
@@ -176,6 +198,12 @@ namespace soge
     void LightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                         nvrhi::ICommandList& aCommandList)
     {
+        const ConstantBuffer constantBuffer{
+            .m_invProjection = glm::inverse(aCamera.GetProjectionMatrix()),
+            .m_invView = glm::inverse(aCamera.m_transform.ViewMatrix()),
+        };
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
+
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
         graphicsState.framebuffer = &m_finalRenderPass.get().GetFramebuffer();

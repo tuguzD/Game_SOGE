@@ -23,6 +23,7 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
 
+        nvrhi::BufferHandle m_nvrhiConstantBuffer;
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
