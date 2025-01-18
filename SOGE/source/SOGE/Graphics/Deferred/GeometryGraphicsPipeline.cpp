@@ -2,28 +2,8 @@
 
 #include "SOGE/Graphics/Deferred/GeometryGraphicsPipeline.hpp"
 
-#include "SOGE/Graphics/Utils/GetCompiledShaderPath.hpp"
+#include "SOGE/Graphics/Utils/LoadShader.hpp"
 
-#include <fstream>
-
-
-namespace
-{
-    nvrhi::ShaderHandle LoadShader(soge::GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
-                                   const std::filesystem::path& aSourcePath, const eastl::string_view aEntryName)
-    {
-        const auto compiledPath = soge::GetCompiledShaderPath(aCore, aSourcePath, aEntryName);
-        if (!std::filesystem::exists(compiledPath))
-        {
-            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", compiledPath.generic_string());
-            throw std::runtime_error{errorMessage};
-        }
-
-        std::ifstream shaderFile{compiledPath, std::ios::in | std::ios::binary};
-        const std::vector<std::uint8_t> shaderBinary{std::istreambuf_iterator{shaderFile}, {}};
-        return aCore.GetRawDevice().createShader(aDesc, shaderBinary.data(), shaderBinary.size());
-    }
-}
 
 namespace soge
 {
@@ -33,18 +13,19 @@ namespace soge
         SOGE_INFO_LOG("Creating NVRHI geometry pipeline...");
         nvrhi::IDevice& nvrhiDevice = aCore.GetRawDevice();
 
+        constexpr auto shaderSourcePath = "./resources/shaders/deferred_geometry.hlsl";
+
         nvrhi::ShaderDesc vertexShaderDesc{};
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
         vertexShaderDesc.debugName = "SOGE geometry pipeline vertex shader";
         vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader =
-            LoadShader(aCore, vertexShaderDesc, "./resources/shaders/deferred_geometry.hlsl", "VSMain");
+        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, shaderSourcePath, "VSMain");
 
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
         pixelShaderDesc.debugName = "SOGE geometry pipeline pixel shader";
         pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, "./resources/shaders/deferred_geometry.hlsl", "PSMain");
+        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, shaderSourcePath, "PSMain");
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{

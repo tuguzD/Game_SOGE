@@ -2,29 +2,9 @@
 
 #include "SOGE/Graphics/Deferred/AmbientLightGraphicsPipeline.hpp"
 
-#include "SOGE/Graphics/Utils/GetCompiledShaderPath.hpp"
 #include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
+#include "SOGE/Graphics/Utils/LoadShader.hpp"
 
-#include <fstream>
-
-
-namespace
-{
-    nvrhi::ShaderHandle LoadShader(soge::GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
-                                   const std::filesystem::path& aSourcePath, const eastl::string_view aEntryName)
-    {
-        const auto compiledPath = soge::GetCompiledShaderPath(aCore, aSourcePath, aEntryName);
-        if (!std::filesystem::exists(compiledPath))
-        {
-            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", compiledPath.generic_string());
-            throw std::runtime_error{errorMessage};
-        }
-
-        std::ifstream shaderFile{compiledPath, std::ios::in | std::ios::binary};
-        const std::vector<std::uint8_t> shaderBinary{std::istreambuf_iterator{shaderFile}, {}};
-        return aCore.GetRawDevice().createShader(aDesc, shaderBinary.data(), shaderBinary.size());
-    }
-}
 
 namespace soge
 {
@@ -36,7 +16,7 @@ namespace soge
         SOGE_INFO_LOG("Creating NVRHI ambient light pipeline...");
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
-        const auto shaderSourcePath = "./resources/shaders/deferred_ambient_light.hlsl";
+        constexpr auto shaderSourcePath = "./resources/shaders/deferred_ambient_light.hlsl";
 
         nvrhi::ShaderDesc vertexShaderDesc{};
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;

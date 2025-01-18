@@ -13,6 +13,12 @@ namespace soge
     class LightGraphicsPipeline : public GraphicsPipeline<LightGraphicsPipelineEntity>
     {
     private:
+        struct ConstantBuffer
+        {
+            glm::mat4x4 m_invProjection;
+            glm::mat4x4 m_invView;
+        };
+
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<GeometryGraphicsRenderPass> m_geometryRenderPass;
         eastl::reference_wrapper<FinalGraphicsRenderPass> m_finalRenderPass;
