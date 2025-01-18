@@ -84,6 +84,13 @@ namespace soge
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
         pipelineDesc.renderState.depthStencilState.depthWriteEnable = false;
+
+        nvrhi::BlendState::RenderTarget blendDesc{};
+        blendDesc.blendEnable = true;
+        blendDesc.srcBlend = nvrhi::BlendFactor::One;
+        blendDesc.destBlend = nvrhi::BlendFactor::One;
+        blendDesc.blendOp = nvrhi::BlendOp::Add;
+        pipelineDesc.renderState.blendState.setRenderTarget(0, blendDesc);
         // no need to create pipeline for each frame buffer, all of them are compatible with the first one
         nvrhi::IFramebuffer& compatibleFramebuffer = aFinalRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);

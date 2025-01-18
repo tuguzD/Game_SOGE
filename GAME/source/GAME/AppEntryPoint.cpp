@@ -263,12 +263,18 @@ namespace soge_game
             }
         }
 
-        const auto [ambientEntity, ambientEntityUuid] =
+        const auto [ambientEntity1, ambientEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
                 container.Provide<soge::AmbientLightEntity>());
-        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientEntityUuid.str());
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientEntityUuid1.str());
+        ambientEntity1.SetIntensity(0.1f);
 
-        ambientEntity.SetIntensity(0.05f);
+        const auto [ambientEntity2, ambientEntityUuid2] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
+                container.Provide<soge::AmbientLightEntity>());
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientEntityUuid2.str());
+        ambientEntity2.SetIntensity(0.05f);
+        ambientEntity2.SetColor(glm::vec3{1.0f, 0.0f, 0.0f});
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
