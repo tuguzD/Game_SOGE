@@ -96,6 +96,14 @@ namespace soge
         return *m_nvrhiEntityBindingLayout;
     }
 
+    void GeometryGraphicsPipeline::WriteConstantBuffer(const Camera& aCamera, nvrhi::ICommandList& aCommandList)
+    {
+        const ConstantBufferData constantBufferData{
+            .m_viewProjection = aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix(),
+        };
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
+    }
+
     nvrhi::IGraphicsPipeline& GeometryGraphicsPipeline::GetGraphicsPipeline() noexcept
     {
         return *m_nvrhiGraphicsPipeline;
@@ -107,12 +115,6 @@ namespace soge
         aEntity.WriteConstantBuffer({}, aCommandList);
         aEntity.WriteVertexBuffer({}, aCommandList);
         aEntity.WriteIndexBuffer({}, aCommandList);
-
-        // TODO: update only when changed
-        const ConstantBufferData constantBufferData{
-            .m_viewProjection = aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix(),
-        };
-        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
 
         const auto vertexBuffer = aEntity.GetVertexBuffer({});
         const auto indexBuffer = aEntity.GetIndexBuffer({});

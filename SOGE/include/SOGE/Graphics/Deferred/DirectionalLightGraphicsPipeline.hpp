@@ -42,6 +42,8 @@ namespace soge
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();
 
+        void WriteConstantBuffer(const Camera& aCamera, nvrhi::ICommandList& aCommandList);
+
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() override;
 

@@ -143,6 +143,16 @@ namespace soge
         return *m_nvrhiEntityBindingLayout;
     }
 
+    void DirectionalLightGraphicsPipeline::WriteConstantBuffer(const Camera& aCamera,
+                                                                nvrhi::ICommandList& aCommandList)
+    {
+        const ConstantBufferData constantBuffer{
+            .m_invProjection = glm::inverse(aCamera.GetProjectionMatrix()),
+            .m_invView = glm::inverse(aCamera.m_transform.ViewMatrix()),
+        };
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
+    }
+
     nvrhi::IGraphicsPipeline& DirectionalLightGraphicsPipeline::GetGraphicsPipeline()
     {
         return *m_nvrhiGraphicsPipeline;
@@ -152,13 +162,6 @@ namespace soge
                                                    Entity& aEntity, nvrhi::ICommandList& aCommandList)
     {
         aEntity.WriteConstantBuffer({}, aCommandList);
-
-        // TODO: update only when changed
-        const ConstantBufferData constantBuffer{
-            .m_invProjection = glm::inverse(aCamera.GetProjectionMatrix()),
-            .m_invView = glm::inverse(aCamera.m_transform.ViewMatrix()),
-        };
-        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
 
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
