@@ -15,6 +15,7 @@ IncludeThirdpartyDirs["glm"] = "3rdparty/glm/glm/include"
 IncludeThirdpartyDirs["XoshiroCpp"] = "3rdparty/XoshiroCpp/XoshiroCpp/include" 
 IncludeThirdpartyDirs["NRI"] = "3rdparty/NRI/NRI/Include"
 IncludeThirdpartyDirs["NVRHI"] = "3rdparty/NVRHI/NVRHI/include"
+IncludeThirdpartyDirs["Assimp"] = "3rdparty/assimp/assimp/include"
 
 -- Include libs
 Libraries = {}
@@ -69,3 +70,8 @@ Libraries["FMOD_WIN64_STUDIO_D"] = "3rdparty/FMOD/FMOD/lib/x64/fmodstudioL_vc.li
 
 Libraries["FMOD_WIN64_STUDIO_DLL_R"] = "3rdparty/FMOD/FMOD/lib/x64/fmodstudio.dll"
 Libraries["FMOD_WIN64_STUDIO_R"] = "3rdparty/FMOD/FMOD/lib/x64/fmodstudio_vc.lib"
+
+-- Assimp
+
+Libraries["assimp_lib_d"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mtd.lib"
+Libraries["assimp_lib_r"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mt.lib"

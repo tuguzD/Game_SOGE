@@ -23,6 +23,7 @@ workspace "SOGE"
         include "3rdparty/NRI/premake5.lua"
         include "3rdparty/NVRHI/premake5.lua"
         include "3rdparty/ShaderMake/premake5.lua"
+        include "3rdparty/Assimp/premake5.lua"
     group ""
 
     project "SOGE"
@@ -64,7 +65,8 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.Assimp}"
         }
 
         defines
@@ -159,14 +161,17 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_D}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D}",
-                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_D}"
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_D}",
+
+                -- Assimp
+                "%{wks.location}/%{Libraries.assimp_lib_d}"
             }
 
             postbuildcommands
             {
                 "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_D} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME", -- For FMOD Studio 
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME"
@@ -202,14 +207,17 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_R}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R}",
-                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_R}"
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_R}",
+
+                -- Assimp
+                "%{wks.location}/%{Libraries.assimp_lib_r}"
             }
 
             postbuildcommands
             {
                 "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME"
             }
