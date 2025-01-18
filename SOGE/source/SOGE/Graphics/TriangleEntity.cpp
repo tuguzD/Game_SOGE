@@ -8,13 +8,13 @@
 namespace soge
 {
     TriangleEntity::TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, Transform aTransform)
-        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}
+        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}, m_shouldWrite{true}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
         SOGE_INFO_LOG("Creating NVRHI constant buffer for triangle entity...");
         nvrhi::BufferDesc bufferDesc{};
-        bufferDesc.byteSize = sizeof(ConstantBuffer);
+        bufferDesc.byteSize = sizeof(ConstantBufferData);
         bufferDesc.isConstantBuffer = true;
         bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
         bufferDesc.keepInitialState = true;
@@ -28,44 +28,17 @@ namespace soge
             nvrhi::BindingSetItem::ConstantBuffer(1, m_nvrhiConstantBuffer),
         };
         m_nvrhiBindingSet = device.createBindingSet(geometryBindingSetDesc, &aPipeline.GetEntityBindingLayout());
-
-        SOGE_INFO_LOG("Updating NVRHI constant buffer for triangle entity...");
-        const nvrhi::CommandListHandle updateCommandList = m_core.get().GetRawDevice().createCommandList();
-        {
-            GraphicsCommandListGuard commandList{*updateCommandList};
-
-            const ConstantBuffer constantBuffer{
-                .m_model = m_transform.WorldMatrix(),
-            };
-            commandList->writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
-        }
-        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
     }
 
-    Transform TriangleEntity::GetTransform() const
+    const Transform& TriangleEntity::GetTransform() const
     {
         return m_transform;
     }
 
-    void TriangleEntity::SetTransform(const Transform& aTransform)
+    Transform& TriangleEntity::GetTransform()
     {
-        if (m_transform == aTransform)
-        {
-            return;
-        }
-        m_transform = aTransform;
-
-        SOGE_INFO_LOG("Updating NVRHI constant buffer for triangle entity...");
-        const nvrhi::CommandListHandle updateCommandList = m_core.get().GetRawDevice().createCommandList();
-        {
-            GraphicsCommandListGuard commandList{*updateCommandList};
-
-            const ConstantBuffer constantBuffer{
-                .m_model = m_transform.WorldMatrix(),
-            };
-            commandList->writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
-        }
-        m_core.get().ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
+        m_shouldWrite = true;
+        return m_transform;
     }
 
     void TriangleEntity::UpdateVertices(const Vertices aVertices)
@@ -139,11 +112,6 @@ namespace soge
         return m_nvrhiBindingSet;
     }
 
-    nvrhi::BufferHandle TriangleEntity::GetConstantBuffer(Tag)
-    {
-        return m_nvrhiConstantBuffer;
-    }
-
     nvrhi::BufferHandle TriangleEntity::GetVertexBuffer(Tag)
     {
         return m_nvrhiVertexBuffer;
@@ -152,5 +120,30 @@ namespace soge
     nvrhi::BufferHandle TriangleEntity::GetIndexBuffer(Tag)
     {
         return m_nvrhiIndexBuffer;
+    }
+
+    void TriangleEntity::WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    {
+        if (!m_shouldWrite)
+        {
+            return;
+        }
+        m_shouldWrite = false;
+
+        SOGE_INFO_LOG("Updating NVRHI constant buffer for triangle entity...");
+        const ConstantBufferData constantBufferData{
+            .m_model = m_transform.WorldMatrix(),
+        };
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
+    }
+
+    void TriangleEntity::WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    {
+        // empty for now
+    }
+
+    void TriangleEntity::WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    {
+        // empty for now
     }
 }

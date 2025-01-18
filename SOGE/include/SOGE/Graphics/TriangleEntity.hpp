@@ -14,6 +14,7 @@ namespace soge
         eastl::reference_wrapper<GeometryGraphicsPipeline> m_pipeline;
 
         Transform m_transform;
+        bool m_shouldWrite;
 
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
@@ -25,8 +26,8 @@ namespace soge
                                 Transform aTransform = Transform{});
 
         [[nodiscard]]
-        Transform GetTransform() const;
-        void SetTransform(const Transform& aTransform);
+        const Transform& GetTransform() const;
+        Transform& GetTransform();
 
         using Vertices = eastl::span<const Vertex>;
         void UpdateVertices(Vertices aVertices);
@@ -37,11 +38,13 @@ namespace soge
         [[nodiscard]]
         nvrhi::BindingSetHandle GetBindingSet(Tag) override;
         [[nodiscard]]
-        nvrhi::BufferHandle GetConstantBuffer(Tag) override;
-        [[nodiscard]]
         nvrhi::BufferHandle GetVertexBuffer(Tag) override;
         [[nodiscard]]
         nvrhi::BufferHandle GetIndexBuffer(Tag) override;
+
+        void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
+        void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
+        void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
     };
 }
 

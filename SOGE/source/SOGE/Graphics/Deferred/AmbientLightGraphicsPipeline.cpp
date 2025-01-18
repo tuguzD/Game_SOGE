@@ -138,6 +138,8 @@ namespace soge
     void AmbientLightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                                nvrhi::ICommandList& aCommandList)
     {
+        aEntity.WriteConstantBuffer({}, aCommandList);
+
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
         graphicsState.framebuffer = &m_finalRenderPass.get().GetFramebuffer();

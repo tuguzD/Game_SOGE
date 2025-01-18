@@ -75,7 +75,7 @@ namespace soge
 
         SOGE_INFO_LOG("Creating NVRHI constant buffer for geometry pipeline...");
         nvrhi::BufferDesc constantBufferDesc{};
-        constantBufferDesc.byteSize = sizeof(ConstantBuffer);
+        constantBufferDesc.byteSize = sizeof(ConstantBufferData);
         constantBufferDesc.isConstantBuffer = true;
         constantBufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
         constantBufferDesc.keepInitialState = true;
@@ -104,10 +104,15 @@ namespace soge
     void GeometryGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                            nvrhi::ICommandList& aCommandList)
     {
-        const ConstantBuffer constantBuffer{
+        aEntity.WriteConstantBuffer({}, aCommandList);
+        aEntity.WriteVertexBuffer({}, aCommandList);
+        aEntity.WriteIndexBuffer({}, aCommandList);
+
+        // TODO: update only when changed
+        const ConstantBufferData constantBufferData{
             .m_viewProjection = aCamera.GetProjectionMatrix() * aCamera.m_transform.ViewMatrix(),
         };
-        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
 
         const auto vertexBuffer = aEntity.GetVertexBuffer({});
         const auto indexBuffer = aEntity.GetIndexBuffer({});

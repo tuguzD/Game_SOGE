@@ -13,7 +13,7 @@ namespace soge
     class DirectionalLightGraphicsPipeline : public GraphicsPipeline<DirectionalLightGraphicsPipelineEntity>
     {
     private:
-        struct ConstantBuffer
+        struct ConstantBufferData
         {
             glm::mat4x4 m_invProjection;
             glm::mat4x4 m_invView;
@@ -56,7 +56,7 @@ namespace soge
         {
         };
 
-        struct ConstantBuffer
+        struct ConstantBufferData
         {
             glm::vec3 m_color;
             float m_intensity;
@@ -77,8 +77,8 @@ namespace soge
 
         [[nodiscard]]
         constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
-        [[nodiscard]]
-        constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
+
+        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

@@ -80,7 +80,7 @@ namespace soge
 
         SOGE_INFO_LOG("Creating NVRHI constant buffer for directional light pipeline...");
         nvrhi::BufferDesc constantBufferDesc{};
-        constantBufferDesc.byteSize = sizeof(ConstantBuffer);
+        constantBufferDesc.byteSize = sizeof(ConstantBufferData);
         constantBufferDesc.isConstantBuffer = true;
         constantBufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
         constantBufferDesc.keepInitialState = true;
@@ -151,7 +151,10 @@ namespace soge
     void DirectionalLightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
                                                    Entity& aEntity, nvrhi::ICommandList& aCommandList)
     {
-        const ConstantBuffer constantBuffer{
+        aEntity.WriteConstantBuffer({}, aCommandList);
+
+        // TODO: update only when changed
+        const ConstantBufferData constantBuffer{
             .m_invProjection = glm::inverse(aCamera.GetProjectionMatrix()),
             .m_invView = glm::inverse(aCamera.m_transform.ViewMatrix()),
         };

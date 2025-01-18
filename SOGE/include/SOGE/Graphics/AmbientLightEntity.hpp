@@ -7,14 +7,14 @@
 
 namespace soge
 {
-    class AmbientLightEntity : public GraphicsEntity, public AmbientLightGraphicsPipelineEntity
+    class AmbientLightEntity : public GraphicsEntity, public AmbientLightGraphicsPipeline::Entity
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<AmbientLightGraphicsPipeline> m_pipeline;
 
-        glm::vec3 m_color;
-        float m_intensity;
+        ConstantBufferData m_constantBufferData;
+        bool m_shouldWrite;
 
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
@@ -24,17 +24,17 @@ namespace soge
                                     glm::vec3 aColor = glm::vec3{1.0f}, float aIntensity = 1.0f);
 
         [[nodiscard]]
-        nvrhi::BindingSetHandle GetBindingSet(Tag) override;
-        [[nodiscard]]
-        nvrhi::BufferHandle GetConstantBuffer(Tag) override;
-
-        [[nodiscard]]
         glm::vec3 GetColor() const;
-        void SetColor(glm::vec3 aColor);
+        glm::vec3& GetColor();
 
         [[nodiscard]]
         float GetIntensity() const;
-        void SetIntensity(float aIntensity);
+        float& GetIntensity();
+
+        [[nodiscard]]
+        nvrhi::BindingSetHandle GetBindingSet(Tag) override;
+
+        void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
     };
 }
 

@@ -13,7 +13,7 @@ namespace soge
     class GeometryGraphicsPipeline : public GraphicsPipeline<GeometryGraphicsPipelineEntity>
     {
     private:
-        struct ConstantBuffer
+        struct ConstantBufferData
         {
             glm::mat4x4 m_viewProjection;
         };
@@ -50,7 +50,7 @@ namespace soge
         {
         };
 
-        struct ConstantBuffer
+        struct ConstantBufferData
         {
             glm::mat4x4 m_model;
         };
@@ -77,11 +77,13 @@ namespace soge
         [[nodiscard]]
         constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
         [[nodiscard]]
-        constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
-        [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
         [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
+
+        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
+        constexpr virtual void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
+        constexpr virtual void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

@@ -255,11 +255,11 @@ namespace soge_game
                     const auto x = static_cast<float>(i);
                     const auto y = static_cast<float>(j);
                     const auto z = static_cast<float>(k);
-                    entity.SetTransform(soge::Transform{
+                    entity.GetTransform() = soge::Transform{
                         .m_position = glm::vec3{x, y, z} + gridOffset,
                         // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
-                    });
+                    };
                 }
             }
         }
@@ -268,34 +268,34 @@ namespace soge_game
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
                 container.Provide<soge::AmbientLightEntity>());
         SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid1.str());
-        ambientLightEntity1.SetIntensity(0.1f);
+        ambientLightEntity1.GetIntensity() = 0.1f;
 
         const auto [ambientLightEntity2, ambientLightEntityUuid2] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
                 container.Provide<soge::AmbientLightEntity>());
         SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid2.str());
-        ambientLightEntity2.SetIntensity(0.05f);
-        ambientLightEntity2.SetColor(glm::vec3{1.0f, 0.0f, 0.0f});
+        ambientLightEntity2.GetIntensity() = 0.05f;
+        ambientLightEntity2.GetColor() = glm::vec3{1.0f, 0.0f, 0.0f};
 
         const auto [directionalLightEntity1, directionalLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
                 container.Provide<soge::DirectionalLightEntity>());
         SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
-        soge::Transform directionalLightTransform1{
+        const soge::Transform directionalLightTransform1{
             .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
         };
-        directionalLightEntity1.SetDirection(directionalLightTransform1.Forward());
+        directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
 
         const auto [directionalLightEntity2, directionalLightEntityUuid2] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
                 container.Provide<soge::DirectionalLightEntity>());
         SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid2.str());
-        soge::Transform directionalLightTransform2{
+        const soge::Transform directionalLightTransform2{
             .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f}},
         };
-        directionalLightEntity2.SetIntensity(0.5f);
-        directionalLightEntity2.SetColor(glm::vec3{0.0f, 1.0f, 0.0f});
-        directionalLightEntity2.SetDirection(directionalLightTransform2.Forward());
+        directionalLightEntity2.GetIntensity() = 0.5f;
+        directionalLightEntity2.GetColor() = glm::vec3{0.0f, 1.0f, 0.0f};
+        directionalLightEntity2.GetDirection() = directionalLightTransform2.Forward();
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
@@ -326,6 +326,11 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
+        auto mouseWheel = [&ambientLightEntity2](const soge::MouseWheelEvent& aEvent) {
+            ambientLightEntity2.GetIntensity() += aEvent.GetXOffset() * 0.1f;
+        };
+        eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
+
         float cameraPitch{}, cameraYaw{};
         constexpr float cameraSensitivity = 0.005f;
         auto update = [=, &camera](const soge::UpdateEvent& aEvent) mutable {
@@ -341,15 +346,12 @@ namespace soge_game
                 camera.m_transform.m_position += direction * aEvent.GetDeltaTime();
             }
 
-            if (*mouseDeltaX != 0.0f || *mouseDeltaY != 0.0f)
-            {
-                cameraYaw += *mouseDeltaX * cameraSensitivity;
-                cameraPitch += *mouseDeltaY * cameraSensitivity;
-                camera.m_transform.m_rotation = glm::quat{glm::vec3{cameraPitch, cameraYaw, 0.0f}};
+            cameraYaw += *mouseDeltaX * cameraSensitivity;
+            cameraPitch += *mouseDeltaY * cameraSensitivity;
+            camera.m_transform.m_rotation = glm::quat{glm::vec3{cameraPitch, cameraYaw, 0.0f}};
 
-                *mouseDeltaX = 0.0f;
-                *mouseDeltaY = 0.0f;
-            }
+            *mouseDeltaX = 0.0f;
+            *mouseDeltaY = 0.0f;
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }
