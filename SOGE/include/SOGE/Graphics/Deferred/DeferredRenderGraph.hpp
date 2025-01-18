@@ -2,6 +2,7 @@
 #define SOGE_GRAPHICS_DEFERRED_DEFERREDRENDERGRAPH_HPP
 
 #include "SOGE/Graphics/Deferred/AmbientLightGraphicsPipeline.hpp"
+#include "SOGE/Graphics/Deferred/DirectionalLightGraphicsPipeline.hpp"
 #include "SOGE/Graphics/Deferred/GeometryGraphicsPipeline.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
 
@@ -18,19 +19,22 @@ namespace soge
 
         eastl::reference_wrapper<GeometryGraphicsPipeline> m_geometryPipeline;
         eastl::reference_wrapper<AmbientLightGraphicsPipeline> m_ambientLightPipeline;
+        eastl::reference_wrapper<DirectionalLightGraphicsPipeline> m_directionalLightPipeline;
 
     public:
         explicit DeferredRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
                                      FinalGraphicsRenderPass& aFinalPass, GeometryGraphicsPipeline& aGeometryPipeline,
-                                     AmbientLightGraphicsPipeline& aAmbientLightPipeline);
+                                     AmbientLightGraphicsPipeline& aAmbientLightPipeline,
+                                     DirectionalLightGraphicsPipeline& aDirectionalLightPipeline);
 
         void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
     };
 }
 
-SOGE_DI_REGISTER_NS(soge, DeferredRenderGraph,
-                    df::Single<DeferredRenderGraph, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass,
-                               GeometryGraphicsPipeline, AmbientLightGraphicsPipeline>,
-                    tag::Overrides<DeferredRenderGraph, RenderGraph>)
+SOGE_DI_REGISTER_NS(
+    soge, DeferredRenderGraph,
+    df::Single<DeferredRenderGraph, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass,
+               GeometryGraphicsPipeline, AmbientLightGraphicsPipeline, DirectionalLightGraphicsPipeline>,
+    tag::Overrides<DeferredRenderGraph, RenderGraph>)
 
 #endif // SOGE_GRAPHICS_DEFERRED_DEFERREDRENDERGRAPH_HPP

@@ -7,6 +7,7 @@
 #include <SOGE/Event/InputEvents.hpp>
 #include <SOGE/Graphics/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
+#include <SOGE/Graphics/DirectionalLightEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Graphics/TriangleEntity.hpp>
 #include <SOGE/Math/Camera.hpp>
@@ -263,18 +264,27 @@ namespace soge_game
             }
         }
 
-        const auto [ambientEntity1, ambientEntityUuid1] =
+        const auto [ambientLightEntity1, ambientLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
                 container.Provide<soge::AmbientLightEntity>());
-        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientEntityUuid1.str());
-        ambientEntity1.SetIntensity(0.1f);
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid1.str());
+        ambientLightEntity1.SetIntensity(0.1f);
 
-        const auto [ambientEntity2, ambientEntityUuid2] =
+        const auto [ambientLightEntity2, ambientLightEntityUuid2] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
                 container.Provide<soge::AmbientLightEntity>());
-        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientEntityUuid2.str());
-        ambientEntity2.SetIntensity(0.05f);
-        ambientEntity2.SetColor(glm::vec3{1.0f, 0.0f, 0.0f});
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid2.str());
+        ambientLightEntity2.SetIntensity(0.05f);
+        ambientLightEntity2.SetColor(glm::vec3{1.0f, 0.0f, 0.0f});
+
+        const auto [directionalEntity, directionalEntityUuid] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+                container.Provide<soge::DirectionalLightEntity>());
+        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalEntityUuid.str());
+        soge::Transform directionalTransform{
+            .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
+        };
+        directionalEntity.SetDirection(directionalTransform.Forward());
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),

@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/Deferred/AmbientLightGraphicsPipeline.hpp"
+#include "SOGE/Graphics/Deferred/DirectionalLightGraphicsPipeline.hpp"
 
 #include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 #include "SOGE/Graphics/Utils/LoadShader.hpp"
@@ -8,25 +8,25 @@
 
 namespace soge
 {
-    AmbientLightGraphicsPipeline::AmbientLightGraphicsPipeline(GraphicsCore& aCore,
-                                                               GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                                               FinalGraphicsRenderPass& aFinalRenderPass)
+    DirectionalLightGraphicsPipeline::DirectionalLightGraphicsPipeline(GraphicsCore& aCore,
+                                                                       GeometryGraphicsRenderPass& aGeometryRenderPass,
+                                                                       FinalGraphicsRenderPass& aFinalRenderPass)
         : m_core{aCore}, m_geometryRenderPass{aGeometryRenderPass}, m_finalRenderPass{aFinalRenderPass}
     {
-        SOGE_INFO_LOG("Creating NVRHI ambient light pipeline...");
+        SOGE_INFO_LOG("Creating NVRHI directional light pipeline...");
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
-        constexpr auto shaderSourcePath = "./resources/shaders/deferred_ambient_light.hlsl";
+        constexpr auto shaderSourcePath = "./resources/shaders/deferred_directional_light.hlsl";
 
         nvrhi::ShaderDesc vertexShaderDesc{};
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
-        vertexShaderDesc.debugName = "SOGE ambient light pipeline vertex shader";
+        vertexShaderDesc.debugName = "SOGE directional light pipeline vertex shader";
         vertexShaderDesc.entryName = "VSMain";
         m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, shaderSourcePath, "VSMain");
 
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
-        pixelShaderDesc.debugName = "SOGE ambient light pipeline pixel shader";
+        pixelShaderDesc.debugName = "SOGE directional light pipeline pixel shader";
         pixelShaderDesc.entryName = "PSMain";
         m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, shaderSourcePath, "PSMain");
 
@@ -45,15 +45,17 @@ namespace soge
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::Pixel;
         bindingLayoutDesc.bindings = {
-            nvrhi::BindingLayoutItem::Texture_SRV(0), // depth
-            nvrhi::BindingLayoutItem::Texture_SRV(1), // albedo
+            nvrhi::BindingLayoutItem::ConstantBuffer(0), // inverse view & projection
+            nvrhi::BindingLayoutItem::Texture_SRV(0),    // depth
+            nvrhi::BindingLayoutItem::Texture_SRV(1),    // albedo
+            nvrhi::BindingLayoutItem::Texture_SRV(2),    // normal
         };
         m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
 
         nvrhi::BindingLayoutDesc entityBindingLayoutDesc{};
         entityBindingLayoutDesc.visibility = nvrhi::ShaderType::Pixel;
         entityBindingLayoutDesc.bindings = {
-            nvrhi::BindingLayoutItem::ConstantBuffer(0), // ambient light
+            nvrhi::BindingLayoutItem::ConstantBuffer(1), // directional light
         };
         m_nvrhiEntityBindingLayout = device.createBindingLayout(entityBindingLayoutDesc);
 
@@ -76,25 +78,34 @@ namespace soge
         nvrhi::IFramebuffer& compatibleFramebuffer = aFinalRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
 
-        SOGE_INFO_LOG("Creating NVRHI vertex buffer for ambient light pipeline...");
+        SOGE_INFO_LOG("Creating NVRHI constant buffer for directional light pipeline...");
+        nvrhi::BufferDesc bufferDesc{};
+        bufferDesc.byteSize = sizeof(ConstantBuffer);
+        bufferDesc.isConstantBuffer = true;
+        bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
+        bufferDesc.keepInitialState = true;
+        bufferDesc.debugName = "SOGE directional light pipeline constant buffer";
+        m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
+
+        SOGE_INFO_LOG("Creating NVRHI vertex buffer for directional light pipeline...");
         nvrhi::BufferDesc vertexBufferDesc{};
         vertexBufferDesc.byteSize = sizeof(glm::vec3) * 4;
         vertexBufferDesc.isVertexBuffer = true;
         vertexBufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
         vertexBufferDesc.keepInitialState = true;
-        vertexBufferDesc.debugName = "SOGE ambient light pipeline vertex buffer";
+        vertexBufferDesc.debugName = "SOGE directional light pipeline vertex buffer";
         m_nvrhiVertexBuffer = device.createBuffer(vertexBufferDesc);
 
-        SOGE_INFO_LOG("Creating NVRHI index buffer for ambient light pipeline...");
+        SOGE_INFO_LOG("Creating NVRHI index buffer for directional light pipeline...");
         nvrhi::BufferDesc indexBufferDesc{};
         indexBufferDesc.byteSize = sizeof(std::uint32_t) * 6;
         indexBufferDesc.isIndexBuffer = true;
         indexBufferDesc.initialState = nvrhi::ResourceStates::IndexBuffer;
         indexBufferDesc.keepInitialState = true;
-        indexBufferDesc.debugName = "SOGE ambient light pipeline index buffer";
+        indexBufferDesc.debugName = "SOGE directional light pipeline index buffer";
         m_nvrhiIndexBuffer = device.createBuffer(indexBufferDesc);
 
-        SOGE_INFO_LOG("Updating NVRHI vertex & index buffer for ambient light pipeline...");
+        SOGE_INFO_LOG("Updating NVRHI vertex & index buffer for directional light pipeline...");
         const nvrhi::CommandListHandle updateCommandList = device.createCommandList();
         {
             GraphicsCommandListGuard commandList{*updateCommandList};
@@ -112,32 +123,40 @@ namespace soge
         }
         aCore.ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
 
-        SOGE_INFO_LOG("Creating NVRHI binding set for ambient light pipeline...");
+        SOGE_INFO_LOG("Creating NVRHI binding set for directional light pipeline...");
         nvrhi::BindingSetDesc bindingSetDesc{};
         bindingSetDesc.trackLiveness = true;
 
         const auto depthTexture = aGeometryRenderPass.GetFramebuffer().getDesc().depthAttachment.texture;
         bindingSetDesc.bindings = {
+            nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer),
             nvrhi::BindingSetItem::Texture_SRV(0, depthTexture),
             nvrhi::BindingSetItem::Texture_SRV(1, &aGeometryRenderPass.GetAlbedoTexture()),
+            nvrhi::BindingSetItem::Texture_SRV(2, &aGeometryRenderPass.GetNormalTexture()),
         };
 
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
     }
 
-    nvrhi::IBindingLayout& AmbientLightGraphicsPipeline::GetEntityBindingLayout()
+    nvrhi::IBindingLayout& DirectionalLightGraphicsPipeline::GetEntityBindingLayout()
     {
         return *m_nvrhiEntityBindingLayout;
     }
 
-    nvrhi::IGraphicsPipeline& AmbientLightGraphicsPipeline::GetGraphicsPipeline()
+    nvrhi::IGraphicsPipeline& DirectionalLightGraphicsPipeline::GetGraphicsPipeline()
     {
         return *m_nvrhiGraphicsPipeline;
     }
 
-    void AmbientLightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
-                                               nvrhi::ICommandList& aCommandList)
+    void DirectionalLightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera,
+                                                   Entity& aEntity, nvrhi::ICommandList& aCommandList)
     {
+        const ConstantBuffer constantBuffer{
+            .m_invProjection = glm::inverse(aCamera.GetProjectionMatrix()),
+            .m_invView = glm::inverse(aCamera.m_transform.ViewMatrix()),
+        };
+        aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBuffer, sizeof(constantBuffer));
+
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
         graphicsState.framebuffer = &m_finalRenderPass.get().GetFramebuffer();

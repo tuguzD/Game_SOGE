@@ -11,9 +11,11 @@ namespace soge
     DeferredRenderGraph::DeferredRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
                                              FinalGraphicsRenderPass& aFinalPass,
                                              GeometryGraphicsPipeline& aGeometryPipeline,
-                                             AmbientLightGraphicsPipeline& aAmbientLightPipeline)
+                                             AmbientLightGraphicsPipeline& aAmbientLightPipeline,
+                                             DirectionalLightGraphicsPipeline& aDirectionalLightPipeline)
         : RenderGraph{aCore}, m_core{aCore}, m_geometryPass{aGeometryPass}, m_finalPass{aFinalPass},
-          m_geometryPipeline{aGeometryPipeline}, m_ambientLightPipeline{aAmbientLightPipeline}
+          m_geometryPipeline{aGeometryPipeline}, m_ambientLightPipeline{aAmbientLightPipeline},
+          m_directionalLightPipeline{aDirectionalLightPipeline}
     {
     }
 
@@ -50,6 +52,10 @@ namespace soge
                 if (const auto entity = dynamic_cast<AmbientLightGraphicsPipeline::Entity*>(&entityRef.get()))
                 {
                     m_ambientLightPipeline.get().Execute(aViewport, aCamera, *entity, commandListGuard);
+                }
+                if (const auto entity = dynamic_cast<DirectionalLightGraphicsPipeline::Entity*>(&entityRef.get()))
+                {
+                    m_directionalLightPipeline.get().Execute(aViewport, aCamera, *entity, commandListGuard);
                 }
             }
         }
