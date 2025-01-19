@@ -1,5 +1,5 @@
-﻿#ifndef SOGE_GRAPHICS_TRIANGLEENTITY_HPP
-#define SOGE_GRAPHICS_TRIANGLEENTITY_HPP
+﻿#ifndef SOGE_GRAPHICS_ENTITIES_TRIANGLEENTITY_HPP
+#define SOGE_GRAPHICS_ENTITIES_TRIANGLEENTITY_HPP
 
 #include "SOGE/Graphics/Deferred/GeometryGraphicsPipeline.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
@@ -7,7 +7,7 @@
 
 namespace soge
 {
-    class TriangleEntity : public GraphicsEntity, public GeometryGraphicsPipeline::Entity
+    class GeometryEntity : public GraphicsEntity, public GeometryGraphicsPipeline::Entity
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
@@ -22,7 +22,7 @@ namespace soge
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
 
     public:
-        explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
+        explicit GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
                                 Transform aTransform = Transform{});
 
         [[nodiscard]]
@@ -48,6 +48,6 @@ namespace soge
     };
 }
 
-SOGE_DI_REGISTER_NS(soge, TriangleEntity, df::Factory<TriangleEntity, GraphicsCore, GeometryGraphicsPipeline>)
+SOGE_DI_REGISTER_NS(soge, GeometryEntity, df::Factory<GeometryEntity, GraphicsCore, GeometryGraphicsPipeline>)
 
-#endif // SOGE_GRAPHICS_TRIANGLEENTITY_HPP
+#endif // SOGE_GRAPHICS_ENTITIES_TRIANGLEENTITY_HPP

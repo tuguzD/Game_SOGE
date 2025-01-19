@@ -5,12 +5,12 @@
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
-#include <SOGE/Graphics/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
-#include <SOGE/Graphics/DirectionalLightEntity.hpp>
+#include <SOGE/Graphics/Entities/AmbientLightEntity.hpp>
+#include <SOGE/Graphics/Entities/DirectionalLightEntity.hpp>
+#include <SOGE/Graphics/Entities/GeometryEntity.hpp>
+#include <SOGE/Graphics/Entities/PointLightEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
-#include <SOGE/Graphics/PointLightEntity.hpp>
-#include <SOGE/Graphics/TriangleEntity.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
 
@@ -19,7 +19,7 @@
 
 namespace
 {
-    using Vertex = soge::TriangleEntity::Vertex;
+    using Vertex = soge::GeometryEntity::Vertex;
 
     constexpr std::array<Vertex, 24> BoxVertices(const float aLength = 1.0f, const float aHeight = 1.0f,
                                                  const float aWidth = 1.0f, const glm::vec4& aColor = glm::vec4{1.0f})
@@ -171,7 +171,7 @@ namespace
         };
     }
 
-    using Index = soge::TriangleEntity::Index;
+    using Index = soge::GeometryEntity::Index;
 
     constexpr std::array<Index, 36> BoxIndices()
     {
@@ -312,8 +312,8 @@ namespace soge_game
                 for (std::size_t k = 0; k < gridSize; ++k)
                 {
                     const auto [entity, entityUuid] =
-                        graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
-                            container.Provide<soge::TriangleEntity>());
+                        graphicsModule->GetEntityManager().CreateEntity<soge::GeometryEntity>(
+                            container.Provide<soge::GeometryEntity>());
                     SOGE_INFO_LOG(R"(Created triangle entity ({}, {}, {}) with UUID {})", i, j, k, entityUuid.str());
 
                     constexpr std::array vertices = BoxVertices();
@@ -334,8 +334,8 @@ namespace soge_game
             }
         }
 
-        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
-            container.Provide<soge::TriangleEntity>());
+        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::GeometryEntity>(
+            container.Provide<soge::GeometryEntity>());
         SOGE_INFO_LOG(R"(Created triangle entity with UUID {})", entityUuid.str());
 
         const auto [vertices, indices] = UvSphere();
@@ -352,32 +352,32 @@ namespace soge_game
         SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid1.str());
         ambientLightEntity1.GetIntensity() = 0.01f;
 
-        // const auto [ambientLightEntity2, ambientLightEntityUuid2] =
-        //     graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
-        //         container.Provide<soge::AmbientLightEntity>());
-        // SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid2.str());
-        // ambientLightEntity2.GetIntensity() = 0.05f;
-        // ambientLightEntity2.GetColor() = glm::vec3{1.0f, 0.0f, 0.0f};
+        const auto [ambientLightEntity2, ambientLightEntityUuid2] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
+                container.Provide<soge::AmbientLightEntity>());
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid2.str());
+        ambientLightEntity2.GetIntensity() = 0.05f;
+        ambientLightEntity2.GetColor() = glm::vec3{1.0f, 0.0f, 0.0f};
 
-        // const auto [directionalLightEntity1, directionalLightEntityUuid1] =
-        //     graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
-        //         container.Provide<soge::DirectionalLightEntity>());
-        // SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
-        // const soge::Transform directionalLightTransform1{
-        //     .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
-        // };
-        // directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
+        const auto [directionalLightEntity1, directionalLightEntityUuid1] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+                container.Provide<soge::DirectionalLightEntity>());
+        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
+        const soge::Transform directionalLightTransform1{
+            .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
+        };
+        directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
 
-        // const auto [directionalLightEntity2, directionalLightEntityUuid2] =
-        //     graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
-        //         container.Provide<soge::DirectionalLightEntity>());
-        // SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid2.str());
-        // const soge::Transform directionalLightTransform2{
-        //     .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f}},
-        // };
-        // directionalLightEntity2.GetIntensity() = 0.5f;
-        // directionalLightEntity2.GetColor() = glm::vec3{0.0f, 1.0f, 0.0f};
-        // directionalLightEntity2.GetDirection() = directionalLightTransform2.Forward();
+        const auto [directionalLightEntity2, directionalLightEntityUuid2] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+                container.Provide<soge::DirectionalLightEntity>());
+        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid2.str());
+        const soge::Transform directionalLightTransform2{
+            .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f}},
+        };
+        directionalLightEntity2.GetIntensity() = 0.5f;
+        directionalLightEntity2.GetColor() = glm::vec3{0.0f, 1.0f, 0.0f};
+        directionalLightEntity2.GetDirection() = directionalLightTransform2.Forward();
 
         const auto [pointLightEntity1, pointLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::PointLightEntity>(

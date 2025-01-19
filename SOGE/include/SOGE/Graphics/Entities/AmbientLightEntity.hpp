@@ -1,5 +1,5 @@
-﻿#ifndef SOGE_GRAPHICS_AMBIENTLIGHTENTITY_HPP
-#define SOGE_GRAPHICS_AMBIENTLIGHTENTITY_HPP
+﻿#ifndef SOGE_GRAPHICS_ENTITIES_AMBIENTLIGHTENTITY_HPP
+#define SOGE_GRAPHICS_ENTITIES_AMBIENTLIGHTENTITY_HPP
 
 #include "SOGE/Graphics/Deferred/AmbientLightGraphicsPipeline.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
@@ -41,4 +41,4 @@ namespace soge
 SOGE_DI_REGISTER_NS(soge, AmbientLightEntity,
                     df::Factory<AmbientLightEntity, GraphicsCore, AmbientLightGraphicsPipeline>)
 
-#endif // SOGE_GRAPHICS_AMBIENTLIGHTENTITY_HPP
+#endif // SOGE_GRAPHICS_ENTITIES_AMBIENTLIGHTENTITY_HPP

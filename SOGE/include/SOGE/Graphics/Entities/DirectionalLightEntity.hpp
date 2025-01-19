@@ -1,5 +1,5 @@
-﻿#ifndef SOGE_GRAPHICS_DIRECTIONALLIGHTENTITY_HPP
-#define SOGE_GRAPHICS_DIRECTIONALLIGHTENTITY_HPP
+﻿#ifndef SOGE_GRAPHICS_ENTITIES_DIRECTIONALLIGHTENTITY_HPP
+#define SOGE_GRAPHICS_ENTITIES_DIRECTIONALLIGHTENTITY_HPP
 
 #include "SOGE/Graphics/Deferred/DirectionalLightGraphicsPipeline.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
@@ -46,4 +46,4 @@ namespace soge
 SOGE_DI_REGISTER_NS(soge, DirectionalLightEntity,
                     df::Factory<DirectionalLightEntity, GraphicsCore, DirectionalLightGraphicsPipeline>)
 
-#endif // SOGE_GRAPHICS_DIRECTIONALLIGHTENTITY_HPP
+#endif // SOGE_GRAPHICS_ENTITIES_DIRECTIONALLIGHTENTITY_HPP

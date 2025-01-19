@@ -1,5 +1,5 @@
-﻿#ifndef SOGE_GRAPHICS_POINTLIGHTENTITY_HPP
-#define SOGE_GRAPHICS_POINTLIGHTENTITY_HPP
+﻿#ifndef SOGE_GRAPHICS_ENTITIES_POINTLIGHTENTITY_HPP
+#define SOGE_GRAPHICS_ENTITIES_POINTLIGHTENTITY_HPP
 
 #include "SOGE/Graphics/Deferred/PointLightGraphicsPipeline.hpp"
 #include "SOGE/Graphics/GraphicsEntity.hpp"
@@ -59,4 +59,4 @@ namespace soge
 
 SOGE_DI_REGISTER_NS(soge, PointLightEntity, df::Factory<PointLightEntity, GraphicsCore, PointLightGraphicsPipeline>)
 
-#endif // SOGE_GRAPHICS_POINTLIGHTENTITY_HPP
+#endif // SOGE_GRAPHICS_ENTITIES_POINTLIGHTENTITY_HPP

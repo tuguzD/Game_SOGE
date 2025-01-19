@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/PointLightEntity.hpp"
+#include "SOGE/Graphics/Entities/PointLightEntity.hpp"
 
 #include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 

@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/AmbientLightEntity.hpp"
+#include "SOGE/Graphics/Entities/AmbientLightEntity.hpp"
 
 
 namespace soge

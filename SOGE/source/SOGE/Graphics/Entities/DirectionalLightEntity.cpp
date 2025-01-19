@@ -1,6 +1,6 @@
 ﻿#include "sogepch.hpp"
 
-#include "SOGE/Graphics/DirectionalLightEntity.hpp"
+#include "SOGE/Graphics/Entities/DirectionalLightEntity.hpp"
 
 #include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
 
