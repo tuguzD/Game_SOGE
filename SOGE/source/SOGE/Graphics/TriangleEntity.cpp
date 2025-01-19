@@ -13,13 +13,13 @@ namespace soge
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
         SOGE_INFO_LOG("Creating NVRHI constant buffer for triangle entity...");
-        nvrhi::BufferDesc bufferDesc{};
-        bufferDesc.byteSize = sizeof(ConstantBufferData);
-        bufferDesc.isConstantBuffer = true;
-        bufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
-        bufferDesc.keepInitialState = true;
-        bufferDesc.debugName = "SOGE triangle entity constant buffer";
-        m_nvrhiConstantBuffer = device.createBuffer(bufferDesc);
+        nvrhi::BufferDesc constantBufferDesc{};
+        constantBufferDesc.byteSize = sizeof(ConstantBufferData);
+        constantBufferDesc.isConstantBuffer = true;
+        constantBufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
+        constantBufferDesc.keepInitialState = true;
+        constantBufferDesc.debugName = "SOGE triangle entity constant buffer";
+        m_nvrhiConstantBuffer = device.createBuffer(constantBufferDesc);
 
         SOGE_INFO_LOG("Creating NVRHI binding set for triangle entity...");
         nvrhi::BindingSetDesc geometryBindingSetDesc{};

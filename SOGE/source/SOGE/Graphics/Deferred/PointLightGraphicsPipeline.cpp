@@ -65,6 +65,7 @@ namespace soge
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
         pipelineDesc.renderState.depthStencilState.depthWriteEnable = false;
+        pipelineDesc.renderState.rasterState.frontCounterClockwise = true;
 
         nvrhi::BlendState::RenderTarget blendDesc{};
         blendDesc.blendEnable = true;

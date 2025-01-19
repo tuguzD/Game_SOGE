@@ -9,6 +9,7 @@
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
 #include <SOGE/Graphics/DirectionalLightEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
+#include <SOGE/Graphics/PointLightEntity.hpp>
 #include <SOGE/Graphics/TriangleEntity.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
@@ -377,6 +378,14 @@ namespace soge_game
         directionalLightEntity2.GetIntensity() = 0.5f;
         directionalLightEntity2.GetColor() = glm::vec3{0.0f, 1.0f, 0.0f};
         directionalLightEntity2.GetDirection() = directionalLightTransform2.Forward();
+
+        const auto [pointLightEntity1, pointLightEntityUuid1] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::PointLightEntity>(
+                container.Provide<soge::PointLightEntity>());
+        SOGE_INFO_LOG(R"(Created point light entity with UUID {})", pointLightEntityUuid1.str());
+        pointLightEntity1.GetIntensity() = 2.0f;
+        pointLightEntity1.GetAttenuation().m_linearFactor = glm::vec3{1.0f};
+        pointLightEntity1.GetAttenuation().m_quadraticFactor = glm::vec3{100.0f};
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
