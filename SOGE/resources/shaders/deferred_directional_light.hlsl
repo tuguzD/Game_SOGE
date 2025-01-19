@@ -60,5 +60,5 @@ float4 PSMain(PS_Input input) : SV_Target
     float3 reflect_direction = normalize(reflect(-direction, normal));
     float specular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), 64.0f);
 
-    return albedo * float4(color, 1.0f) * intensity * (diffuse + specular);
+    return albedo * float4(color * intensity * (diffuse + specular), 1.0f);
 }

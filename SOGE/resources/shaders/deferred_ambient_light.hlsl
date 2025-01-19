@@ -39,5 +39,5 @@ float4 PSMain(PS_Input input) : SV_Target
     }
 
     float4 albedo = gBuffer_albedo.Load(gBuffer_coord);
-    return albedo * float4(color, 1.0f) * intensity;
+    return albedo * float4(color * intensity, 1.0f);
 }

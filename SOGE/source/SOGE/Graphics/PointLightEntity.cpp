@@ -17,8 +17,7 @@ namespace
         const auto constF = aAttenuation.m_constFactor;
 
         const auto radiusAll =
-            (-linearF + glm::sqrt(linearF * linearF - 4.0f * quadF * (constF - (256.0f / 5.0f) * aColor))) /
-            (2.0f * quadF);
+            (-linearF + glm::sqrt(linearF * linearF - 4.0f * quadF * (constF - 256.0f * aColor))) / (2.0f * quadF);
         return glm::max(radiusAll.x, radiusAll.y, radiusAll.z);
     }
 
