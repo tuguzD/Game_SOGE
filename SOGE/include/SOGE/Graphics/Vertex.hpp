@@ -6,10 +6,10 @@
 
 namespace soge
 {
+    using Index = std::uint32_t;
     struct Vertex final
     {
         alignas(16) glm::vec3 m_position;
-        glm::vec3 m_normal;
         glm::vec4 m_color;
     };
 }
