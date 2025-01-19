@@ -5,20 +5,20 @@
 
 namespace soge
 {
-    std::filesystem::path GetCompiledShaderPath(const GraphicsCore& aCore, const std::filesystem::path& aSourcePath,
-                                                const eastl::string_view aEntryName)
+    cppfs::FilePath GetCompiledShaderPath(const GraphicsCore& aCore, const cppfs::FilePath& aSourcePath,
+                                          const eastl::string_view aEntryName)
     {
-        std::filesystem::path destinationPath{aSourcePath};
+        cppfs::FilePath destinationPath{aSourcePath};
 
         if (!aEntryName.empty())
         {
-            const auto sourceFilename = aSourcePath.stem();
-            const auto destinationFilename = fmt::format("{}_{}", sourceFilename.generic_string(), aEntryName.data());
-            destinationPath.replace_filename(destinationFilename);
+            destinationPath = fmt::format("{}{}_{}{}", destinationPath.directoryPath(), destinationPath.baseName(),
+                                          aEntryName.data(), destinationPath.extension());
         }
 
         const auto extension = aCore.GetCompiledShaderExtension();
-        destinationPath.replace_extension(extension.data());
+        destinationPath =
+            fmt::format("{}{}.{}", destinationPath.directoryPath(), destinationPath.baseName(), extension.data());
 
         return destinationPath;
     }

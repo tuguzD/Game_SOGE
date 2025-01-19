@@ -3,14 +3,14 @@
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
 
-#include <filesystem>
+#include <cppfs/FilePath.h>
 
 
 namespace soge
 {
     [[nodiscard]]
-    std::filesystem::path GetCompiledShaderPath(const GraphicsCore& aCore, const std::filesystem::path& aSourcePath,
-                                                eastl::string_view aEntryName = "");
+    cppfs::FilePath GetCompiledShaderPath(const GraphicsCore& aCore, const cppfs::FilePath& aSourcePath,
+                                          eastl::string_view aEntryName = "");
 }
 
 #endif // SOGE_GRAPHICS_UTILS_GETCOMPILEDSHADERPATH_HPP
