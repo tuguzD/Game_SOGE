@@ -62,7 +62,7 @@ namespace soge
         {
             alignas(16) glm::vec3 m_position;
             alignas(16) glm::vec3 m_normal;
-            glm::vec4 m_color{1.0f};
+            alignas(16) glm::vec3 m_color{1.0f};
         };
 
         using Index = std::uint32_t;
