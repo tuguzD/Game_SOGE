@@ -16,7 +16,7 @@ struct Attenuation
     float3 quadratic_factor;
 };
 
-cbuffer DirectionalLight_ConstantBuffer : register(b1)
+cbuffer PointLight_ConstantBuffer : register(b1)
 {
     float4x4 model;
 
@@ -67,18 +67,18 @@ float4 PSMain(PS_Input input) : SV_Target
     float4 albedo = gBuffer_albedo.Load(gBuffer_coord);
     float3 normal = gBuffer_normal.Load(gBuffer_coord).xyz;
 
-    float3 to_light = position - world_position;
+    float3 to_light = world_position - position;
     float to_light_distance = length(to_light);
     float3 final_attenuation = attenuation.const_factor + attenuation.linear_factor * to_light_distance +
                                attenuation.quadratic_factor * to_light_distance * to_light_distance;
     final_attenuation = (length(final_attenuation) > 0.0f) ? final_attenuation : float3(1.0f, 1.0f, 1.0f);
 
-    float3 direction = normalize(to_light);
-    float diffuse = max(0.0f, dot(normal, -direction));
+    // float3 direction = normalize(to_light);
+    // float diffuse = max(0.0f, dot(normal, -direction));
 
-    float3 to_view_direction = normalize(view_position - world_position);
-    float3 reflect_direction = normalize(reflect(-direction, normal));
-    float specular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), 64.0f);
+    // float3 to_view_direction = normalize(view_position - world_position);
+    // float3 reflect_direction = normalize(reflect(-direction, normal));
+    // float specular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), 16.0f);
 
-    return albedo * float4(color, 1.0f) * intensity * (diffuse + specular) / float4(final_attenuation, 1.0f);
+    return albedo * float4(color, 1.0f) * intensity / float4(final_attenuation, 1.0f);
 }

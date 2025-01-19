@@ -26,7 +26,7 @@ namespace
     using Vertex = soge::PointLightEntity::Vertex;
     using Index = soge::PointLightEntity::Index;
     std::pair<std::vector<Vertex>, std::vector<Index>> UvSphere(const uint32_t aMeridians = 32,
-                                                                const uint32_t aParallels = 10,
+                                                                const uint32_t aParallels = 16,
                                                                 const float aRadius = 1.0f)
     {
         std::vector<Vertex> vertices;
