@@ -3,23 +3,118 @@
 #include "SOGE/Graphics/Primitives/Box.hpp"
 
 
+namespace
+{
+    using Vertex = soge::GeometryEntity::Vertex;
+    using Index = soge::GeometryEntity::Index;
+
+    [[nodiscard]]
+    eastl::vector<Vertex> CreateBoxVerticesVector(const glm::vec3 aDimensions = glm::vec3{1.0f},
+                                                  const glm::vec3 aColor = glm::vec3{1.0f})
+    {
+        const auto vertices = soge::CreateBoxVertices(aDimensions, aColor);
+
+        eastl::vector<Vertex> vector;
+        vector.assign(vertices.begin(), vertices.end());
+        return vector;
+    }
+
+    [[nodiscard]]
+    eastl::vector<Index> CreateBoxIndicesVector()
+    {
+        constexpr auto indices = soge::CreateBoxIndices();
+
+        eastl::vector<Index> vector;
+        vector.assign(indices.begin(), indices.end());
+        return vector;
+    }
+}
+
 namespace soge
 {
-    using Vertex = GeometryEntity::Vertex;
-    using Index = GeometryEntity::Index;
-
-    GeometryEntity CreateBox(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, const CreateBoxParams& aParams)
+    GeometryEntity CreateBox(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, const Transform& aTransform,
+                             const glm::vec3 aDimensions, const glm::vec3 aColor)
     {
-        const auto vertices = CreateBoxVertices(aParams.m_dimensions, aParams.m_color);
-        eastl::vector<Vertex> verticesVector;
-        verticesVector.assign(vertices.begin(), vertices.end());
+        auto vertices = CreateBoxVerticesVector(aDimensions, aColor);
+        auto indices = CreateBoxIndicesVector();
 
-        constexpr auto indices = CreateBoxIndices();
-        eastl::vector<Index> indicesVector;
-        indicesVector.assign(indices.begin(), indices.end());
+        return GeometryEntity{aCore, aPipeline, aTransform, std::move(vertices), std::move(indices)};
+    }
 
-        return GeometryEntity{
-            aCore, aPipeline, aParams.m_transform, std::move(verticesVector), std::move(indicesVector),
-        };
+    BoxPrimitive::BoxPrimitive(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, const Transform& aTransform,
+                               const glm::vec3 aDimensions, const glm::vec3 aColor)
+        : m_geometryEntity{aCore, aPipeline, aTransform}, m_dimensions{aDimensions}, m_color{aColor},
+          m_shouldWrite{true}
+    {
+    }
+
+    Transform BoxPrimitive::GetTransform() const
+    {
+        return m_geometryEntity.GetTransform();
+    }
+
+    Transform& BoxPrimitive::GetTransform()
+    {
+        return m_geometryEntity.GetTransform();
+    }
+
+    glm::vec3 BoxPrimitive::GetDimensions() const
+    {
+        return m_dimensions;
+    }
+
+    glm::vec3& BoxPrimitive::GetDimensions()
+    {
+        m_shouldWrite = true;
+        return m_dimensions;
+    }
+
+    glm::vec3 BoxPrimitive::GetColor() const
+    {
+        return m_color;
+    }
+
+    glm::vec3& BoxPrimitive::GetColor()
+    {
+        m_shouldWrite = true;
+        return m_color;
+    }
+
+    eastl::span<const Vertex> BoxPrimitive::GetVertices() const
+    {
+        return m_geometryEntity.GetVertices();
+    }
+
+    eastl::span<const Index> BoxPrimitive::GetIndices() const
+    {
+        return m_geometryEntity.GetIndices();
+    }
+
+    nvrhi::BindingSetHandle BoxPrimitive::GetBindingSet(const Tag aTag)
+    {
+        return m_geometryEntity.GetBindingSet(aTag);
+    }
+
+    nvrhi::BufferHandle BoxPrimitive::GetVertexBuffer(const Tag aTag)
+    {
+        return m_geometryEntity.GetVertexBuffer(aTag);
+    }
+
+    nvrhi::BufferHandle BoxPrimitive::GetIndexBuffer(const Tag aTag)
+    {
+        return m_geometryEntity.GetIndexBuffer(aTag);
+    }
+
+    void BoxPrimitive::WriteResources(const Tag aTag, nvrhi::ICommandList& aCommandList)
+    {
+        if (m_shouldWrite)
+        {
+            m_shouldWrite = false;
+
+            m_geometryEntity.GetVertices() = CreateBoxVerticesVector(m_dimensions, m_color);
+            m_geometryEntity.GetIndices() = CreateBoxIndicesVector();
+        }
+
+        m_geometryEntity.WriteResources(aTag, aCommandList);
     }
 }

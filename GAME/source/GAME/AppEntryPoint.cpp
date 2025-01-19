@@ -61,10 +61,9 @@ namespace soge_game
             {
                 for (std::size_t k = 0; k < gridSize; ++k)
                 {
-                    auto box = soge::CreateBox(container.Provide<soge::GraphicsCore>(),
-                                               container.Provide<soge::GeometryGraphicsPipeline>());
                     const auto [entity, entityUuid] =
-                        graphicsModule->GetEntityManager().CreateEntity<soge::GeometryEntity>(std::move(box));
+                        graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
+                            container.Provide<soge::BoxPrimitive>());
                     SOGE_INFO_LOG(R"(Created box ({}, {}, {}) with UUID {})", i, j, k, entityUuid.str());
 
                     const auto x = static_cast<float>(i);

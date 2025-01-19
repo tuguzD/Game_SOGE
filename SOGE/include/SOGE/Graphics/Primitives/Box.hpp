@@ -2,20 +2,15 @@
 #define SOGE_GRAPHICS_PRIMITIVES_BOX_HPP
 
 #include "SOGE/Graphics/Entities/GeometryEntity.hpp"
+#include "SOGE/Graphics/GraphicsPrimitive.hpp"
 
 
 namespace soge
 {
-    struct CreateBoxParams
-    {
-        Transform m_transform;
-        glm::vec3 m_dimensions{1.0f};
-        glm::vec3 m_color{1.0f};
-    };
-
     [[nodiscard]]
     GeometryEntity CreateBox(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                             const CreateBoxParams& aParams = CreateBoxParams{});
+                             const Transform& aTransform = Transform{}, glm::vec3 aDimensions = glm::vec3{1.0f},
+                             glm::vec3 aColor = glm::vec3{1.0f});
 
     [[nodiscard]]
     constexpr eastl::array<GeometryEntity::Vertex, 24> CreateBoxVertices(glm::vec3 aDimensions = glm::vec3{1.0f},
@@ -23,7 +18,49 @@ namespace soge
 
     [[nodiscard]]
     constexpr eastl::array<GeometryEntity::Index, 36> CreateBoxIndices();
+
+    class BoxPrimitive : public GraphicsPrimitive
+    {
+    private:
+        GeometryEntity m_geometryEntity;
+        glm::vec3 m_dimensions;
+        glm::vec3 m_color;
+        bool m_shouldWrite;
+
+    public:
+        explicit BoxPrimitive(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
+                              const Transform& aTransform = Transform{}, glm::vec3 aDimensions = glm::vec3{1.0f},
+                              glm::vec3 aColor = glm::vec3{1.0f});
+
+        [[nodiscard]]
+        Transform GetTransform() const override;
+        Transform& GetTransform();
+
+        [[nodiscard]]
+        glm::vec3 GetDimensions() const;
+        glm::vec3& GetDimensions();
+
+        [[nodiscard]]
+        glm::vec3 GetColor() const;
+        glm::vec3& GetColor();
+
+        [[nodiscard]]
+        eastl::span<const Vertex> GetVertices() const override;
+        [[nodiscard]]
+        eastl::span<const Index> GetIndices() const override;
+
+        [[nodiscard]]
+        nvrhi::BindingSetHandle GetBindingSet(Tag) override;
+        [[nodiscard]]
+        nvrhi::BufferHandle GetVertexBuffer(Tag) override;
+        [[nodiscard]]
+        nvrhi::BufferHandle GetIndexBuffer(Tag) override;
+
+        void WriteResources(Tag, nvrhi::ICommandList& aCommandList) override;
+    };
 }
+
+SOGE_DI_REGISTER_NS(soge, BoxPrimitive, df::Factory<BoxPrimitive, GraphicsCore, GeometryGraphicsPipeline>)
 
 /////////////////////////////////////
 // constexpr function implementations
