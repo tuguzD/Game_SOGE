@@ -1,31 +1,47 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Utils/Logger.hpp"
+#include "SOGE/Utils/StackTrace.hpp"
+
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 
 namespace soge
 {
-    Logger::_LoggerPtr Logger::mEngineSideLogger;
-    Logger::_LoggerPtr Logger::mApplicationSideLogger;
+    Logger::LoggerPtr Logger::s_engineSideLogger;
+    Logger::LoggerPtr Logger::s_applicationSideLogger;
+
+    bool Logger::s_isStackTraceOnErrorEnabled = true;
+    bool Logger::s_isStackTraceOnWarnEnabled = false;
 
     void Logger::Init()
     {
-        spdlog::set_pattern("%^[%T] [%n %l]: %v%$");
+        spdlog::set_pattern("%^[%T] %! [%n %l]: %v%$");
 
-        mEngineSideLogger = _LoggerPtr(spdlog::stdout_color_mt("ENGINE").get());
-        mEngineSideLogger->set_level(spdlog::level::trace);
+        s_engineSideLogger = spdlog::stdout_color_mt("ENGINE");
+        s_engineSideLogger->set_level(spdlog::level::trace);
 
-        mApplicationSideLogger = _LoggerPtr(spdlog::stdout_color_mt("APP").get());
-        mApplicationSideLogger->set_level(spdlog::level::trace);
-
+        s_applicationSideLogger = spdlog::stdout_color_mt("APP");
+        s_applicationSideLogger->set_level(spdlog::level::trace);
     }
 
-    Logger::_LoggerRef Logger::GetEngineSideLogger()
+    auto Logger::GetEngineSideLogger() -> LoggerPtr
     {
-        return mEngineSideLogger;
+        return s_engineSideLogger;
     }
 
-    Logger::_LoggerRef Logger::GetApplicationSideLogger()
+    auto Logger::GetApplicationSideLogger() -> LoggerPtr
     {
-        return mApplicationSideLogger;
+        return s_applicationSideLogger;
+    }
+
+    void Logger::PrintStackTrace()
+    {
+        if (s_isStackTraceOnErrorEnabled && s_engineSideLogger != nullptr)
+        {
+            const StackTrace stackTraceInfo{};
+            s_engineSideLogger->debug(stackTraceInfo.Get());
+        }
     }
 }

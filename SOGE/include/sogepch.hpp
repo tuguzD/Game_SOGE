@@ -1,5 +1,5 @@
-#ifndef SOGE_SOGEPCH_HPP
-#define SOGE_SOGEPCH_HPP
+#ifndef SOGEPCH_HPP
+#define SOGEPCH_HPP
 
 
 // STL
@@ -21,8 +21,26 @@
 #include <unordered_map>
 #include <unordered_set>
 
+// EASTL
+
+#include <EASTL/vector.h>
+#include <EASTL/memory.h>
+#include <EASTL/unique_ptr.h>
+#include <EASTL/shared_ptr.h>
+#include <EASTL/string.h>
+#include <EASTL/unordered_map.h>
+#include <EASTL/unordered_set.h>
+#include <EASTL/chrono.h>
+#include <EASTL/random.h>
+#include <EASTL/map.h>
+#include <EASTL/tuple.h>
+#include <EASTL/algorithm.h>
+#include <EASTL/utility.h>
+#include <EASTL/functional.h>
+#include <EASTL/list.h>
+
 // Engine
 
 #include "SOGE/Utils/Logger.hpp"
 
-#endif // !SOGE_SOGEPCH_HPP
+#endif // SOGEPCH_HPP
