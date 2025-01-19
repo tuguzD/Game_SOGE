@@ -72,7 +72,7 @@ namespace soge
         return m_nvrhiBindingSet;
     }
 
-    void DirectionalLightEntity::WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    void DirectionalLightEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWrite)
         {

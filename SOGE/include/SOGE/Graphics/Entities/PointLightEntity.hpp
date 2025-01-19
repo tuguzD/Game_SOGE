@@ -51,9 +51,7 @@ namespace soge
         [[nodiscard]]
         nvrhi::BufferHandle GetIndexBuffer(Tag) override;
 
-        void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
-        void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
-        void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
+        void WriteResources(Tag, nvrhi::ICommandList& aCommandList) override;
     };
 }
 

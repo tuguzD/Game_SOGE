@@ -98,9 +98,7 @@ namespace soge
         [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
 
-        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
-        constexpr virtual void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
-        constexpr virtual void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
+        constexpr virtual void WriteResources(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

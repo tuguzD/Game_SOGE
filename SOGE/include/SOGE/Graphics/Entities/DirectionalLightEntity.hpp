@@ -39,7 +39,7 @@ namespace soge
         [[nodiscard]]
         nvrhi::BindingSetHandle GetBindingSet(Tag) override;
 
-        void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
+        void WriteResources(Tag, nvrhi::ICommandList& aCommandList) override;
     };
 }
 

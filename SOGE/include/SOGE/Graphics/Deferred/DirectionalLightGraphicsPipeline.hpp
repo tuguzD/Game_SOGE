@@ -81,7 +81,7 @@ namespace soge
         [[nodiscard]]
         constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
 
-        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
+        constexpr virtual void WriteResources(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

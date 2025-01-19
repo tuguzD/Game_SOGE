@@ -138,12 +138,14 @@ namespace soge
     void AmbientLightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                                nvrhi::ICommandList& aCommandList)
     {
-        aEntity.WriteConstantBuffer({}, aCommandList);
+        aEntity.WriteResources({}, aCommandList);
+
+        const auto entityBindingSet = aEntity.GetBindingSet({});
 
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
         graphicsState.framebuffer = &m_finalRenderPass.get().GetFramebuffer();
-        graphicsState.bindings = {m_nvrhiBindingSet, aEntity.GetBindingSet({})};
+        graphicsState.bindings = {m_nvrhiBindingSet, entityBindingSet};
         graphicsState.addVertexBuffer(nvrhi::VertexBufferBinding{
             .buffer = m_nvrhiVertexBuffer,
             .slot = 0,

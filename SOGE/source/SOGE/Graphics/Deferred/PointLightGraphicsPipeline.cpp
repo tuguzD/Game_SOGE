@@ -126,30 +126,29 @@ namespace soge
     void PointLightGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                              nvrhi::ICommandList& aCommandList)
     {
-        aEntity.WriteConstantBuffer({}, aCommandList);
-        aEntity.WriteVertexBuffer({}, aCommandList);
-        aEntity.WriteIndexBuffer({}, aCommandList);
+        aEntity.WriteResources({}, aCommandList);
 
-        const auto vertexBuffer = aEntity.GetVertexBuffer({});
-        const auto indexBuffer = aEntity.GetIndexBuffer({});
+        const auto entityBindingSet = aEntity.GetBindingSet({});
+        const auto entityVertexBuffer = aEntity.GetVertexBuffer({});
+        const auto entityIndexBuffer = aEntity.GetIndexBuffer({});
 
         nvrhi::GraphicsState graphicsState{};
         graphicsState.pipeline = &GetGraphicsPipeline();
         graphicsState.framebuffer = &m_finalRenderPass.get().GetFramebuffer();
-        graphicsState.bindings = {m_nvrhiBindingSet, aEntity.GetBindingSet({})};
-        if (vertexBuffer != nullptr)
+        graphicsState.bindings = {m_nvrhiBindingSet, entityBindingSet};
+        if (entityVertexBuffer != nullptr)
         {
             const nvrhi::VertexBufferBinding vertexBufferBinding{
-                .buffer = vertexBuffer,
+                .buffer = entityVertexBuffer,
                 .slot = 0,
                 .offset = 0,
             };
             graphicsState.addVertexBuffer(vertexBufferBinding);
         }
-        if (indexBuffer != nullptr)
+        if (entityIndexBuffer != nullptr)
         {
             graphicsState.indexBuffer = nvrhi::IndexBufferBinding{
-                .buffer = indexBuffer,
+                .buffer = entityIndexBuffer,
                 .format = nvrhi::Format::R32_UINT,
                 .offset = 0,
             };
@@ -158,16 +157,16 @@ namespace soge
         aCommandList.setGraphicsState(graphicsState);
 
         nvrhi::DrawArguments drawArguments{};
-        if (indexBuffer != nullptr)
+        if (entityIndexBuffer != nullptr)
         {
-            const auto& desc = indexBuffer->getDesc();
+            const auto& desc = entityIndexBuffer->getDesc();
             drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(Entity::Index));
 
             aCommandList.drawIndexed(drawArguments);
         }
-        else if (vertexBuffer != nullptr)
+        else if (entityVertexBuffer != nullptr)
         {
-            const auto& desc = vertexBuffer->getDesc();
+            const auto& desc = entityVertexBuffer->getDesc();
             drawArguments.vertexCount = static_cast<std::uint32_t>(desc.byteSize / sizeof(Entity::Vertex));
 
             aCommandList.draw(drawArguments);

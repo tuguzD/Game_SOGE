@@ -57,7 +57,7 @@ namespace soge
         return m_nvrhiBindingSet;
     }
 
-    void AmbientLightEntity::WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    void AmbientLightEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWrite)
         {

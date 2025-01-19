@@ -219,7 +219,7 @@ namespace soge
         return m_nvrhiIndexBuffer;
     }
 
-    void PointLightEntity::WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    void PointLightEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWrite)
         {
@@ -238,13 +238,5 @@ namespace soge
         m_constantBufferData.m_model = transform.WorldMatrix();
 
         aCommandList.writeBuffer(m_nvrhiConstantBuffer, &m_constantBufferData, sizeof(m_constantBufferData));
-    }
-
-    void PointLightEntity::WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList)
-    {
-    }
-
-    void PointLightEntity::WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList)
-    {
     }
 }
