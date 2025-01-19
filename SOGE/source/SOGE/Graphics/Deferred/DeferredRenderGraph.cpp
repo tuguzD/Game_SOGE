@@ -11,9 +11,12 @@ namespace soge
     DeferredRenderGraph::DeferredRenderGraph(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryPass,
                                              FinalGraphicsRenderPass& aFinalPass,
                                              GeometryGraphicsPipeline& aGeometryPipeline,
-                                             LightGraphicsPipeline& aLightPipeline)
+                                             AmbientLightGraphicsPipeline& aAmbientLightPipeline,
+                                             DirectionalLightGraphicsPipeline& aDirectionalLightPipeline,
+                                             PointLightGraphicsPipeline& aPointLightPipeline)
         : RenderGraph{aCore}, m_core{aCore}, m_geometryPass{aGeometryPass}, m_finalPass{aFinalPass},
-          m_geometryPipeline{aGeometryPipeline}, m_lightPipeline{aLightPipeline}
+          m_geometryPipeline{aGeometryPipeline}, m_ambientLightPipeline{aAmbientLightPipeline},
+          m_directionalLightPipeline{aDirectionalLightPipeline}, m_pointLightPipeline{aPointLightPipeline}
     {
     }
 
@@ -22,46 +25,56 @@ namespace soge
         GraphicsCore& core = m_core;
         nvrhi::IDevice& device = core.GetRawDevice();
 
+        GeometryGraphicsRenderPass& geometryPass = m_geometryPass;
+        GeometryGraphicsPipeline& geometryPipeline = m_geometryPipeline;
+
+        FinalGraphicsRenderPass& finalPass = m_finalPass;
+        AmbientLightGraphicsPipeline& ambientLightPipeline = m_ambientLightPipeline;
+        DirectionalLightGraphicsPipeline& directionalLightPipeline = m_directionalLightPipeline;
+        PointLightGraphicsPipeline& pointLightPipeline = m_pointLightPipeline;
+
         nvrhi::CommandListParameters commandListDesc{};
         commandListDesc.enableImmediateExecution = false;
 
-        const nvrhi::CommandListHandle geometryCommandList = device.createCommandList(commandListDesc);
+        const nvrhi::CommandListHandle commandList = device.createCommandList(commandListDesc);
         {
-            GraphicsCommandListGuard commandList{*geometryCommandList};
+            GraphicsCommandListGuard commandListGuard{*commandList};
 
-            m_geometryPass.get().ClearFramebuffer(commandList);
-
+            geometryPass.ClearFramebuffer(commandListGuard);
+            geometryPipeline.WriteConstantBuffer(aCamera, commandListGuard);
             for (auto&& entityRef : aEntities)
             {
                 if (const auto entity = dynamic_cast<GeometryGraphicsPipeline::Entity*>(&entityRef.get()))
                 {
-                    m_geometryPipeline.get().Execute(aViewport, aCamera, *entity, commandList);
+                    geometryPipeline.Execute(aViewport, aCamera, *entity, commandListGuard);
+                }
+            }
+
+            finalPass.ClearFramebuffer(commandListGuard);
+            {
+                const auto destDepthTexture = finalPass.GetFramebuffer().getDesc().depthAttachment.texture;
+                const auto srcDepthTexture = geometryPass.GetFramebuffer().getDesc().depthAttachment.texture;
+                commandListGuard->copyTexture(destDepthTexture, {}, srcDepthTexture, {});
+            }
+
+            directionalLightPipeline.WriteConstantBuffer(aCamera, commandListGuard);
+            pointLightPipeline.WriteConstantBuffer(aCamera, commandListGuard);
+            for (auto&& entityRef : aEntities)
+            {
+                if (const auto entity = dynamic_cast<AmbientLightGraphicsPipeline::Entity*>(&entityRef.get()))
+                {
+                    ambientLightPipeline.Execute(aViewport, aCamera, *entity, commandListGuard);
+                }
+                if (const auto entity = dynamic_cast<DirectionalLightGraphicsPipeline::Entity*>(&entityRef.get()))
+                {
+                    directionalLightPipeline.Execute(aViewport, aCamera, *entity, commandListGuard);
+                }
+                if (const auto entity = dynamic_cast<PointLightGraphicsPipeline::Entity*>(&entityRef.get()))
+                {
+                    pointLightPipeline.Execute(aViewport, aCamera, *entity, commandListGuard);
                 }
             }
         }
-        core.ExecuteCommandList(geometryCommandList, nvrhi::CommandQueue::Graphics);
-
-        const nvrhi::CommandListHandle lightCommandList = device.createCommandList(commandListDesc);
-        {
-            GraphicsCommandListGuard commandList{*lightCommandList};
-
-            m_finalPass.get().ClearFramebuffer(commandList);
-            {
-                const auto destDepthTexture = m_finalPass.get().GetFramebuffer().getDesc().depthAttachment.texture;
-                const auto srcDepthTexture = m_geometryPass.get().GetFramebuffer().getDesc().depthAttachment.texture;
-                commandList->copyTexture(destDepthTexture, {}, srcDepthTexture, {});
-            }
-
-            LightGraphicsPipeline::Entity entity{};
-            m_lightPipeline.get().Execute(aViewport, aCamera, entity, commandList);
-            // for (auto&& entityRef : aEntities)
-            // {
-            //     if (const auto entity = dynamic_cast<LightGraphicsPipeline::Entity*>(&entityRef.get()))
-            //     {
-            //         m_lightPipeline.get().Execute(aViewport, aCamera, *entity, commandList);
-            //     }
-            // }
-        }
-        core.ExecuteCommandList(lightCommandList, nvrhi::CommandQueue::Graphics);
+        core.ExecuteCommandList(commandList, nvrhi::CommandQueue::Graphics);
     }
 }

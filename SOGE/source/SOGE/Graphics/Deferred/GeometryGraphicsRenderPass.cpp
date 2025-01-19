@@ -29,11 +29,28 @@ namespace soge
         nvrhiAlbedoTextureDesc.mipLevels = 1;
         nvrhiAlbedoTextureDesc.useClearValue = true;
         nvrhiAlbedoTextureDesc.clearValue = nvrhi::Color{};
-        nvrhiAlbedoTextureDesc.initialState = nvrhi::ResourceStates::ShaderResource;
+        nvrhiAlbedoTextureDesc.initialState = nvrhi::ResourceStates::RenderTarget;
         nvrhiAlbedoTextureDesc.keepInitialState = true;
         nvrhiAlbedoTextureDesc.debugName = "SOGE geometry render pass albedo texture";
 
         m_nvrhiAlbedoTexture = device.createTexture(nvrhiAlbedoTextureDesc);
+
+        SOGE_INFO_LOG("Creating NVRHI normal texture for geometry render pass...");
+        nvrhi::TextureDesc nvrhiNormalTextureDesc{};
+        nvrhiNormalTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+        nvrhiNormalTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
+        nvrhiNormalTextureDesc.width = swapChainTextureDesc.width;
+        nvrhiNormalTextureDesc.height = swapChainTextureDesc.height;
+        nvrhiNormalTextureDesc.isRenderTarget = true;
+        nvrhiNormalTextureDesc.isShaderResource = true;
+        nvrhiNormalTextureDesc.mipLevels = 1;
+        nvrhiNormalTextureDesc.useClearValue = true;
+        nvrhiNormalTextureDesc.clearValue = nvrhi::Color{};
+        nvrhiNormalTextureDesc.initialState = nvrhi::ResourceStates::RenderTarget;
+        nvrhiNormalTextureDesc.keepInitialState = true;
+        nvrhiNormalTextureDesc.debugName = "SOGE geometry render pass normal texture";
+
+        m_nvrhiNormalTexture = device.createTexture(nvrhiNormalTextureDesc);
 
         SOGE_INFO_LOG("Creating NVRHI depth texture for geometry render pass...");
         nvrhi::TextureDesc nvrhiDepthTextureDesc{};
@@ -66,48 +83,19 @@ namespace soge
         SOGE_INFO_LOG("Creating NVRHI framebuffer for geometry render pass...");
         nvrhi::FramebufferDesc framebufferDesc{};
         framebufferDesc.addColorAttachment(m_nvrhiAlbedoTexture);
+        framebufferDesc.addColorAttachment(m_nvrhiNormalTexture);
         framebufferDesc.setDepthAttachment(nvrhiDepthTexture);
 
         m_nvrhiFramebuffer = device.createFramebuffer(framebufferDesc);
-    }
-
-    GeometryGraphicsRenderPass::GeometryGraphicsRenderPass(GeometryGraphicsRenderPass&& aOther) noexcept
-        : m_core{aOther.m_core}
-    {
-        swap(aOther);
-    }
-
-    GeometryGraphicsRenderPass& GeometryGraphicsRenderPass::operator=(GeometryGraphicsRenderPass&& aOther) noexcept
-    {
-        swap(aOther);
-        return *this;
-    }
-
-    GeometryGraphicsRenderPass::~GeometryGraphicsRenderPass()
-    {
-        SOGE_INFO_LOG("Destroying NVRHI framebuffer of geometry render pass...");
-        m_nvrhiFramebuffer = nullptr;
-
-        SOGE_INFO_LOG("Destroying NVRHI albedo texture of geometry render pass...");
-        m_nvrhiAlbedoTexture = nullptr;
-    }
-
-    void GeometryGraphicsRenderPass::swap(GeometryGraphicsRenderPass& aOther) noexcept
-    {
-        using std::swap;
-
-        eastl::swap(m_core, aOther.m_core);
-
-        swap(m_nvrhiAlbedoTexture, aOther.m_nvrhiAlbedoTexture);
-        swap(m_nvrhiFramebuffer, aOther.m_nvrhiFramebuffer);
     }
 
     void GeometryGraphicsRenderPass::ClearFramebuffer(nvrhi::ICommandList& aCommandList)
     {
         nvrhi::IFramebuffer& currentFramebuffer = GetFramebuffer();
 
-        // Clear albedo texture
+        // Clear albedo & normal textures
         nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 0, nvrhi::Color{});
+        nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 1, nvrhi::Color{});
 
         nvrhi::utils::ClearDepthStencilAttachment(&aCommandList, &currentFramebuffer, 1.0f, 0);
     }
@@ -115,6 +103,11 @@ namespace soge
     nvrhi::ITexture& GeometryGraphicsRenderPass::GetAlbedoTexture()
     {
         return *m_nvrhiAlbedoTexture;
+    }
+
+    nvrhi::ITexture& GeometryGraphicsRenderPass::GetNormalTexture()
+    {
+        return *m_nvrhiNormalTexture;
     }
 
     nvrhi::IFramebuffer& GeometryGraphicsRenderPass::GetFramebuffer()

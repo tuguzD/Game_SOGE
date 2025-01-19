@@ -23,6 +23,9 @@ namespace soge
         glm::mat4x4 WorldMatrix() const;
         [[nodiscard]]
         glm::mat4x4 ViewMatrix() const;
+
+        [[nodiscard]]
+        bool operator==(const Transform&) const = default;
     };
 }
 

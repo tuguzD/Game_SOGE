@@ -5,8 +5,11 @@
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
+#include <SOGE/Graphics/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
+#include <SOGE/Graphics/DirectionalLightEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
+#include <SOGE/Graphics/PointLightEntity.hpp>
 #include <SOGE/Graphics/TriangleEntity.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
@@ -35,35 +38,136 @@ namespace
 
         return {
             // Front face
-            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{1.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * blue /*glm::vec2{1.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * red /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, forward},
+                .m_normal = glm::vec3{0.0f, 0.0f, 1.0f},
+                .m_color = aColor * gray /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+
             // Back face
-            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * red /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * blue /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, backward},
+                .m_normal = glm::vec3{0.0f, 0.0f, -1.0f},
+                .m_color = aColor * gray /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+
             // Top Face
-            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, top, backward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, forward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, forward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, backward},
+                .m_normal = glm::vec3{0.0f, 1.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+
             // Bottom Face
-            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{1.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{1.0f, 0.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, backward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, backward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, forward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, bottom, forward},
+                .m_normal = glm::vec3{0.0f, -1.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+
             // Left Face
-            Vertex{glm::vec3{left, bottom, forward}, aColor * blue /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{left, top, forward}, aColor * gray /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, top, backward}, aColor * green /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{left, bottom, backward}, aColor * red /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{left, bottom, forward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, forward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, top, backward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{left, bottom, backward},
+                .m_normal = glm::vec3{-1.0f, 0.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 1.0f}*/,
+            },
+
             // Right Face
-            Vertex{glm::vec3{right, bottom, backward}, aColor * gray /*, glm::vec2{0.0f, 1.0f}*/},
-            Vertex{glm::vec3{right, top, backward}, aColor * blue /*, glm::vec2{0.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, top, forward}, aColor * red /*, glm::vec2{1.0f, 0.0f}*/},
-            Vertex{glm::vec3{right, bottom, forward}, aColor * green /*, glm::vec2{1.0f, 1.0f}*/},
+            Vertex{
+                .m_position = glm::vec3{right, bottom, backward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * gray /*, glm::vec2{0.0f, 1.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, backward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * blue /*, glm::vec2{0.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, top, forward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * red /*, glm::vec2{1.0f, 0.0f}*/,
+            },
+            Vertex{
+                .m_position = glm::vec3{right, bottom, forward},
+                .m_normal = glm::vec3{1.0f, 0.0f, 0.0f},
+                .m_color = aColor * green /*, glm::vec2{1.0f, 1.0f}*/,
+            },
         };
     }
 
@@ -93,6 +197,75 @@ namespace
             20u, 22u, 23u,
         };
         // clang-format on
+    }
+
+    // https://github.com/caosdoar/spheres/blob/master/src/spheres.cpp#L262
+    std::pair<std::vector<Vertex>, std::vector<Index>> UvSphere(const uint32_t aMeridians = 32,
+                                                                const uint32_t aParallels = 16,
+                                                                const float aRadius = 1.0f)
+    {
+        std::vector<Vertex> vertices;
+        vertices.emplace_back(glm::vec3{0.0f, 1.0f, 0.0f} * aRadius, glm::vec3{0.0f, 1.0f, 0.0f});
+        for (uint32_t j = 0; j < aParallels - 1; ++j)
+        {
+            double const polar = glm::pi<float>() * static_cast<double>(j + 1) / static_cast<double>(aParallels);
+            double const sp = std::sin(polar);
+            double const cp = std::cos(polar);
+            for (uint32_t i = 0; i < aMeridians; ++i)
+            {
+                double const azimuth =
+                    2.0 * glm::pi<float>() * static_cast<double>(i) / static_cast<double>(aMeridians);
+                double const sa = std::sin(azimuth);
+                double const ca = std::cos(azimuth);
+                double const x = sp * ca;
+                double const y = cp;
+                double const z = sp * sa;
+                vertices.emplace_back(glm::vec3{x, y, z} * aRadius, glm::vec3{x, y, z});
+            }
+        }
+        vertices.emplace_back(glm::vec3{0.0f, -1.0f, 0.0f} * aRadius, glm::vec3{0.0f, -1.0f, 0.0f});
+
+        std::vector<Index> indices;
+        for (uint32_t i = 0; i < aMeridians; ++i)
+        {
+            uint32_t const a = i + 1;
+            uint32_t const b = (i + 1) % aMeridians + 1;
+
+            indices.push_back(0);
+            indices.push_back(b);
+            indices.push_back(a);
+        }
+        for (uint32_t j = 0; j < aParallels - 2; ++j)
+        {
+            const uint32_t aStart = j * aMeridians + 1;
+            const uint32_t bStart = (j + 1) * aMeridians + 1;
+            for (uint32_t i = 0; i < aMeridians; ++i)
+            {
+                const uint32_t a = aStart + i;
+                const uint32_t a1 = aStart + (i + 1) % aMeridians;
+                const uint32_t b = bStart + i;
+                const uint32_t b1 = bStart + (i + 1) % aMeridians;
+
+                indices.push_back(a);
+                indices.push_back(a1);
+                indices.push_back(b1);
+
+                indices.push_back(a);
+                indices.push_back(b1);
+                indices.push_back(b);
+            }
+        }
+        for (uint32_t i = 0; i < aMeridians; ++i)
+        {
+            const uint32_t a = i + aMeridians * (aParallels - 2) + 1;
+            const uint32_t b = (i + 1) % aMeridians + aMeridians * (aParallels - 2) + 1;
+
+            indices.push_back(static_cast<uint32_t>(vertices.size()) - 1);
+            indices.push_back(a);
+            indices.push_back(b);
+        }
+
+        return {vertices, indices};
     }
 }
 
@@ -141,8 +314,7 @@ namespace soge_game
                     const auto [entity, entityUuid] =
                         graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
                             container.Provide<soge::TriangleEntity>());
-                    SOGE_INFO_LOG(R"(Created graphics triangle entity ({}, {}, {}) with UUID {})", i, j, k,
-                                  entityUuid.str());
+                    SOGE_INFO_LOG(R"(Created triangle entity ({}, {}, {}) with UUID {})", i, j, k, entityUuid.str());
 
                     constexpr std::array vertices = BoxVertices();
                     entity.UpdateVertices(vertices);
@@ -155,11 +327,64 @@ namespace soge_game
                     const auto z = static_cast<float>(k);
                     entity.GetTransform() = soge::Transform{
                         .m_position = glm::vec3{x, y, z} + gridOffset,
+                        // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
                 }
             }
         }
+
+        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
+            container.Provide<soge::TriangleEntity>());
+        SOGE_INFO_LOG(R"(Created triangle entity with UUID {})", entityUuid.str());
+
+        const auto [vertices, indices] = UvSphere();
+        entity.UpdateVertices(vertices);
+        entity.UpdateIndices(indices);
+        entity.GetTransform() = soge::Transform{
+            .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
+            .m_scale = glm::vec3{0.5f},
+        };
+
+        const auto [ambientLightEntity1, ambientLightEntityUuid1] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
+                container.Provide<soge::AmbientLightEntity>());
+        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid1.str());
+        ambientLightEntity1.GetIntensity() = 0.01f;
+
+        // const auto [ambientLightEntity2, ambientLightEntityUuid2] =
+        //     graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
+        //         container.Provide<soge::AmbientLightEntity>());
+        // SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid2.str());
+        // ambientLightEntity2.GetIntensity() = 0.05f;
+        // ambientLightEntity2.GetColor() = glm::vec3{1.0f, 0.0f, 0.0f};
+
+        // const auto [directionalLightEntity1, directionalLightEntityUuid1] =
+        //     graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+        //         container.Provide<soge::DirectionalLightEntity>());
+        // SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
+        // const soge::Transform directionalLightTransform1{
+        //     .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
+        // };
+        // directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
+
+        // const auto [directionalLightEntity2, directionalLightEntityUuid2] =
+        //     graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+        //         container.Provide<soge::DirectionalLightEntity>());
+        // SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid2.str());
+        // const soge::Transform directionalLightTransform2{
+        //     .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f}},
+        // };
+        // directionalLightEntity2.GetIntensity() = 0.5f;
+        // directionalLightEntity2.GetColor() = glm::vec3{0.0f, 1.0f, 0.0f};
+        // directionalLightEntity2.GetDirection() = directionalLightTransform2.Forward();
+
+        const auto [pointLightEntity1, pointLightEntityUuid1] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::PointLightEntity>(
+                container.Provide<soge::PointLightEntity>());
+        SOGE_INFO_LOG(R"(Created point light entity with UUID {})", pointLightEntityUuid1.str());
+        pointLightEntity1.GetAttenuation().m_linearFactor = glm::vec3{1.0f};
+        pointLightEntity1.GetAttenuation().m_quadraticFactor = glm::vec3{100.0f};
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
@@ -190,6 +415,11 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
+        auto mouseWheel = [&pointLightEntity1](const soge::MouseWheelEvent& aEvent) {
+            pointLightEntity1.GetPosition() += glm::vec3{0.0f, aEvent.GetXOffset() * 0.1f, 0.0f};
+        };
+        eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
+
         float cameraPitch{}, cameraYaw{};
         constexpr float cameraSensitivity = 0.005f;
         auto update = [=, &camera](const soge::UpdateEvent& aEvent) mutable {
@@ -205,15 +435,12 @@ namespace soge_game
                 camera.m_transform.m_position += direction * aEvent.GetDeltaTime();
             }
 
-            if (*mouseDeltaX != 0.0f || *mouseDeltaY != 0.0f)
-            {
-                cameraYaw += *mouseDeltaX * cameraSensitivity;
-                cameraPitch += *mouseDeltaY * cameraSensitivity;
-                camera.m_transform.m_rotation = glm::quat{glm::vec3{cameraPitch, cameraYaw, 0.0f}};
+            cameraYaw += *mouseDeltaX * cameraSensitivity;
+            cameraPitch += *mouseDeltaY * cameraSensitivity;
+            camera.m_transform.m_rotation = glm::quat{glm::vec3{cameraPitch, cameraYaw, 0.0f}};
 
-                *mouseDeltaX = 0.0f;
-                *mouseDeltaY = 0.0f;
-            }
+            *mouseDeltaX = 0.0f;
+            *mouseDeltaY = 0.0f;
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }

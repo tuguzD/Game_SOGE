@@ -13,28 +13,31 @@ namespace soge
     class GeometryGraphicsPipeline : public GraphicsPipeline<GeometryGraphicsPipelineEntity>
     {
     private:
+        struct ConstantBufferData
+        {
+            glm::mat4x4 m_viewProjection;
+        };
+
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<GeometryGraphicsRenderPass> m_renderPass;
 
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::BufferHandle m_nvrhiConstantBuffer;
+
+        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+        nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
+        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
         nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
-        nvrhi::GraphicsPipelineHandle m_nvrhiGraphicsPipeline;
+        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass);
 
-        GeometryGraphicsPipeline(const GeometryGraphicsPipeline&) = delete;
-        GeometryGraphicsPipeline& operator=(const GeometryGraphicsPipeline&) = delete;
+        [[nodiscard]]
+        nvrhi::IBindingLayout& GetEntityBindingLayout();
 
-        GeometryGraphicsPipeline(GeometryGraphicsPipeline&& aOther) noexcept;
-        GeometryGraphicsPipeline& operator=(GeometryGraphicsPipeline&& aOther) noexcept;
-
-        ~GeometryGraphicsPipeline() override;
-
-        // NOLINTNEXTLINE(readability-identifier-naming) reason: ADL support
-        void swap(GeometryGraphicsPipeline& aOther) noexcept;
+        void WriteConstantBuffer(const Camera& aCamera, nvrhi::ICommandList& aCommandList);
 
         [[nodiscard]]
         nvrhi::IGraphicsPipeline& GetGraphicsPipeline() noexcept override;
@@ -50,15 +53,16 @@ namespace soge
         {
         };
 
-        struct ConstantBuffer
+        struct ConstantBufferData
         {
-            glm::mat4x4 m_modelViewProjection;
+            glm::mat4x4 m_model;
         };
 
         struct Vertex
         {
             alignas(16) glm::vec3 m_position;
-            glm::vec4 m_color;
+            alignas(16) glm::vec3 m_normal;
+            glm::vec4 m_color{1.0f};
         };
 
         using Index = std::uint32_t;
@@ -76,14 +80,13 @@ namespace soge
         [[nodiscard]]
         constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
         [[nodiscard]]
-        constexpr virtual nvrhi::BufferHandle GetConstantBuffer(Tag) = 0;
-        [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
         [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
 
-        [[nodiscard]]
-        constexpr virtual glm::mat4x4 GetWorldMatrix(Tag) = 0;
+        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
+        constexpr virtual void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
+        constexpr virtual void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

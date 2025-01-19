@@ -61,34 +61,6 @@ namespace soge
         }
     }
 
-    FinalGraphicsRenderPass::FinalGraphicsRenderPass(FinalGraphicsRenderPass&& aOther) noexcept : m_core{aOther.m_core}
-    {
-        swap(aOther);
-    }
-
-    FinalGraphicsRenderPass& FinalGraphicsRenderPass::operator=(FinalGraphicsRenderPass&& aOther) noexcept
-    {
-        swap(aOther);
-        return *this;
-    }
-
-    void FinalGraphicsRenderPass::swap(FinalGraphicsRenderPass& aOther) noexcept
-    {
-        using std::swap;
-
-        eastl::swap(m_core, aOther.m_core);
-        swap(m_nvrhiFramebuffers, aOther.m_nvrhiFramebuffers);
-    }
-
-    FinalGraphicsRenderPass::~FinalGraphicsRenderPass()
-    {
-        if (!m_nvrhiFramebuffers.empty())
-        {
-            SOGE_INFO_LOG("Destroying NVRHI framebuffers of final render pass...");
-            m_nvrhiFramebuffers.clear();
-        }
-    }
-
     nvrhi::IFramebuffer& FinalGraphicsRenderPass::GetFramebuffer()
     {
         const auto currentFrameIndex = m_core.get().GetSwapchain()->GetCurrentTextureIndex();

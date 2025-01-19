@@ -1,14 +1,13 @@
 #include "sogepch.hpp"
 
 #include "SOGE/Core/Engine.hpp"
+
 #include "SOGE/Core/Timestep.hpp"
 #include "SOGE/Event/EventModule.hpp"
 #include "SOGE/Graphics/GraphicsModule.hpp"
 #include "SOGE/Input/InputModule.hpp"
-#include "SOGE/Window/WindowModule.hpp"
 #include "SOGE/Sound/SoundModule.hpp"
-
-#include <ranges>
+#include "SOGE/Window/WindowModule.hpp"
 
 
 namespace soge
@@ -113,7 +112,8 @@ namespace soge
             GetModule<SoundModule>()->Update();
 
             const auto eventModule = GetModule<EventModule>();
-            eventModule->Dispatch<UpdateEvent>(Timestep::DeltaTime());
+            eventModule->Enqueue<UpdateEvent>(Timestep::DeltaTime());
+            eventModule->DispatchQueue<UpdateEvent>();
 
             for (const auto layer : m_renderLayers)
             {

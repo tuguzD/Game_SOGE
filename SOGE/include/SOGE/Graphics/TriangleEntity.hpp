@@ -11,23 +11,23 @@ namespace soge
     {
     private:
         eastl::reference_wrapper<GraphicsCore> m_core;
-        eastl::reference_wrapper<GeometryGraphicsPipeline> m_geometryPipeline;
+        eastl::reference_wrapper<GeometryGraphicsPipeline> m_pipeline;
 
         Transform m_transform;
+        bool m_shouldWrite;
 
+        nvrhi::BindingSetHandle m_nvrhiBindingSet;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
 
-        nvrhi::BindingSetHandle m_nvrhiBindingSet;
-
     public:
-        explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aGeometryPipeline);
+        explicit TriangleEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
+                                Transform aTransform = Transform{});
 
-        [[nodiscard]]
-        Transform& GetTransform();
         [[nodiscard]]
         const Transform& GetTransform() const;
+        Transform& GetTransform();
 
         using Vertices = eastl::span<const Vertex>;
         void UpdateVertices(Vertices aVertices);
@@ -38,13 +38,13 @@ namespace soge
         [[nodiscard]]
         nvrhi::BindingSetHandle GetBindingSet(Tag) override;
         [[nodiscard]]
-        nvrhi::BufferHandle GetConstantBuffer(Tag) override;
-        [[nodiscard]]
         nvrhi::BufferHandle GetVertexBuffer(Tag) override;
         [[nodiscard]]
         nvrhi::BufferHandle GetIndexBuffer(Tag) override;
-        [[nodiscard]]
-        glm::mat4x4 GetWorldMatrix(Tag) override;
+
+        void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
+        void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
+        void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) override;
     };
 }
 
