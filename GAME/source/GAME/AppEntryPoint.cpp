@@ -8,7 +8,6 @@
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
 #include <SOGE/Graphics/Entities/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Entities/DirectionalLightEntity.hpp>
-#include <SOGE/Graphics/Entities/GeometryEntity.hpp>
 #include <SOGE/Graphics/Entities/PointLightEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Graphics/Primitives/Box.hpp>
@@ -78,10 +77,8 @@ namespace soge_game
             }
         }
 
-        auto sphere = soge::CreateSphere(container.Provide<soge::GraphicsCore>(),
-                                         container.Provide<soge::GeometryGraphicsPipeline>());
-        const auto [entity, entityUuid] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::GeometryEntity>(std::move(sphere));
+        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::SpherePrimitive>(
+            container.Provide<soge::SpherePrimitive>());
         SOGE_INFO_LOG(R"(Created sphere with UUID {})", entityUuid.str());
         entity.GetTransform() = soge::Transform{
             .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
