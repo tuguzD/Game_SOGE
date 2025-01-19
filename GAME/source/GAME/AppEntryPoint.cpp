@@ -200,11 +200,11 @@ namespace
     }
 
     // https://github.com/caosdoar/spheres/blob/master/src/spheres.cpp#L262
-    std::pair<std::vector<Vertex>, std::vector<Index>> UvSphere(const uint32_t aMeridians = 32,
-                                                                const uint32_t aParallels = 16,
-                                                                const float aRadius = 1.0f)
+    std::pair<eastl::vector<Vertex>, eastl::vector<Index>> UvSphere(const uint32_t aMeridians = 32,
+                                                                    const uint32_t aParallels = 16,
+                                                                    const float aRadius = 1.0f)
     {
-        std::vector<Vertex> vertices;
+        eastl::vector<Vertex> vertices;
         vertices.emplace_back(glm::vec3{0.0f, 1.0f, 0.0f} * aRadius, glm::vec3{0.0f, 1.0f, 0.0f});
         for (uint32_t j = 0; j < aParallels - 1; ++j)
         {
@@ -225,7 +225,7 @@ namespace
         }
         vertices.emplace_back(glm::vec3{0.0f, -1.0f, 0.0f} * aRadius, glm::vec3{0.0f, -1.0f, 0.0f});
 
-        std::vector<Index> indices;
+        eastl::vector<Index> indices;
         for (uint32_t i = 0; i < aMeridians; ++i)
         {
             uint32_t const a = i + 1;
@@ -317,10 +317,12 @@ namespace soge_game
                     SOGE_INFO_LOG(R"(Created triangle entity ({}, {}, {}) with UUID {})", i, j, k, entityUuid.str());
 
                     constexpr std::array vertices = BoxVertices();
-                    entity.UpdateVertices(vertices);
+                    const eastl::span verticesSpan{vertices};
+                    entity.GetVertices().assign(verticesSpan.begin(), verticesSpan.end());
 
                     constexpr std::array indices = BoxIndices();
-                    entity.UpdateIndices(indices);
+                    const eastl::span indicesSpan{indices};
+                    entity.GetIndices().assign(indicesSpan.begin(), indicesSpan.end());
 
                     const auto x = static_cast<float>(i);
                     const auto y = static_cast<float>(j);
@@ -339,8 +341,8 @@ namespace soge_game
         SOGE_INFO_LOG(R"(Created triangle entity with UUID {})", entityUuid.str());
 
         const auto [vertices, indices] = UvSphere();
-        entity.UpdateVertices(vertices);
-        entity.UpdateIndices(indices);
+        entity.GetVertices() = vertices;
+        entity.GetIndices() = indices;
         entity.GetTransform() = soge::Transform{
             .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
             .m_scale = glm::vec3{0.5f},

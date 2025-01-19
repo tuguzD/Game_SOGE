@@ -7,8 +7,11 @@
 
 namespace soge
 {
-    GeometryEntity::GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, Transform aTransform)
-        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}, m_shouldWrite{true}
+    GeometryEntity::GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, Transform aTransform,
+                                   eastl::vector<Vertex> aVertices, eastl::vector<Index> aIndices)
+        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}, m_vertices{std::move(aVertices)},
+          m_indices{std::move(aIndices)}, m_shouldWriteConstantBuffer{true}, m_shouldWriteVertexBuffer{true},
+          m_shouldWriteIndexBuffer{true}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -37,74 +40,30 @@ namespace soge
 
     Transform& GeometryEntity::GetTransform()
     {
-        m_shouldWrite = true;
+        m_shouldWriteConstantBuffer = true;
         return m_transform;
     }
 
-    void GeometryEntity::UpdateVertices(const Vertices aVertices)
+    auto GeometryEntity::GetVertices() const -> eastl::span<const Vertex>
     {
-        if (aVertices.empty())
-        {
-            m_nvrhiVertexBuffer = nullptr;
-            return;
-        }
-
-        GraphicsCore& core = m_core.get();
-        nvrhi::IDevice& device = core.GetRawDevice();
-        const auto inputByteSize = static_cast<std::uint64_t>(aVertices.size_bytes());
-
-        if (m_nvrhiVertexBuffer == nullptr || m_nvrhiVertexBuffer->getDesc().byteSize != inputByteSize)
-        {
-            SOGE_INFO_LOG("Creating NVRHI vertex buffer for geometry entity...");
-            nvrhi::BufferDesc bufferDesc{};
-            bufferDesc.byteSize = inputByteSize;
-            bufferDesc.isVertexBuffer = true;
-            bufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
-            bufferDesc.keepInitialState = true;
-            bufferDesc.debugName = "SOGE geometry entity vertex buffer";
-            m_nvrhiVertexBuffer = device.createBuffer(bufferDesc);
-        }
-
-        SOGE_INFO_LOG("Updating NVRHI vertex buffer for geometry entity...");
-        const nvrhi::CommandListHandle updateCommandList = device.createCommandList();
-        {
-            GraphicsCommandListGuard commandList{*updateCommandList};
-            commandList->writeBuffer(m_nvrhiVertexBuffer, aVertices.data(), inputByteSize);
-        }
-        core.ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
+        return m_vertices;
     }
 
-    void GeometryEntity::UpdateIndices(const Indices aIndices)
+    auto GeometryEntity::GetVertices() -> eastl::vector<Vertex>&
     {
-        if (aIndices.empty())
-        {
-            m_nvrhiIndexBuffer = nullptr;
-            return;
-        }
+        m_shouldWriteVertexBuffer = true;
+        return m_vertices;
+    }
 
-        GraphicsCore& core = m_core.get();
-        nvrhi::IDevice& device = core.GetRawDevice();
-        const auto inputByteSize = static_cast<std::uint64_t>(aIndices.size_bytes());
+    auto GeometryEntity::GetIndices() const -> eastl::span<const Index>
+    {
+        return m_indices;
+    }
 
-        if (m_nvrhiIndexBuffer == nullptr || m_nvrhiIndexBuffer->getDesc().byteSize != inputByteSize)
-        {
-            SOGE_INFO_LOG("Creating NVRHI index buffer for geometry entity...");
-            nvrhi::BufferDesc bufferDesc{};
-            bufferDesc.byteSize = inputByteSize;
-            bufferDesc.isIndexBuffer = true;
-            bufferDesc.initialState = nvrhi::ResourceStates::IndexBuffer;
-            bufferDesc.keepInitialState = true;
-            bufferDesc.debugName = "SOGE geometry entity index buffer";
-            m_nvrhiIndexBuffer = device.createBuffer(bufferDesc);
-        }
-
-        SOGE_INFO_LOG("Updating NVRHI index buffer for geometry entity...");
-        const nvrhi::CommandListHandle updateCommandList = device.createCommandList();
-        {
-            GraphicsCommandListGuard commandList{*updateCommandList};
-            commandList->writeBuffer(m_nvrhiIndexBuffer, aIndices.data(), inputByteSize);
-        }
-        core.ExecuteCommandList(updateCommandList, nvrhi::CommandQueue::Graphics);
+    auto GeometryEntity::GetIndices() -> eastl::vector<Index>&
+    {
+        m_shouldWriteIndexBuffer = true;
+        return m_indices;
     }
 
     nvrhi::BindingSetHandle GeometryEntity::GetBindingSet(Tag)
@@ -122,13 +81,20 @@ namespace soge
         return m_nvrhiIndexBuffer;
     }
 
-    void GeometryEntity::WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    void GeometryEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
     {
-        if (!m_shouldWrite)
+        WriteConstantBuffer(aCommandList);
+        WriteVertexBuffer(aCommandList);
+        WriteIndexBuffer(aCommandList);
+    }
+
+    void GeometryEntity::WriteConstantBuffer(nvrhi::ICommandList& aCommandList)
+    {
+        if (!m_shouldWriteConstantBuffer)
         {
             return;
         }
-        m_shouldWrite = false;
+        m_shouldWriteConstantBuffer = false;
 
         SOGE_INFO_LOG("Updating NVRHI constant buffer for geometry entity...");
         const ConstantBufferData constantBufferData{
@@ -137,13 +103,65 @@ namespace soge
         aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
     }
 
-    void GeometryEntity::WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    void GeometryEntity::WriteVertexBuffer(nvrhi::ICommandList& aCommandList)
     {
-        // empty for now
+        if (!m_shouldWriteVertexBuffer)
+        {
+            return;
+        }
+        m_shouldWriteVertexBuffer = false;
+
+        const eastl::span vertices{m_vertices};
+        if (vertices.empty())
+        {
+            m_nvrhiVertexBuffer = nullptr;
+            return;
+        }
+
+        if (m_nvrhiVertexBuffer == nullptr || m_nvrhiVertexBuffer->getDesc().byteSize != vertices.size_bytes())
+        {
+            SOGE_INFO_LOG("Creating NVRHI vertex buffer for geometry entity...");
+            nvrhi::BufferDesc bufferDesc{};
+            bufferDesc.byteSize = vertices.size_bytes();
+            bufferDesc.isVertexBuffer = true;
+            bufferDesc.initialState = nvrhi::ResourceStates::VertexBuffer;
+            bufferDesc.keepInitialState = true;
+            bufferDesc.debugName = "SOGE geometry entity vertex buffer";
+            m_nvrhiVertexBuffer = m_core.get().GetRawDevice().createBuffer(bufferDesc);
+        }
+
+        SOGE_INFO_LOG("Updating NVRHI vertex buffer for geometry entity...");
+        aCommandList.writeBuffer(m_nvrhiVertexBuffer, vertices.data(), vertices.size_bytes());
     }
 
-    void GeometryEntity::WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList)
+    void GeometryEntity::WriteIndexBuffer(nvrhi::ICommandList& aCommandList)
     {
-        // empty for now
+        if (!m_shouldWriteIndexBuffer)
+        {
+            return;
+        }
+        m_shouldWriteIndexBuffer = false;
+
+        const eastl::span indices{m_indices};
+        if (indices.empty())
+        {
+            m_nvrhiIndexBuffer = nullptr;
+            return;
+        }
+
+        if (m_nvrhiIndexBuffer == nullptr || m_nvrhiIndexBuffer->getDesc().byteSize != indices.size_bytes())
+        {
+            SOGE_INFO_LOG("Creating NVRHI index buffer for geometry entity...");
+            nvrhi::BufferDesc bufferDesc{};
+            bufferDesc.byteSize = indices.size_bytes();
+            bufferDesc.isIndexBuffer = true;
+            bufferDesc.initialState = nvrhi::ResourceStates::IndexBuffer;
+            bufferDesc.keepInitialState = true;
+            bufferDesc.debugName = "SOGE geometry entity index buffer";
+            m_nvrhiIndexBuffer = m_core.get().GetRawDevice().createBuffer(bufferDesc);
+        }
+
+        SOGE_INFO_LOG("Updating NVRHI index buffer for geometry entity...");
+        aCommandList.writeBuffer(m_nvrhiIndexBuffer, indices.data(), indices.size_bytes());
     }
 }
