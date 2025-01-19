@@ -197,6 +197,75 @@ namespace
         };
         // clang-format on
     }
+
+    // https://github.com/caosdoar/spheres/blob/master/src/spheres.cpp#L262
+    std::pair<std::vector<Vertex>, std::vector<Index>> UvSphere(const uint32_t aMeridians = 32,
+                                                                const uint32_t aParallels = 10,
+                                                                const float aRadius = 1.0f)
+    {
+        std::vector<Vertex> vertices;
+        vertices.emplace_back(glm::vec3{0.0f, 1.0f, 0.0f} * aRadius, glm::vec3{0.0f, 1.0f, 0.0f});
+        for (uint32_t j = 0; j < aParallels - 1; ++j)
+        {
+            double const polar = glm::pi<float>() * static_cast<double>(j + 1) / static_cast<double>(aParallels);
+            double const sp = std::sin(polar);
+            double const cp = std::cos(polar);
+            for (uint32_t i = 0; i < aMeridians; ++i)
+            {
+                double const azimuth =
+                    2.0 * glm::pi<float>() * static_cast<double>(i) / static_cast<double>(aMeridians);
+                double const sa = std::sin(azimuth);
+                double const ca = std::cos(azimuth);
+                double const x = sp * ca;
+                double const y = cp;
+                double const z = sp * sa;
+                vertices.emplace_back(glm::vec3{x, y, z} * aRadius, glm::vec3{x, y, z});
+            }
+        }
+        vertices.emplace_back(glm::vec3{0.0f, -1.0f, 0.0f} * aRadius, glm::vec3{0.0f, -1.0f, 0.0f});
+
+        std::vector<Index> indices;
+        for (uint32_t i = 0; i < aMeridians; ++i)
+        {
+            uint32_t const a = i + 1;
+            uint32_t const b = (i + 1) % aMeridians + 1;
+
+            indices.push_back(0);
+            indices.push_back(b);
+            indices.push_back(a);
+        }
+        for (uint32_t j = 0; j < aParallels - 2; ++j)
+        {
+            const uint32_t aStart = j * aMeridians + 1;
+            const uint32_t bStart = (j + 1) * aMeridians + 1;
+            for (uint32_t i = 0; i < aMeridians; ++i)
+            {
+                const uint32_t a = aStart + i;
+                const uint32_t a1 = aStart + (i + 1) % aMeridians;
+                const uint32_t b = bStart + i;
+                const uint32_t b1 = bStart + (i + 1) % aMeridians;
+
+                indices.push_back(a);
+                indices.push_back(a1);
+                indices.push_back(b1);
+
+                indices.push_back(a);
+                indices.push_back(b1);
+                indices.push_back(b);
+            }
+        }
+        for (uint32_t i = 0; i < aMeridians; ++i)
+        {
+            const uint32_t a = i + aMeridians * (aParallels - 2) + 1;
+            const uint32_t b = (i + 1) % aMeridians + aMeridians * (aParallels - 2) + 1;
+
+            indices.push_back(static_cast<uint32_t>(vertices.size()) - 1);
+            indices.push_back(a);
+            indices.push_back(b);
+        }
+
+        return {vertices, indices};
+    }
 }
 
 namespace soge_game
@@ -263,6 +332,18 @@ namespace soge_game
                 }
             }
         }
+
+        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::TriangleEntity>(
+            container.Provide<soge::TriangleEntity>());
+        SOGE_INFO_LOG(R"(Created triangle entity with UUID {})", entityUuid.str());
+
+        const auto [vertices, indices] = UvSphere();
+        entity.UpdateVertices(vertices);
+        entity.UpdateIndices(indices);
+        entity.GetTransform() = soge::Transform{
+            .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
+            .m_scale = glm::vec3{0.5f},
+        };
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
