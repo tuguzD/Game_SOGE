@@ -68,6 +68,7 @@ namespace soge
 
             glm::mat4x4 m_model;
             Material m_material;
+            std::uint32_t m_hasColorTexture = false;
         };
 
         struct Vertex
@@ -75,6 +76,7 @@ namespace soge
             alignas(16) glm::vec3 m_position;
             alignas(16) glm::vec3 m_normal;
             alignas(16) glm::vec3 m_color{1.0f};
+            alignas(16) glm::vec2 m_texCoord;
         };
 
         using Index = std::uint32_t;

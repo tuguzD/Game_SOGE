@@ -13,6 +13,8 @@ namespace soge
         using Material = ConstantBufferData::Material;
 
     private:
+        void CreateBindingSet();
+
         void WriteConstantBuffer(nvrhi::ICommandList& aCommandList);
         void WriteVertexBuffer(nvrhi::ICommandList& aCommandList);
         void WriteIndexBuffer(nvrhi::ICommandList& aCommandList);
@@ -30,6 +32,9 @@ namespace soge
         bool m_shouldWriteIndexBuffer;
 
         nvrhi::BindingSetHandle m_nvrhiBindingSet;
+        nvrhi::TextureHandle m_nvrhiOneByOneTexture;
+        nvrhi::TextureHandle m_nvrhiColorTexture;
+        nvrhi::SamplerHandle m_nvrhiColorTextureSampler;
         nvrhi::BufferHandle m_nvrhiConstantBuffer;
         nvrhi::BufferHandle m_nvrhiVertexBuffer;
         nvrhi::BufferHandle m_nvrhiIndexBuffer;
@@ -37,7 +42,8 @@ namespace soge
     public:
         explicit GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
                                 Transform aTransform = Transform{}, Material aMaterial = {},
-                                eastl::vector<Vertex> aVertices = {}, eastl::vector<Index> aIndices = {});
+                                eastl::vector<Vertex> aVertices = {}, eastl::vector<Index> aIndices = {},
+                                nvrhi::TextureHandle aColorTexture = {});
 
         [[nodiscard]]
         const Transform& GetTransform() const;
@@ -54,6 +60,10 @@ namespace soge
         [[nodiscard]]
         eastl::span<const Index> GetIndices() const;
         eastl::vector<Index>& GetIndices();
+
+        [[nodiscard]]
+        nvrhi::ITexture* GetColorTexture() const;
+        nvrhi::TextureHandle& GetColorTexture();
 
         [[nodiscard]]
         nvrhi::BindingSetHandle GetBindingSet(Tag) override;

@@ -32,6 +32,12 @@ namespace soge
                 .offset = offsetof(Entity::Vertex, m_color),
                 .elementStride = sizeof(Entity::Vertex),
             },
+            nvrhi::VertexAttributeDesc{
+                .name = "texCoord",
+                .format = nvrhi::Format::RG32_FLOAT,
+                .offset = offsetof(Entity::Vertex, m_texCoord),
+                .elementStride = sizeof(Entity::Vertex),
+            },
         };
         m_nvrhiInputLayout = device.createInputLayout(vertexAttributeDescArray.data(),
                                                       static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
@@ -47,6 +53,8 @@ namespace soge
         nvrhi::BindingLayoutDesc entityBindingLayoutDesc{};
         entityBindingLayoutDesc.visibility = nvrhi::ShaderType::All;
         entityBindingLayoutDesc.bindings = {
+            nvrhi::BindingLayoutItem::Texture_SRV(0),    // color texture
+            nvrhi::BindingLayoutItem::Sampler(0),        // color texture sampler
             nvrhi::BindingLayoutItem::ConstantBuffer(1), // model matrix & material
         };
         m_nvrhiEntityBindingLayout = device.createBindingLayout(entityBindingLayoutDesc);

@@ -17,7 +17,7 @@ namespace soge
         SetLoaded(true);
     }
 
-    eastl::span<const nvrhi::Color> SimpleTextureResource::GetPixels() const noexcept
+    eastl::span<const std::uint8_t> SimpleTextureResource::GetPixels() const noexcept
     {
         return m_pixels;
     }
@@ -37,21 +37,23 @@ namespace soge
     void SimpleTextureResource::Initialize()
     {
         int width, height, channels;
-        auto pixels = stbi_loadf(GetFullPath().data(), &width, &height, &channels, STBI_rgb_alpha);
-        if (pixels == nullptr || channels != STBI_rgb_alpha)
+        auto pixels = stbi_load(GetFullPath().data(), &width, &height, &channels, STBI_rgb_alpha);
+        if (pixels == nullptr)
         {
             const auto message = fmt::format(R"(Failed to load texture image by path "{}": {})", GetFullPath().data(),
                                              stbi_failure_reason());
             throw std::runtime_error{message};
         }
 
-        m_pixels.assign(pixels, pixels + static_cast<std::ptrdiff_t>(width * height * channels));
+        m_pixels.assign(pixels, pixels + static_cast<std::ptrdiff_t>(width * height * 4));
         stbi_image_free(pixels);
         pixels = nullptr;
 
         m_textureDesc.width = width;
         m_textureDesc.height = height;
-        m_textureDesc.format = nvrhi::Format::RGBA16_FLOAT;
+        m_textureDesc.format = nvrhi::Format::RGBA8_UNORM;
+        m_textureDesc.initialState = nvrhi::ResourceStates::ShaderResource;
+        m_textureDesc.keepInitialState = true;
         m_textureDesc.debugName =
             fmt::format(R"(SOGE 2D texture "{}" by path "{}")", GetName().data(), GetFullPath().data());
 

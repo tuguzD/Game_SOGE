@@ -58,6 +58,16 @@ namespace soge
         return m_geometryEntity.GetTransform();
     }
 
+    nvrhi::ITexture* BoxPrimitive::GetColorTexture() const
+    {
+        return m_geometryEntity.GetColorTexture();
+    }
+
+    nvrhi::TextureHandle& BoxPrimitive::GetColorTexture()
+    {
+        return m_geometryEntity.GetColorTexture();
+    }
+
     auto BoxPrimitive::GetMaterial() const -> Material
     {
         return m_geometryEntity.GetMaterial();

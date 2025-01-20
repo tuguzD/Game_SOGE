@@ -13,6 +13,7 @@
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Graphics/Primitives/Box.hpp>
 #include <SOGE/Graphics/Primitives/Sphere.hpp>
+#include <SOGE/Graphics/Resources/SimpleTextureResource.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
 
@@ -53,6 +54,17 @@ namespace soge_game
         auto& renderGraph = container.Provide<soge::DeferredRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
+        soge::SimpleTextureResource texture{container.Provide<soge::GraphicsCore>(), "cardboard",
+                                            "./resources/textures/cardboard.png"};
+        {
+            auto& graphicsCore = container.Provide<soge::GraphicsCore>();
+            auto commandList = graphicsCore.GetRawDevice().createCommandList();
+            commandList->open();
+            texture.WriteResource(*commandList);
+            commandList->close();
+            graphicsCore.ExecuteCommandList(commandList);
+        }
+
         constexpr std::size_t gridSize = 3;
         constexpr glm::vec3 gridOffset{-0.5f * (gridSize - 1)};
         for (std::size_t i = 0; i < gridSize; ++i)
@@ -74,6 +86,7 @@ namespace soge_game
                         // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
+                    entity.GetColorTexture() = texture.GetResource();
                 }
             }
         }

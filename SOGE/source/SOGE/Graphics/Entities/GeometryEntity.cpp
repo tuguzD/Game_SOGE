@@ -8,10 +8,11 @@
 namespace soge
 {
     GeometryEntity::GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, Transform aTransform,
-                                   Material aMaterial, eastl::vector<Vertex> aVertices, eastl::vector<Index> aIndices)
+                                   Material aMaterial, eastl::vector<Vertex> aVertices, eastl::vector<Index> aIndices,
+                                   nvrhi::TextureHandle aColorTexture)
         : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}, m_material{aMaterial},
           m_vertices{std::move(aVertices)}, m_indices{std::move(aIndices)}, m_shouldWriteConstantBuffer{true},
-          m_shouldWriteVertexBuffer{true}, m_shouldWriteIndexBuffer{true}
+          m_shouldWriteVertexBuffer{true}, m_shouldWriteIndexBuffer{true}, m_nvrhiColorTexture{std::move(aColorTexture)}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -24,13 +25,19 @@ namespace soge
         constantBufferDesc.debugName = "SOGE geometry entity constant buffer";
         m_nvrhiConstantBuffer = device.createBuffer(constantBufferDesc);
 
-        SOGE_INFO_LOG("Creating NVRHI binding set for geometry entity...");
-        nvrhi::BindingSetDesc geometryBindingSetDesc{};
-        geometryBindingSetDesc.trackLiveness = true;
-        geometryBindingSetDesc.bindings = {
-            nvrhi::BindingSetItem::ConstantBuffer(1, m_nvrhiConstantBuffer),
-        };
-        m_nvrhiBindingSet = device.createBindingSet(geometryBindingSetDesc, &aPipeline.GetEntityBindingLayout());
+        SOGE_INFO_LOG("Creating NVRHI color texture sampler for geometry entity...");
+        nvrhi::SamplerDesc samplerDesc{};
+        m_nvrhiColorTextureSampler = device.createSampler(samplerDesc);
+
+        nvrhi::TextureDesc oneByOneTextureDesc{};
+        oneByOneTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+        oneByOneTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
+        oneByOneTextureDesc.initialState = nvrhi::ResourceStates::ShaderResource;
+        oneByOneTextureDesc.keepInitialState = true;
+        oneByOneTextureDesc.debugName = "SOGE geometry entity 1x1 texture";
+        m_nvrhiOneByOneTexture = device.createTexture(oneByOneTextureDesc);
+
+        CreateBindingSet();
     }
 
     const Transform& GeometryEntity::GetTransform() const
@@ -44,12 +51,12 @@ namespace soge
         return m_transform;
     }
 
-    const GeometryEntity::Material& GeometryEntity::GetMaterial() const
+    auto GeometryEntity::GetMaterial() const -> const Material&
     {
         return m_material;
     }
 
-    GeometryEntity::Material& GeometryEntity::GetMaterial()
+    auto GeometryEntity::GetMaterial() -> Material&
     {
         m_shouldWriteConstantBuffer = true;
         return m_material;
@@ -77,6 +84,17 @@ namespace soge
         return m_indices;
     }
 
+    nvrhi::ITexture* GeometryEntity::GetColorTexture() const
+    {
+        return m_nvrhiColorTexture;
+    }
+
+    nvrhi::TextureHandle& GeometryEntity::GetColorTexture()
+    {
+        m_shouldWriteConstantBuffer = true;
+        return m_nvrhiColorTexture;
+    }
+
     nvrhi::BindingSetHandle GeometryEntity::GetBindingSet(Tag)
     {
         return m_nvrhiBindingSet;
@@ -99,6 +117,21 @@ namespace soge
         WriteIndexBuffer(aCommandList);
     }
 
+    void GeometryEntity::CreateBindingSet()
+    {
+        SOGE_INFO_LOG("Creating NVRHI binding set for geometry entity...");
+        nvrhi::BindingSetDesc bindingSetDesc;
+        bindingSetDesc.trackLiveness = true;
+        bindingSetDesc.bindings = {
+            nvrhi::BindingSetItem::Texture_SRV(0, m_nvrhiColorTexture != nullptr ? m_nvrhiColorTexture
+                                                                                 : m_nvrhiOneByOneTexture),
+            nvrhi::BindingSetItem::Sampler(0, m_nvrhiColorTextureSampler),
+            nvrhi::BindingSetItem::ConstantBuffer(1, m_nvrhiConstantBuffer),
+        };
+        nvrhi::IDevice& device = m_core.get().GetRawDevice();
+        m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, &m_pipeline.get().GetEntityBindingLayout());
+    }
+
     void GeometryEntity::WriteConstantBuffer(nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWriteConstantBuffer)
@@ -107,10 +140,13 @@ namespace soge
         }
         m_shouldWriteConstantBuffer = false;
 
+        CreateBindingSet();
+
         SOGE_INFO_LOG("Updating NVRHI constant buffer for geometry entity...");
         const ConstantBufferData constantBufferData{
             .m_model = m_transform.WorldMatrix(),
             .m_material = m_material,
+            .m_hasColorTexture = m_nvrhiColorTexture != nullptr,
         };
         aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
     }

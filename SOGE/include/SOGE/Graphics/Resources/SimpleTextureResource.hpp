@@ -9,7 +9,7 @@ namespace soge
     class SimpleTextureResource : public TextureResource
     {
     private:
-        eastl::vector<nvrhi::Color> m_pixels;
+        eastl::vector<std::uint8_t> m_pixels;
         bool m_shouldWrite;
 
         void Initialize();
@@ -18,7 +18,7 @@ namespace soge
         explicit SimpleTextureResource(GraphicsCore& aCore, eastl::string_view aName, cppfs::FilePath aFullPath);
 
         [[nodiscard]]
-        eastl::span<const nvrhi::Color> GetPixels() const noexcept;
+        eastl::span<const std::uint8_t> GetPixels() const noexcept;
 
         void WriteResource(nvrhi::ICommandList& aCommandList) override;
 
