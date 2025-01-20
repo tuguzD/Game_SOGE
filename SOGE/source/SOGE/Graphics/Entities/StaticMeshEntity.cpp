@@ -156,9 +156,8 @@ namespace soge
     StaticMeshEntity::StaticMeshEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
                                        GraphicsModule& aGraphicsModule)
         : m_core{aCore}, m_pipeline{aPipeline}, m_entityManager{aGraphicsModule.GetEntityManager()},
-          m_hierarchy{CreateUnique<Hierarchy>()}
+          m_hierarchy{CreateUnique<Hierarchy>()}, m_shouldReadFromFile{false}, m_shouldUpdateTransforms{false}
     {
-        m_hierarchy->Reset();
     }
 
     StaticMeshEntity::StaticMeshEntity(StaticMeshEntity&& aOther) noexcept = default;
@@ -173,7 +172,7 @@ namespace soge
 
     Transform& StaticMeshEntity::GetTransform()
     {
-        // TODO: raise flag to update entities' transforms
+        m_shouldUpdateTransforms = true;
         return m_hierarchy->m_transforms[0].m_localTransform;
     }
 
@@ -184,38 +183,50 @@ namespace soge
 
     cppfs::FilePath& StaticMeshEntity::GetFilePath()
     {
+        m_shouldReadFromFile = true;
+        m_shouldUpdateTransforms = true;
         return m_filePath;
     }
 
     void StaticMeshEntity::Load()
     {
-        Assimp::Importer importer;
-
-        constexpr std::uint32_t flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs;
-        const aiScene* scene = importer.ReadFile(m_filePath.path(), flags);
-        if (scene == nullptr)
+        if (m_shouldReadFromFile)
         {
-            const char* message = importer.GetErrorString();
-            throw std::runtime_error{message};
-        }
+            m_shouldReadFromFile = false;
 
-        const aiNode* node = scene->mRootNode;
-        if (node == nullptr)
-        {
-            return;
-        }
+            Assimp::Importer importer;
 
-        m_hierarchy->Reset();
-        TraverseNode(*scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
+            constexpr std::uint32_t flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs;
+            const aiScene* scene = importer.ReadFile(m_filePath.path(), flags);
+            if (scene == nullptr)
+            {
+                const char* message = importer.GetErrorString();
+                throw std::runtime_error{message};
+            }
 
-        for (auto&& [entityUuid, transformIndex] : m_hierarchy->m_entitiesToTransform)
-        {
-            const auto entity = dynamic_cast<GeometryEntity*>(m_entityManager.get().GetEntity(entityUuid));
-            if (entity == nullptr)
+            const aiNode* node = scene->mRootNode;
+            if (node == nullptr)
             {
                 return;
             }
-            entity->GetTransform() = m_hierarchy->GetWorldTransform(transformIndex);
+
+            m_hierarchy->Reset();
+            TraverseNode(*scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
+        }
+
+        if (m_shouldUpdateTransforms)
+        {
+            m_shouldUpdateTransforms = false;
+
+            for (auto&& [entityUuid, transformIndex] : m_hierarchy->m_entitiesToTransform)
+            {
+                const auto entity = dynamic_cast<GeometryEntity*>(m_entityManager.get().GetEntity(entityUuid));
+                if (entity == nullptr)
+                {
+                    return;
+                }
+                entity->GetTransform() = m_hierarchy->GetWorldTransform(transformIndex);
+            }
         }
     }
 }

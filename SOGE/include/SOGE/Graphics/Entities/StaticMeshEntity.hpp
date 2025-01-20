@@ -21,6 +21,8 @@ namespace soge
 
         cppfs::FilePath m_filePath;
         UniquePtr<Hierarchy> m_hierarchy;
+        bool m_shouldReadFromFile;
+        bool m_shouldUpdateTransforms;
 
     public:
         explicit StaticMeshEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
