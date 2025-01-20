@@ -8,6 +8,48 @@
 #include <assimp/Importer.hpp>
 
 
+namespace soge
+{
+    class StaticMeshEntity::Hierarchy
+    {
+    public:
+        static constexpr std::size_t s_invalidParent = std::numeric_limits<std::size_t>::max();
+
+        struct Item
+        {
+            Transform m_localTransform;
+            std::size_t m_parent = s_invalidParent;
+        };
+        eastl::vector<Item> m_transforms{1, Item{}};
+
+        eastl::hash_map<UUIDv4::UUID, std::size_t> m_entitiesToTransform;
+
+        void Reset()
+        {
+            m_entitiesToTransform.clear();
+            m_transforms.resize(1);
+        }
+
+        Transform GetWorldTransform(const std::size_t aIndex) const
+        {
+            if (aIndex == s_invalidParent)
+            {
+                return {};
+            }
+            auto [current, parentIndex] = m_transforms[aIndex];
+
+            const auto parent = GetWorldTransform(parentIndex);
+            current = Transform{
+                .m_position = glm::rotate(parent.m_rotation, parent.m_scale * current.m_position) + parent.m_position,
+                .m_rotation = current.m_rotation * parent.m_rotation,
+                .m_scale = parent.m_scale * current.m_scale,
+            };
+
+            return current;
+        }
+    };
+}
+
 namespace
 {
     [[nodiscard]]
@@ -24,9 +66,6 @@ namespace
         };
     }
 
-    using Vertex = soge::GeometryEntity::Vertex;
-    using Index = soge::GeometryEntity::Index;
-
     [[nodiscard]]
     soge::GeometryEntity CreateEntityFromMesh(const aiScene& aScene, const aiMesh& aMesh, soge::GraphicsCore& aCore,
                                               soge::GeometryGraphicsPipeline& aPipeline)
@@ -35,6 +74,9 @@ namespace
         if (const aiMaterial* aiMaterial = aScene.mNumMaterials > 0 ? aScene.mMaterials[aMesh.mMaterialIndex] : nullptr)
         {
         }
+
+        using Vertex = soge::GeometryEntity::Vertex;
+        using Index = soge::GeometryEntity::Index;
 
         eastl::vector<Vertex> vertices;
         vertices.reserve(aMesh.mNumVertices);
@@ -79,9 +121,15 @@ namespace
     }
 
     void TraverseNode(const aiScene& aScene, const aiNode& aNode, soge::GraphicsCore& aCore,
-                      soge::GeometryGraphicsPipeline& aPipeline, soge::GraphicsEntityManager& aEntityManager)
+                      soge::GeometryGraphicsPipeline& aPipeline, soge::GraphicsEntityManager& aEntityManager,
+                      soge::StaticMeshEntity::Hierarchy& aHierarchy, const std::size_t aHierarchyParent)
     {
-        const auto nodeTransform = TransformFromNode(aNode);
+        aHierarchy.m_transforms.push_back({
+            .m_localTransform = TransformFromNode(aNode),
+            .m_parent = aHierarchyParent,
+        });
+        const auto currentHierarchyItem = aHierarchy.m_transforms.size() - 1;
+
         for (const std::size_t meshIndex : eastl::span{aNode.mMeshes, aNode.mNumMeshes})
         {
             const aiMesh* mesh = aScene.mMeshes[meshIndex];
@@ -93,12 +141,12 @@ namespace
             const auto [entity, entityUuid] = aEntityManager.CreateEntity<soge::GeometryEntity>(
                 CreateEntityFromMesh(aScene, *mesh, aCore, aPipeline));
             SOGE_INFO_LOG("Created static mesh (parent node is {}) with UUID: {}", 0, entityUuid.str());
-            // TODO: add entity into some container with transform hierarchy
+            aHierarchy.m_entitiesToTransform[entityUuid] = currentHierarchyItem;
         }
 
         for (const aiNode* childNode : eastl::span{aNode.mChildren, aNode.mNumChildren})
         {
-            TraverseNode(aScene, *childNode, aCore, aPipeline, aEntityManager);
+            TraverseNode(aScene, *childNode, aCore, aPipeline, aEntityManager, aHierarchy, currentHierarchyItem);
         }
     }
 }
@@ -107,8 +155,26 @@ namespace soge
 {
     StaticMeshEntity::StaticMeshEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
                                        GraphicsModule& aGraphicsModule)
-        : m_core{aCore}, m_pipeline{aPipeline}, m_entityManager{aGraphicsModule.GetEntityManager()}
+        : m_core{aCore}, m_pipeline{aPipeline}, m_entityManager{aGraphicsModule.GetEntityManager()},
+          m_hierarchy{CreateUnique<Hierarchy>()}
     {
+        m_hierarchy->Reset();
+    }
+
+    StaticMeshEntity::StaticMeshEntity(StaticMeshEntity&& aOther) noexcept = default;
+    StaticMeshEntity& StaticMeshEntity::operator=(StaticMeshEntity&& aOther) noexcept = default;
+
+    StaticMeshEntity::~StaticMeshEntity() = default;
+
+    Transform StaticMeshEntity::GetTransform() const
+    {
+        return m_hierarchy->m_transforms[0].m_localTransform;
+    }
+
+    Transform& StaticMeshEntity::GetTransform()
+    {
+        // TODO: raise flag to update entities' transforms
+        return m_hierarchy->m_transforms[0].m_localTransform;
     }
 
     const cppfs::FilePath& StaticMeshEntity::GetFilePath() const
@@ -138,6 +204,18 @@ namespace soge
         {
             return;
         }
-        TraverseNode(*scene, *node, m_core, m_pipeline, m_entityManager);
+
+        m_hierarchy->Reset();
+        TraverseNode(*scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
+
+        for (auto&& [entityUuid, transformIndex] : m_hierarchy->m_entitiesToTransform)
+        {
+            const auto entity = dynamic_cast<GeometryEntity*>(m_entityManager.get().GetEntity(entityUuid));
+            if (entity == nullptr)
+            {
+                return;
+            }
+            entity->GetTransform() = m_hierarchy->GetWorldTransform(transformIndex);
+        }
     }
 }

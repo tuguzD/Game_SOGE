@@ -90,6 +90,7 @@ namespace soge_game
             container.Provide<soge::StaticMeshEntity>());
         SOGE_INFO_LOG(R"(Created mesh with UUID {})", meshUuid.str());
         mesh.GetFilePath() = "./resources/meshes/hog.fbx";
+        mesh.GetTransform() = soge::Transform{.m_scale = glm::vec3{0.01f}};
         mesh.Load();
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
@@ -167,6 +168,7 @@ namespace soge_game
         eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
 
         float cameraPitch{}, cameraYaw{};
+        constexpr float cameraSpeed = 1.0f;
         constexpr float cameraSensitivity = 0.005f;
         auto update = [=, &camera](const soge::UpdateEvent& aEvent) mutable {
             {
@@ -178,7 +180,7 @@ namespace soge_game
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::S));
                 const auto direction =
                     camera.m_transform.Right() * x + camera.m_transform.Up() * y + camera.m_transform.Forward() * z;
-                camera.m_transform.m_position += direction * aEvent.GetDeltaTime();
+                camera.m_transform.m_position += direction * cameraSpeed * aEvent.GetDeltaTime();
             }
 
             cameraYaw += *mouseDeltaX * cameraSensitivity;
