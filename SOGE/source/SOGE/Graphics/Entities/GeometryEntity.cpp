@@ -8,10 +8,10 @@
 namespace soge
 {
     GeometryEntity::GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, Transform aTransform,
-                                   eastl::vector<Vertex> aVertices, eastl::vector<Index> aIndices)
-        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}, m_vertices{std::move(aVertices)},
-          m_indices{std::move(aIndices)}, m_shouldWriteConstantBuffer{true}, m_shouldWriteVertexBuffer{true},
-          m_shouldWriteIndexBuffer{true}
+                                   Material aMaterial, eastl::vector<Vertex> aVertices, eastl::vector<Index> aIndices)
+        : m_core{aCore}, m_pipeline{aPipeline}, m_transform{aTransform}, m_material{aMaterial},
+          m_vertices{std::move(aVertices)}, m_indices{std::move(aIndices)}, m_shouldWriteConstantBuffer{true},
+          m_shouldWriteVertexBuffer{true}, m_shouldWriteIndexBuffer{true}
     {
         nvrhi::IDevice& device = aCore.GetRawDevice();
 
@@ -42,6 +42,17 @@ namespace soge
     {
         m_shouldWriteConstantBuffer = true;
         return m_transform;
+    }
+
+    const GeometryEntity::Material& GeometryEntity::GetMaterial() const
+    {
+        return m_material;
+    }
+
+    GeometryEntity::Material& GeometryEntity::GetMaterial()
+    {
+        m_shouldWriteConstantBuffer = true;
+        return m_material;
     }
 
     auto GeometryEntity::GetVertices() const -> eastl::span<const Vertex>
@@ -99,6 +110,7 @@ namespace soge
         SOGE_INFO_LOG("Updating NVRHI constant buffer for geometry entity...");
         const ConstantBufferData constantBufferData{
             .m_model = m_transform.WorldMatrix(),
+            .m_material = m_material,
         };
         aCommandList.writeBuffer(m_nvrhiConstantBuffer, &constantBufferData, sizeof(constantBufferData));
     }

@@ -70,9 +70,41 @@ namespace
     soge::GeometryEntity CreateEntityFromMesh(const aiScene& aScene, const aiMesh& aMesh, soge::GraphicsCore& aCore,
                                               soge::GeometryGraphicsPipeline& aPipeline)
     {
-        // TODO: store material data
+        using Material = soge::GeometryEntity::Material;
+
+        Material material;
         if (const aiMaterial* aiMaterial = aScene.mNumMaterials > 0 ? aScene.mMaterials[aMesh.mMaterialIndex] : nullptr)
         {
+            if (aiColor3D aiAmbient{1.0f, 1.0f, 1.0f};
+                aiMaterial->Get(AI_MATKEY_COLOR_AMBIENT, aiAmbient) == aiReturn_SUCCESS)
+            {
+                material.m_ambient = glm::vec3{aiAmbient.r, aiAmbient.g, aiAmbient.b};
+            }
+
+            if (aiColor3D aiDiffuse{1.0f, 1.0f, 1.0f};
+                aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiDiffuse) == aiReturn_SUCCESS)
+            {
+                material.m_diffuse = glm::vec3{aiDiffuse.r, aiDiffuse.g, aiDiffuse.b};
+            }
+
+            if (aiColor3D aiSpecular{1.0f, 1.0f, 1.0f};
+                aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, aiSpecular) == aiReturn_SUCCESS)
+            {
+                material.m_specular = glm::vec3{aiSpecular.r, aiSpecular.g, aiSpecular.b};
+            }
+
+            if (aiColor3D aiEmissive{0.0f, 0.0f, 0.0f};
+                aiMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, aiEmissive) == aiReturn_SUCCESS)
+            {
+                material.m_emissive = glm::vec3{aiEmissive.r, aiEmissive.g, aiEmissive.b};
+            }
+
+            if (float shininess = 8.0f; aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == aiReturn_SUCCESS)
+            {
+                material.m_shininess = shininess;
+            }
+
+            // TODO: get texture data
         }
 
         using Vertex = soge::GeometryEntity::Vertex;
@@ -117,7 +149,7 @@ namespace
             }
         }
 
-        return soge::GeometryEntity{aCore, aPipeline, soge::Transform{}, vertices, indices};
+        return soge::GeometryEntity{aCore, aPipeline, soge::Transform{}, material, vertices, indices};
     }
 
     void TraverseNode(const aiScene& aScene, const aiNode& aNode, soge::GraphicsCore& aCore,

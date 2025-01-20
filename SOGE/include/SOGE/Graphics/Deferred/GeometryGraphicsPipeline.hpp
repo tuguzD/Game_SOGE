@@ -55,7 +55,17 @@ namespace soge
 
         struct ConstantBufferData
         {
+            struct Material
+            {
+                alignas(16) glm::vec3 m_ambient{1.0f};
+                alignas(16) glm::vec3 m_diffuse{1.0f};
+                alignas(16) glm::vec3 m_specular{1.0f};
+                alignas(16) glm::vec3 m_emissive{0.0f};
+                float m_shininess = 8.0f;
+            };
+
             glm::mat4x4 m_model;
+            Material m_material;
         };
 
         struct Vertex

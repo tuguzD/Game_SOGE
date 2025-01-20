@@ -33,17 +33,17 @@ namespace
 namespace soge
 {
     GeometryEntity CreateBox(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, const Transform& aTransform,
-                             const glm::vec3 aDimensions, const glm::vec3 aColor)
+                             GeometryEntity::Material aMaterial, const glm::vec3 aDimensions, const glm::vec3 aColor)
     {
         auto vertices = CreateBoxVerticesVector(aDimensions, aColor);
         auto indices = CreateBoxIndicesVector();
 
-        return GeometryEntity{aCore, aPipeline, aTransform, std::move(vertices), std::move(indices)};
+        return GeometryEntity{aCore, aPipeline, aTransform, aMaterial, std::move(vertices), std::move(indices)};
     }
 
     BoxPrimitive::BoxPrimitive(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, const Transform& aTransform,
-                               const glm::vec3 aDimensions, const glm::vec3 aColor)
-        : m_geometryEntity{aCore, aPipeline, aTransform}, m_dimensions{aDimensions}, m_color{aColor},
+                               const Material& aMaterial, const glm::vec3 aDimensions, const glm::vec3 aColor)
+        : m_geometryEntity{aCore, aPipeline, aTransform, aMaterial}, m_dimensions{aDimensions}, m_color{aColor},
           m_shouldWrite{true}
     {
     }
@@ -56,6 +56,16 @@ namespace soge
     Transform& BoxPrimitive::GetTransform()
     {
         return m_geometryEntity.GetTransform();
+    }
+
+    auto BoxPrimitive::GetMaterial() const -> Material
+    {
+        return m_geometryEntity.GetMaterial();
+    }
+
+    auto BoxPrimitive::GetMaterial() -> Material&
+    {
+        return m_geometryEntity.GetMaterial();
     }
 
     glm::vec3 BoxPrimitive::GetDimensions() const

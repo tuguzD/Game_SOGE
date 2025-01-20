@@ -9,6 +9,9 @@ namespace soge
 {
     class GeometryEntity : public GraphicsEntity, public GeometryGraphicsPipelineEntity
     {
+    public:
+        using Material = ConstantBufferData::Material;
+
     private:
         void WriteConstantBuffer(nvrhi::ICommandList& aCommandList);
         void WriteVertexBuffer(nvrhi::ICommandList& aCommandList);
@@ -18,6 +21,7 @@ namespace soge
         eastl::reference_wrapper<GeometryGraphicsPipeline> m_pipeline;
 
         Transform m_transform;
+        Material m_material;
         eastl::vector<Vertex> m_vertices;
         eastl::vector<Index> m_indices;
 
@@ -32,12 +36,16 @@ namespace soge
 
     public:
         explicit GeometryEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                                Transform aTransform = Transform{}, eastl::vector<Vertex> aVertices = {},
-                                eastl::vector<Index> aIndices = {});
+                                Transform aTransform = Transform{}, Material aMaterial = {},
+                                eastl::vector<Vertex> aVertices = {}, eastl::vector<Index> aIndices = {});
 
         [[nodiscard]]
         const Transform& GetTransform() const;
         Transform& GetTransform();
+
+        [[nodiscard]]
+        const Material& GetMaterial() const;
+        Material& GetMaterial();
 
         [[nodiscard]]
         eastl::span<const Vertex> GetVertices() const;

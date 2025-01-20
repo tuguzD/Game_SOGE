@@ -9,8 +9,10 @@ namespace soge
 {
     [[nodiscard]]
     GeometryEntity CreateSphere(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                                const Transform& aTransform = Transform{}, uint32_t aMeridians = 32,
-                                uint32_t aParallels = 16, float aRadius = 1.0f, glm::vec3 aColor = glm::vec3{1.0f});
+                                const Transform& aTransform = Transform{},
+                                const GeometryEntity::Material& aMaterial = {},
+                                uint32_t aMeridians = 32, uint32_t aParallels = 16, float aRadius = 1.0f,
+                                glm::vec3 aColor = glm::vec3{1.0f});
 
     [[nodiscard]]
     eastl::vector<GeometryEntity::Vertex> CreateSphereVertices(uint32_t aMeridians = 32, uint32_t aParallels = 16,
@@ -31,13 +33,20 @@ namespace soge
         bool m_shouldWrite;
 
     public:
+        using Material = GeometryEntity::Material;
+
         explicit SpherePrimitive(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                                 const Transform& aTransform = Transform{}, uint32_t aMeridians = 32,
-                                 uint32_t aParallels = 16, float aRadius = 1.0f, glm::vec3 aColor = glm::vec3{1.0f});
+                                 const Transform& aTransform = Transform{}, const Material& aMaterial = {},
+                                 uint32_t aMeridians = 32, uint32_t aParallels = 16, float aRadius = 1.0f,
+                                 glm::vec3 aColor = glm::vec3{1.0f});
 
         [[nodiscard]]
         Transform GetTransform() const override;
         Transform& GetTransform();
+
+        [[nodiscard]]
+        Material GetMaterial() const;
+        Material& GetMaterial();
 
         [[nodiscard]]
         uint32_t GetMeridians() const;

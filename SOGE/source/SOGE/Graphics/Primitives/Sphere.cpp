@@ -9,14 +9,14 @@ namespace soge
     using Index = GeometryEntity::Index;
 
     GeometryEntity CreateSphere(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline, const Transform& aTransform,
-                                const uint32_t aMeridians, const uint32_t aParallels, const float aRadius,
-                                const glm::vec3 aColor)
+                                const GeometryEntity::Material& aMaterial, const uint32_t aMeridians,
+                                const uint32_t aParallels, const float aRadius, const glm::vec3 aColor)
     {
         auto vertices = CreateSphereVertices(aMeridians, aParallels, aRadius, aColor);
         auto indices = CreateSphereIndices(aMeridians, aParallels);
 
         return GeometryEntity{
-            aCore, aPipeline, aTransform, std::move(vertices), std::move(indices),
+            aCore, aPipeline, aTransform, aMaterial, std::move(vertices), std::move(indices),
         };
     }
 
@@ -105,9 +105,9 @@ namespace soge
     }
 
     SpherePrimitive::SpherePrimitive(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                                     const Transform& aTransform, const uint32_t aMeridians, const uint32_t aParallels,
-                                     const float aRadius, const glm::vec3 aColor)
-        : m_geometryEntity{aCore, aPipeline, aTransform}, m_meridians{aMeridians}, m_parallels{aParallels},
+                                     const Transform& aTransform, const Material& aMaterial, const uint32_t aMeridians,
+                                     const uint32_t aParallels, const float aRadius, const glm::vec3 aColor)
+        : m_geometryEntity{aCore, aPipeline, aTransform, aMaterial}, m_meridians{aMeridians}, m_parallels{aParallels},
           m_radius{aRadius}, m_color{aColor}, m_shouldWrite{true}
     {
     }
@@ -120,6 +120,16 @@ namespace soge
     Transform& SpherePrimitive::GetTransform()
     {
         return m_geometryEntity.GetTransform();
+    }
+
+    auto SpherePrimitive::GetMaterial() const -> Material
+    {
+        return m_geometryEntity.GetMaterial();
+    }
+
+    auto SpherePrimitive::GetMaterial() -> Material&
+    {
+        return m_geometryEntity.GetMaterial();
     }
 
     uint32_t SpherePrimitive::GetMeridians() const

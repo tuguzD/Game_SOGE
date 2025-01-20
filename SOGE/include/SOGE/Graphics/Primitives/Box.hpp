@@ -9,8 +9,8 @@ namespace soge
 {
     [[nodiscard]]
     GeometryEntity CreateBox(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                             const Transform& aTransform = Transform{}, glm::vec3 aDimensions = glm::vec3{1.0f},
-                             glm::vec3 aColor = glm::vec3{1.0f});
+                             const Transform& aTransform = Transform{}, GeometryEntity::Material aMaterial = {},
+                             glm::vec3 aDimensions = glm::vec3{1.0f}, glm::vec3 aColor = glm::vec3{1.0f});
 
     [[nodiscard]]
     constexpr eastl::array<GeometryEntity::Vertex, 24> CreateBoxVertices(glm::vec3 aDimensions = glm::vec3{1.0f},
@@ -28,13 +28,19 @@ namespace soge
         bool m_shouldWrite;
 
     public:
+        using Material = GeometryEntity::Material;
+
         explicit BoxPrimitive(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
-                              const Transform& aTransform = Transform{}, glm::vec3 aDimensions = glm::vec3{1.0f},
-                              glm::vec3 aColor = glm::vec3{1.0f});
+                              const Transform& aTransform = Transform{}, const Material& aMaterial = Material{},
+                              glm::vec3 aDimensions = glm::vec3{1.0f}, glm::vec3 aColor = glm::vec3{1.0f});
 
         [[nodiscard]]
         Transform GetTransform() const override;
         Transform& GetTransform();
+
+        [[nodiscard]]
+        Material GetMaterial() const;
+        Material& GetMaterial();
 
         [[nodiscard]]
         glm::vec3 GetDimensions() const;

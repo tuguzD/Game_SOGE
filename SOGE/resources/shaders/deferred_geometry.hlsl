@@ -6,6 +6,11 @@
 cbuffer Object_ConstantBuffer : register(b1)
 {
     float4x4 model;
+    float3 ambient;
+    float3 diffuse;
+    float3 specular;
+    float3 emissive;
+    float shininess;
 }
 
 struct VS_Input
