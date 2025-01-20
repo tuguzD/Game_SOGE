@@ -22,7 +22,7 @@ namespace soge
                        nvrhi::ShaderDesc aShaderDesc);
 
         [[nodiscard]]
-        nvrhi::IShader& GetResource() override;
+        nvrhi::IShader* GetResource() override;
 
         bool Reload() override;
         void Unload() override;

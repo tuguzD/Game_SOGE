@@ -35,7 +35,7 @@ namespace soge
         };
         m_nvrhiInputLayout = device.createInputLayout(vertexAttributeDescArray.data(),
                                                       static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
-                                                      &aVertexShader.GetResource());
+                                                      aVertexShader.GetResource());
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::Vertex;
@@ -53,8 +53,8 @@ namespace soge
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};
         pipelineDesc.inputLayout = m_nvrhiInputLayout;
-        pipelineDesc.VS = &aVertexShader.GetResource();
-        pipelineDesc.PS = &aPixelShader.GetResource();
+        pipelineDesc.VS = aVertexShader.GetResource();
+        pipelineDesc.PS = aPixelShader.GetResource();
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         nvrhi::IFramebuffer& compatibleFramebuffer = aRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);

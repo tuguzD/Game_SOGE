@@ -12,6 +12,7 @@ namespace soge
         : GraphicsResource{aName, std::move(aFullPath)}, m_core{aCore}, m_shaderDesc{std::move(aShaderDesc)}
     {
         Initialize();
+        SetLoaded(true);
     }
 
     void ShaderResource::Initialize()
@@ -19,9 +20,9 @@ namespace soge
         m_shaderHandle = LoadShader(m_core.get(), m_shaderDesc, GetFullPath().data());
     }
 
-    nvrhi::IShader& ShaderResource::GetResource()
+    nvrhi::IShader* ShaderResource::GetResource()
     {
-        return *m_shaderHandle;
+        return m_shaderHandle;
     }
 
     bool ShaderResource::Reload()
@@ -29,6 +30,7 @@ namespace soge
         if (m_shaderHandle == nullptr)
         {
             Initialize();
+            SetLoaded(true);
         }
         return true;
     }
@@ -36,10 +38,12 @@ namespace soge
     void ShaderResource::Unload()
     {
         m_shaderHandle = nullptr;
+        SetLoaded(false);
     }
 
     void ShaderResource::Destroy()
     {
         m_shaderHandle = nullptr;
+        SetLoaded(false);
     }
 }

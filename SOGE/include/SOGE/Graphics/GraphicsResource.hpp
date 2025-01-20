@@ -14,7 +14,7 @@ namespace soge
         GraphicsResource(eastl::string_view aName, cppfs::FilePath aFullPath);
 
         [[nodiscard]]
-        constexpr virtual nvrhi::IResource& GetResource() = 0;
+        constexpr virtual nvrhi::IResource* GetResource() = 0;
     };
 }
 
