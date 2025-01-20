@@ -9,7 +9,7 @@ namespace soge
 {
     class TextureResource : public GraphicsResource
     {
-    private:
+    protected:
         eastl::reference_wrapper<GraphicsCore> m_core;
 
         nvrhi::TextureHandle m_textureHandle;
@@ -21,10 +21,6 @@ namespace soge
 
         [[nodiscard]]
         nvrhi::ITexture* GetResource() override;
-
-        bool Reload() override;
-        void Unload() override;
-        void Destroy() override;
     };
 }
 

@@ -25,6 +25,11 @@ namespace soge
         return m_shaderHandle;
     }
 
+    void ShaderResource::WriteResource(nvrhi::ICommandList& aCommandList)
+    {
+        // do nothing for shaders
+    }
+
     bool ShaderResource::Reload()
     {
         if (m_shaderHandle == nullptr)

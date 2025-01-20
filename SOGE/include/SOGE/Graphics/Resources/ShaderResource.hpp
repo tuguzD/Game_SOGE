@@ -23,6 +23,7 @@ namespace soge
 
         [[nodiscard]]
         nvrhi::IShader* GetResource() override;
+        void WriteResource(nvrhi::ICommandList& aCommandList) override;
 
         bool Reload() override;
         void Unload() override;

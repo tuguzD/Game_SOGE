@@ -15,6 +15,8 @@ namespace soge
 
         [[nodiscard]]
         constexpr virtual nvrhi::IResource* GetResource() = 0;
+
+        constexpr virtual void WriteResource(nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 
