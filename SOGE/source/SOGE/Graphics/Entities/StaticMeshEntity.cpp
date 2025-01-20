@@ -2,6 +2,8 @@
 
 #include "SOGE/Graphics/Entities/StaticMeshEntity.hpp"
 
+#include "SOGE/Graphics/Resources/SimpleTextureResource.hpp"
+
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
@@ -22,11 +24,11 @@ namespace soge
         };
         eastl::vector<Item> m_transforms{1, Item{}};
 
-        eastl::hash_map<UUIDv4::UUID, std::size_t> m_entitiesToTransform;
+        eastl::hash_map<UUIDv4::UUID, std::size_t> m_geometryToTransform;
 
         void Reset()
         {
-            m_entitiesToTransform.clear();
+            m_geometryToTransform.clear();
             m_transforms.resize(1);
         }
 
@@ -38,11 +40,11 @@ namespace soge
             }
             auto [current, parentIndex] = m_transforms[aIndex];
 
-            const auto parent = GetWorldTransform(parentIndex);
+            const auto [position, rotation, scale] = GetWorldTransform(parentIndex);
             current = Transform{
-                .m_position = glm::rotate(parent.m_rotation, parent.m_scale * current.m_position) + parent.m_position,
-                .m_rotation = current.m_rotation * parent.m_rotation,
-                .m_scale = parent.m_scale * current.m_scale,
+                .m_position = glm::rotate(rotation, current.m_position * scale) + position,
+                .m_rotation = current.m_rotation * rotation,
+                .m_scale = current.m_scale * scale,
             };
 
             return current;
@@ -67,12 +69,14 @@ namespace
     }
 
     [[nodiscard]]
-    soge::GeometryEntity CreateEntityFromMesh(const aiScene& aScene, const aiMesh& aMesh, soge::GraphicsCore& aCore,
-                                              soge::GeometryGraphicsPipeline& aPipeline)
+    eastl::pair<soge::GeometryEntity, eastl::optional<soge::SimpleTextureResource>> CreateEntityFromMesh(
+        const cppfs::FilePath& aStaticMeshPath, const aiScene& aScene, const aiMesh& aMesh, soge::GraphicsCore& aCore,
+        soge::GeometryGraphicsPipeline& aPipeline)
     {
         using Material = soge::GeometryEntity::Material;
 
         Material material;
+        eastl::optional<cppfs::FilePath> colorTexturePath;
         if (const aiMaterial* aiMaterial = aScene.mNumMaterials > 0 ? aScene.mMaterials[aMesh.mMaterialIndex] : nullptr)
         {
             if (aiColor3D aiAmbient{1.0f, 1.0f, 1.0f};
@@ -104,7 +108,13 @@ namespace
                 material.m_shininess = shininess;
             }
 
-            // TODO: get texture data
+            if (aiString aiTextureDiffuse;
+                aiMaterial->Get(AI_MATKEY_TEXTURE_DIFFUSE(0), aiTextureDiffuse) == aiReturn_SUCCESS)
+            {
+                colorTexturePath = cppfs::FilePath{
+                    fmt::format("{}{}", aStaticMeshPath.directoryPath(), aiTextureDiffuse.C_Str()),
+                };
+            }
         }
 
         using Vertex = soge::GeometryEntity::Vertex;
@@ -125,16 +135,24 @@ namespace
             }
 
             glm::vec3 color{1.0f};
-            if (const aiColor4D* colors = aMesh.mColors[0])
+            if (const aiColor4D* aiColor = aMesh.mColors[0])
             {
-                const auto [r, g, b, a] = colors[index];
+                const auto [r, g, b, a] = aiColor[index];
                 color *= glm::vec3{r, g, b};
+            }
+
+            glm::vec2 texCoord;
+            if (const aiVector3D* aiTexCoord = aMesh.mTextureCoords[0])
+            {
+                const auto [cx, cy, cz] = aiTexCoord[index];
+                texCoord = glm::vec2{cx, cy};
             }
 
             vertices.emplace_back(Vertex{
                 .m_position = position,
                 .m_normal = normal,
                 .m_color = color,
+                .m_texCoord = texCoord,
             });
         }
 
@@ -149,36 +167,56 @@ namespace
             }
         }
 
-        return soge::GeometryEntity{aCore, aPipeline, soge::Transform{}, material, vertices, indices};
+        soge::GeometryEntity geometryEntity{aCore, aPipeline, soge::Transform{}, material, vertices, indices};
+        eastl::optional<soge::SimpleTextureResource> simpleTextureResource;
+        if (colorTexturePath.has_value())
+        {
+            simpleTextureResource = soge::SimpleTextureResource{aCore, "", colorTexturePath.value()};
+        }
+        return {std::move(geometryEntity), std::move(simpleTextureResource)};
     }
 
-    void TraverseNode(const aiScene& aScene, const aiNode& aNode, soge::GraphicsCore& aCore,
-                      soge::GeometryGraphicsPipeline& aPipeline, soge::GraphicsEntityManager& aEntityManager,
+    void TraverseNode(const cppfs::FilePath& aStaticMeshPath, const aiScene& aScene, const aiNode& aNode,
+                      soge::GraphicsCore& aCore, soge::GeometryGraphicsPipeline& aPipeline,
+                      soge::GraphicsEntityManager& aEntityManager, soge::GraphicsResourceManager& aResourceManager,
                       soge::StaticMeshEntity::Hierarchy& aHierarchy, const std::size_t aHierarchyParent)
     {
         aHierarchy.m_transforms.push_back({
             .m_localTransform = TransformFromNode(aNode),
             .m_parent = aHierarchyParent,
         });
-        const auto currentHierarchyItem = aHierarchy.m_transforms.size() - 1;
+        const auto currentHierarchyIndex = aHierarchy.m_transforms.size() - 1;
 
         for (const std::size_t meshIndex : eastl::span{aNode.mMeshes, aNode.mNumMeshes})
         {
-            const aiMesh* mesh = aScene.mMeshes[meshIndex];
-            if (mesh == nullptr)
+            const aiMesh* aiMesh = aScene.mMeshes[meshIndex];
+            if (aiMesh == nullptr)
             {
                 continue;
             }
 
-            const auto [entity, entityUuid] = aEntityManager.CreateEntity<soge::GeometryEntity>(
-                CreateEntityFromMesh(aScene, *mesh, aCore, aPipeline));
-            SOGE_INFO_LOG("Created static mesh (parent node is {}) with UUID: {}", 0, entityUuid.str());
-            aHierarchy.m_entitiesToTransform[entityUuid] = currentHierarchyItem;
+            auto entityFromMesh = CreateEntityFromMesh(aStaticMeshPath, aScene, *aiMesh, aCore, aPipeline);
+
+            const auto [entity, entityUuid] =
+                aEntityManager.CreateEntity<soge::GeometryEntity>(std::move(entityFromMesh.first));
+            SOGE_INFO_LOG("Created static mesh (current node index is {}) with UUID: {}", currentHierarchyIndex,
+                          entityUuid.str());
+            aHierarchy.m_geometryToTransform[entityUuid] = currentHierarchyIndex;
+
+            if (entityFromMesh.second.has_value())
+            {
+                const auto [texture, textureUuid] = aResourceManager.CreateResource<soge::SimpleTextureResource>(
+                    std::move(entityFromMesh.second).value());
+                SOGE_INFO_LOG("Created texture (current node index is {}) with UUID: {}", currentHierarchyIndex,
+                              textureUuid.str());
+                entity.GetColorTexture() = texture.GetResource();
+            }
         }
 
         for (const aiNode* childNode : eastl::span{aNode.mChildren, aNode.mNumChildren})
         {
-            TraverseNode(aScene, *childNode, aCore, aPipeline, aEntityManager, aHierarchy, currentHierarchyItem);
+            TraverseNode(aStaticMeshPath, aScene, *childNode, aCore, aPipeline, aEntityManager, aResourceManager,
+                         aHierarchy, currentHierarchyIndex);
         }
     }
 }
@@ -188,7 +226,8 @@ namespace soge
     StaticMeshEntity::StaticMeshEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
                                        GraphicsModule& aGraphicsModule)
         : m_core{aCore}, m_pipeline{aPipeline}, m_entityManager{aGraphicsModule.GetEntityManager()},
-          m_hierarchy{CreateUnique<Hierarchy>()}, m_shouldReadFromFile{false}, m_shouldUpdateTransforms{false}
+          m_resourceManager{aGraphicsModule.GetResourceManager()}, m_hierarchy{CreateUnique<Hierarchy>()},
+          m_shouldReadFromFile{false}, m_shouldUpdateTransforms{false}
     {
     }
 
@@ -244,21 +283,22 @@ namespace soge
             }
 
             m_hierarchy->Reset();
-            TraverseNode(*scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
+            TraverseNode(m_filePath, *scene, *node, m_core, m_pipeline, m_entityManager, m_resourceManager,
+                         *m_hierarchy, 0);
         }
 
         if (m_shouldUpdateTransforms)
         {
             m_shouldUpdateTransforms = false;
 
-            for (auto&& [entityUuid, transformIndex] : m_hierarchy->m_entitiesToTransform)
+            for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
             {
                 const auto entity = dynamic_cast<GeometryEntity*>(m_entityManager.get().GetEntity(entityUuid));
                 if (entity == nullptr)
                 {
                     return;
                 }
-                entity->GetTransform() = m_hierarchy->GetWorldTransform(transformIndex);
+                entity->GetTransform() = m_hierarchy->GetWorldTransform(hierarchyIndex);
             }
         }
     }

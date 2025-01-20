@@ -11,7 +11,7 @@ namespace soge
 {
     SimpleTextureResource::SimpleTextureResource(GraphicsCore& aCore, const eastl::string_view aName,
                                                  cppfs::FilePath aFullPath)
-        : TextureResource{aCore, aName, std::move(aFullPath), nvrhi::TextureDesc{}}, m_shouldWrite{true}
+        : TextureResource{aCore, aName, std::move(aFullPath), nvrhi::TextureDesc{}}, m_shouldWrite{false}
     {
         Initialize();
         SetLoaded(m_textureHandle != nullptr);
