@@ -24,8 +24,8 @@ namespace soge
         const auto shaderFile = cppfs::fs::open(compiledPath.path());
         if (!shaderFile.exists())
         {
-            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", compiledPath.path());
-            throw std::runtime_error{errorMessage};
+            SOGE_WARN_LOG(R"(Shader file "{}" does not exist)", compiledPath.path());
+            return {};
         }
 
         const auto stream = shaderFile.createInputStream(std::ios::in | std::ios::binary);

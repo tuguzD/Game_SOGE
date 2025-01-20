@@ -14,7 +14,7 @@ namespace soge
         : TextureResource{aCore, aName, std::move(aFullPath), nvrhi::TextureDesc{}}, m_shouldWrite{true}
     {
         Initialize();
-        SetLoaded(true);
+        SetLoaded(m_textureHandle != nullptr);
     }
 
     eastl::span<const std::uint8_t> SimpleTextureResource::GetPixels() const noexcept
@@ -40,9 +40,9 @@ namespace soge
         auto pixels = stbi_load(GetFullPath().data(), &width, &height, &channels, STBI_rgb_alpha);
         if (pixels == nullptr)
         {
-            const auto message = fmt::format(R"(Failed to load texture image by path "{}": {})", GetFullPath().data(),
-                                             stbi_failure_reason());
-            throw std::runtime_error{message};
+            SOGE_WARN_LOG(R"(Failed to load texture image by path "{}": {})", GetFullPath().data(),
+                          stbi_failure_reason());
+            return;
         }
 
         m_pixels.assign(pixels, pixels + static_cast<std::ptrdiff_t>(width * height * 4));
@@ -66,7 +66,8 @@ namespace soge
         if (m_textureHandle == nullptr)
         {
             Initialize();
-            SetLoaded(true);
+            SetLoaded(m_textureHandle != nullptr);
+            return IsLoaded();
         }
         return true;
     }
