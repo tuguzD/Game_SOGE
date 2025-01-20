@@ -3,32 +3,17 @@
 #include "SOGE/Graphics/Deferred/DirectionalLightGraphicsPipeline.hpp"
 
 #include "SOGE/Graphics/Utils/GraphicsCommandListGuard.hpp"
-#include "SOGE/Graphics/Utils/LoadShader.hpp"
 
 
 namespace soge
 {
-    DirectionalLightGraphicsPipeline::DirectionalLightGraphicsPipeline(GraphicsCore& aCore,
-                                                                       GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                                                       FinalGraphicsRenderPass& aFinalRenderPass)
+    DirectionalLightGraphicsPipeline::DirectionalLightGraphicsPipeline(
+        GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass, FinalGraphicsRenderPass& aFinalRenderPass,
+        DirectionalLightVertexShaderResource& aVertexShader, DirectionalLightPixelShaderResource& aPixelShader)
         : m_core{aCore}, m_geometryRenderPass{aGeometryRenderPass}, m_finalRenderPass{aFinalRenderPass}
     {
         SOGE_INFO_LOG("Creating NVRHI directional light pipeline...");
         nvrhi::IDevice& device = aCore.GetRawDevice();
-
-        constexpr auto shaderSourcePath = "./resources/shaders/deferred_directional_light.hlsl";
-
-        nvrhi::ShaderDesc vertexShaderDesc{};
-        vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
-        vertexShaderDesc.debugName = "SOGE directional light pipeline vertex shader";
-        vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, shaderSourcePath);
-
-        nvrhi::ShaderDesc pixelShaderDesc{};
-        pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
-        pixelShaderDesc.debugName = "SOGE directional light pipeline pixel shader";
-        pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, shaderSourcePath);
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
@@ -38,9 +23,9 @@ namespace soge
                 .elementStride = sizeof(glm::vec3),
             },
         };
-        m_nvrhiInputLayout =
-            device.createInputLayout(vertexAttributeDescArray.data(),
-                                     static_cast<std::uint32_t>(vertexAttributeDescArray.size()), m_nvrhiVertexShader);
+        m_nvrhiInputLayout = device.createInputLayout(vertexAttributeDescArray.data(),
+                                                      static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
+                                                      &aVertexShader.GetResource());
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::Pixel;
@@ -61,8 +46,8 @@ namespace soge
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};
         pipelineDesc.inputLayout = m_nvrhiInputLayout;
-        pipelineDesc.VS = m_nvrhiVertexShader;
-        pipelineDesc.PS = m_nvrhiPixelShader;
+        pipelineDesc.VS = &aVertexShader.GetResource();
+        pipelineDesc.PS = &aPixelShader.GetResource();
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
         pipelineDesc.renderState.depthStencilState.depthWriteEnable = false;
