@@ -90,7 +90,11 @@ namespace soge_game
             container.Provide<soge::StaticMeshEntity>());
         SOGE_INFO_LOG(R"(Created mesh with UUID {})", meshUuid.str());
         mesh.GetFilePath() = "./resources/meshes/hog.fbx";
-        mesh.GetTransform() = soge::Transform{.m_scale = glm::vec3{0.01f}};
+        mesh.GetTransform() = soge::Transform{
+            .m_position = glm::vec3{0.0f, 2.0f, 0.0f},
+            .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
+            .m_scale = glm::vec3{0.01f},
+        };
         mesh.Load();
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
@@ -120,7 +124,7 @@ namespace soge_game
                 container.Provide<soge::DirectionalLightEntity>());
         SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid2.str());
         const soge::Transform directionalLightTransform2{
-            .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f}},
+            .m_rotation = glm::vec3{glm::radians(45.0f), -glm::radians(45.0f), 0.0f},
         };
         directionalLightEntity2.GetIntensity() = 0.5f;
         directionalLightEntity2.GetColor() = glm::vec3{0.0f, 1.0f, 0.0f};
