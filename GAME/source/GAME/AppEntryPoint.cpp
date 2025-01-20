@@ -9,6 +9,7 @@
 #include <SOGE/Graphics/Entities/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Entities/DirectionalLightEntity.hpp>
 #include <SOGE/Graphics/Entities/PointLightEntity.hpp>
+#include <SOGE/Graphics/Entities/StaticMeshEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Graphics/Primitives/Box.hpp>
 #include <SOGE/Graphics/Primitives/Sphere.hpp>
@@ -84,6 +85,12 @@ namespace soge_game
             .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
             .m_scale = glm::vec3{0.5f},
         };
+
+        const auto [mesh, meshUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+            container.Provide<soge::StaticMeshEntity>());
+        SOGE_INFO_LOG(R"(Created mesh with UUID {})", meshUuid.str());
+        mesh.GetFilePath() = "./resources/meshes/hog.fbx";
+        mesh.Load();
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(

@@ -114,7 +114,9 @@ workspace "SOGE"
                 platform = shadermake_platform.DXIL,
                 config = "%{!wks.location}/SOGE/resources/shaders/config.shadermake",
                 output = "%{!wks.location}/GAME/resources/shaders"
-            }
+            },
+            "{MKDIR} %[%{!wks.location}GAME/resources/meshes]",
+            "{COPYFILE} %[%{!wks.location}SOGE/resources/meshes/hog.fbx] %[%{!wks.location}GAME/resources/meshes/hog.fbx]"
         }
 
         filter "files:**.hlsl"
