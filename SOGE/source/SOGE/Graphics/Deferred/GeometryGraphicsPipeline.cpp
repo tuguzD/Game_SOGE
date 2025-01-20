@@ -19,13 +19,13 @@ namespace soge
         vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
         vertexShaderDesc.debugName = "SOGE geometry pipeline vertex shader";
         vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, shaderSourcePath, "VSMain");
+        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, shaderSourcePath);
 
         nvrhi::ShaderDesc pixelShaderDesc{};
         pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
         pixelShaderDesc.debugName = "SOGE geometry pipeline pixel shader";
         pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, shaderSourcePath, "PSMain");
+        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, shaderSourcePath);
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{

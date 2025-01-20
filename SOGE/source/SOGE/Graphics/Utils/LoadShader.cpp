@@ -17,9 +17,10 @@ namespace soge
     }
 
     nvrhi::ShaderHandle LoadShader(GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
-                                   const cppfs::FilePath& aSourcePath, const eastl::string_view aEntryName)
+                                   const cppfs::FilePath& aSourcePath)
     {
-        const auto compiledPath = soge::GetCompiledShaderPath(aCore, aSourcePath, aEntryName);
+        const eastl::string_view entryName{aDesc.entryName.c_str(), aDesc.entryName.size()};
+        const auto compiledPath = soge::GetCompiledShaderPath(aCore, aSourcePath, entryName);
         const auto shaderFile = cppfs::fs::open(compiledPath.path());
         if (!shaderFile.exists())
         {

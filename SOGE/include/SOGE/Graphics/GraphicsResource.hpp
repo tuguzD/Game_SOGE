@@ -11,7 +11,7 @@ namespace soge
     class GraphicsResource : public ResourceBase
     {
     public:
-        GraphicsResource(const eastl::string_view& aName, cppfs::FilePath aFullPath);
+        GraphicsResource(eastl::string_view aName, cppfs::FilePath aFullPath);
 
         [[nodiscard]]
         constexpr virtual nvrhi::IResource& GetResource() = 0;

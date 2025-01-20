@@ -10,7 +10,7 @@ namespace soge
     {
         cppfs::FilePath destinationPath{aSourcePath};
 
-        if (!aEntryName.empty())
+        if (!aEntryName.empty() && aEntryName != "main")
         {
             destinationPath = fmt::format("{}{}_{}{}", destinationPath.directoryPath(), destinationPath.baseName(),
                                           aEntryName.data(), destinationPath.extension());

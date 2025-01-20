@@ -5,7 +5,7 @@
 
 namespace soge
 {
-    GraphicsResource::GraphicsResource(const eastl::string_view& aName, cppfs::FilePath aFullPath)
+    GraphicsResource::GraphicsResource(const eastl::string_view aName, cppfs::FilePath aFullPath)
         : ResourceBase(aName, std::move(aFullPath))
     {
     }
