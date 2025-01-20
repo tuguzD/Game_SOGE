@@ -12,7 +12,7 @@ IncludeThirdpartyDirs["SDL3"] = "3rdparty/SDL/SDL/include"
 IncludeThirdpartyDirs["cppfs"] = "3rdparty/cppfs/cppfs/source/cppfs/include"
 IncludeThirdpartyDirs["FMOD"] = "3rdparty/FMOD/FMOD/include"
 IncludeThirdpartyDirs["glm"] = "3rdparty/glm/glm/include"
-IncludeThirdpartyDirs["XoshiroCpp"] = "3rdparty/XoshiroCpp/XoshiroCpp/include" 
+IncludeThirdpartyDirs["XoshiroCpp"] = "3rdparty/XoshiroCpp/XoshiroCpp/include"
 IncludeThirdpartyDirs["NRI"] = "3rdparty/NRI/NRI/Include"
 IncludeThirdpartyDirs["NVRHI"] = "3rdparty/NVRHI/NVRHI/include"
 IncludeThirdpartyDirs["Assimp"] = "3rdparty/assimp/assimp/include"
@@ -51,6 +51,7 @@ Libraries["NRI_VK_R"] = "3rdparty/NRI/lib/Frameworks/Release/NRI_VK.lib"
 Libraries["NRI_R"] = "3rdparty/NRI/lib/NRI/Release/NRI.lib"
 Libraries["NRI_DLL_R"] = "3rdparty/NRI/lib/NRI/Release/NRI.dll"
 Libraries["NRI_AMDAGS_DLL_R"] = "3rdparty/NRI/lib/NRI/Release/amd_ags_x64.dll"
+
 -- FMOD Libs
 
 Libraries["FMOD_WIN64_CORE_DLL_D"] = "3rdparty/FMOD/FMOD/lib/x64/fmodL.dll"
@@ -73,5 +74,8 @@ Libraries["FMOD_WIN64_STUDIO_R"] = "3rdparty/FMOD/FMOD/lib/x64/fmodstudio_vc.lib
 
 -- Assimp
 
-Libraries["assimp_lib_d"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mtd.lib"
-Libraries["assimp_lib_r"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mt.lib"
+Libraries["ASSIMP_D"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mtd.lib"
+Libraries["ASSIMP_DLL_D"] = "3rdparty/assimp/bin/Debug/assimp-vc143-mtd.dll"
+
+Libraries["ASSIMP_R"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mt.lib"
+Libraries["ASSIMP_DLL_R"] = "3rdparty/assimp/bin/Debug/assimp-vc143-mt.dll"

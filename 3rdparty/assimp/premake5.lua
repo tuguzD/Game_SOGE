@@ -12,7 +12,8 @@ assimp_config_file:close()
 module = "assimp"
 if not isdir("./lib") then
     cmake = "cmake"
-    os.execute("mkdir lib")
+    os.execute("{MKDIR} lib")
+    os.execute("{MKDIR} bin")
 
     os.execute(cmake .. " -S ./" .. module .. " -B ./" .. module .. "/auto_build")
 
@@ -20,7 +21,9 @@ if not isdir("./lib") then
     os.execute(cmake .. " --build ./" .. module .. "/auto_build --config Debug")
     os.execute(cmake .. " --build ./" .. module .. "/auto_build --config Release")
 
-    os.execute("move ./" .. module .. "/auto_build/lib/Release ./lib")
-    os.execute("move ./" .. module .. "/auto_build/lib/Debug ./lib")
+    os.execute("{MOVE} ./" .. module .. "/auto_build/lib/Debug ./lib")
+    os.execute("{MOVE} ./" .. module .. "/auto_build/bin/Debug ./bin")
+    os.execute("{MOVE} ./" .. module .. "/auto_build/lib/Release ./lib")
+    os.execute("{MOVE} ./" .. module .. "/auto_build/bin/Release ./bin")
 
 end

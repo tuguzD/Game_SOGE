@@ -166,7 +166,8 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_D}",
 
                 -- Assimp
-                "%{wks.location}/%{Libraries.assimp_lib_d}"
+                "%{wks.location}/%{Libraries.ASSIMP_D}",
+                "%{wks.location}/%{Libraries.ASSIMP_DLL_D}"
             }
 
             postbuildcommands
@@ -176,7 +177,8 @@ workspace "SOGE"
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME", -- For FMOD Studio 
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_D} %{wks.location}/GAME"
             }
 
         filter "configurations:Release"
@@ -212,7 +214,8 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_R}",
 
                 -- Assimp
-                "%{wks.location}/%{Libraries.assimp_lib_r}"
+                "%{wks.location}/%{Libraries.ASSIMP_R}",
+                "%{wks.location}/%{Libraries.ASSIMP_DLL_R}"
             }
 
             postbuildcommands
@@ -221,7 +224,8 @@ workspace "SOGE"
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_R} %{wks.location}/GAME"
             }
 
 -----------------------
