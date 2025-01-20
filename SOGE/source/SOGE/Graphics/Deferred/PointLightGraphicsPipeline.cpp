@@ -2,32 +2,18 @@
 
 #include "SOGE/Graphics/Deferred/PointLightGraphicsPipeline.hpp"
 
-#include "SOGE/Graphics/Utils/LoadShader.hpp"
-
 
 namespace soge
 {
     PointLightGraphicsPipeline::PointLightGraphicsPipeline(GraphicsCore& aCore,
                                                            GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                                           FinalGraphicsRenderPass& aFinalRenderPass)
+                                                           FinalGraphicsRenderPass& aFinalRenderPass,
+                                                           PointLightVertexShaderResource& aVertexShader,
+                                                           PointLightPixelShaderResource& aPixelShader)
         : m_core{aCore}, m_geometryRenderPass{aGeometryRenderPass}, m_finalRenderPass{aFinalRenderPass}
     {
         SOGE_INFO_LOG("Creating NVRHI point light pipeline...");
         nvrhi::IDevice& device = aCore.GetRawDevice();
-
-        constexpr auto shaderSourcePath = "./resources/shaders/deferred_point_light.hlsl";
-
-        nvrhi::ShaderDesc vertexShaderDesc{};
-        vertexShaderDesc.shaderType = nvrhi::ShaderType::Vertex;
-        vertexShaderDesc.debugName = "SOGE point light pipeline vertex shader";
-        vertexShaderDesc.entryName = "VSMain";
-        m_nvrhiVertexShader = LoadShader(aCore, vertexShaderDesc, shaderSourcePath);
-
-        nvrhi::ShaderDesc pixelShaderDesc{};
-        pixelShaderDesc.shaderType = nvrhi::ShaderType::Pixel;
-        pixelShaderDesc.debugName = "SOGE point light pipeline pixel shader";
-        pixelShaderDesc.entryName = "PSMain";
-        m_nvrhiPixelShader = LoadShader(aCore, pixelShaderDesc, shaderSourcePath);
 
         const std::array vertexAttributeDescArray{
             nvrhi::VertexAttributeDesc{
@@ -37,9 +23,9 @@ namespace soge
                 .elementStride = sizeof(Entity::Vertex),
             },
         };
-        m_nvrhiInputLayout =
-            device.createInputLayout(vertexAttributeDescArray.data(),
-                                     static_cast<std::uint32_t>(vertexAttributeDescArray.size()), m_nvrhiVertexShader);
+        m_nvrhiInputLayout = device.createInputLayout(vertexAttributeDescArray.data(),
+                                                      static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
+                                                      &aVertexShader.GetResource());
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::All;
@@ -60,8 +46,8 @@ namespace soge
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};
         pipelineDesc.inputLayout = m_nvrhiInputLayout;
-        pipelineDesc.VS = m_nvrhiVertexShader;
-        pipelineDesc.PS = m_nvrhiPixelShader;
+        pipelineDesc.VS = &aVertexShader.GetResource();
+        pipelineDesc.PS = &aPixelShader.GetResource();
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         pipelineDesc.renderState.depthStencilState.depthTestEnable = false;
         pipelineDesc.renderState.depthStencilState.depthWriteEnable = false;
