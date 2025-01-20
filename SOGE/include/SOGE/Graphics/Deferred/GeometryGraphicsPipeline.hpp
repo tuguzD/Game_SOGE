@@ -2,6 +2,8 @@
 #define SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP
 
 #include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/Deferred/GeometryPixelShaderResource.hpp"
+#include "SOGE/Graphics/Deferred/GeometryVertexShaderResource.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
@@ -28,11 +30,11 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
-        nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
-        explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass);
+        explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass,
+                                          GeometryVertexShaderResource& aVertexShader,
+                                          GeometryPixelShaderResource& aPixelShader);
 
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();
@@ -99,6 +101,7 @@ namespace soge
 }
 
 SOGE_DI_REGISTER_NS(soge, GeometryGraphicsPipeline,
-                    df::Single<GeometryGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass>)
+                    df::Single<GeometryGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass,
+                               GeometryVertexShaderResource, GeometryPixelShaderResource>)
 
 #endif // SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP

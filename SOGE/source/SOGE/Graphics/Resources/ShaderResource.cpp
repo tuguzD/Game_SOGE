@@ -7,15 +7,39 @@
 
 namespace soge
 {
-    ShaderResource::ShaderResource(GraphicsCore& aCore, const eastl::string_view aName,
-                                   const cppfs::FilePath& aFullPath, const nvrhi::ShaderDesc& aShaderDesc)
-        : GraphicsResource(aName, aFullPath)
+    ShaderResource::ShaderResource(GraphicsCore& aCore, const eastl::string_view aName, cppfs::FilePath aFullPath,
+                                   nvrhi::ShaderDesc aShaderDesc)
+        : GraphicsResource{aName, std::move(aFullPath)}, m_core{aCore}, m_shaderDesc{std::move(aShaderDesc)}
     {
-        m_shaderHandle = LoadShader(aCore, aShaderDesc, aFullPath);
+        Initialize();
+    }
+
+    void ShaderResource::Initialize()
+    {
+        m_shaderHandle = LoadShader(m_core.get(), m_shaderDesc, GetFullPath().data());
     }
 
     nvrhi::IShader& ShaderResource::GetResource()
     {
         return *m_shaderHandle;
+    }
+
+    bool ShaderResource::Reload()
+    {
+        if (m_shaderHandle == nullptr)
+        {
+            Initialize();
+        }
+        return true;
+    }
+
+    void ShaderResource::Unload()
+    {
+        m_shaderHandle = nullptr;
+    }
+
+    void ShaderResource::Destroy()
+    {
+        m_shaderHandle = nullptr;
     }
 }

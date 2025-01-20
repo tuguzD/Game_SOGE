@@ -10,14 +10,23 @@ namespace soge
     class ShaderResource : public GraphicsResource
     {
     private:
+        void Initialize();
+
+        eastl::reference_wrapper<GraphicsCore> m_core;
+
         nvrhi::ShaderHandle m_shaderHandle;
+        nvrhi::ShaderDesc m_shaderDesc;
 
     public:
-        ShaderResource(GraphicsCore& aCore, eastl::string_view aName, const cppfs::FilePath& aFullPath,
-                       const nvrhi::ShaderDesc& aShaderDesc);
+        ShaderResource(GraphicsCore& aCore, eastl::string_view aName, cppfs::FilePath aFullPath,
+                       nvrhi::ShaderDesc aShaderDesc);
 
         [[nodiscard]]
         nvrhi::IShader& GetResource() override;
+
+        bool Reload() override;
+        void Unload() override;
+        void Destroy() override;
     };
 }
 
