@@ -14,6 +14,7 @@ namespace soge
     class Window;
     class GraphicsSwapchain;
     class GraphicsEntity;
+    class GraphicsResource;
 
     class RenderGraph;
 
@@ -37,8 +38,11 @@ namespace soge
         using EntityRef = eastl::reference_wrapper<GraphicsEntity>;
         using Entities = eastl::span<EntityRef>;
 
+        using ResourceRef = eastl::reference_wrapper<GraphicsResource>;
+        using Resources = eastl::span<ResourceRef>;
+
         constexpr virtual void Update(RenderGraph& aRenderGraph, const nvrhi::Viewport& aViewport,
-                                      const Camera& aCamera, Entities aEntities) = 0;
+                                      const Camera& aCamera, Entities aEntities, Resources aResources) = 0;
 
         [[nodiscard]]
         constexpr virtual nvrhi::IDevice& GetRawDevice() = 0;

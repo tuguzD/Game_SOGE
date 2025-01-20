@@ -54,16 +54,10 @@ namespace soge_game
         auto& renderGraph = container.Provide<soge::DeferredRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
-        soge::SimpleTextureResource texture{container.Provide<soge::GraphicsCore>(), "cardboard",
-                                            "./resources/textures/cardboard.png"};
-        {
-            auto& graphicsCore = container.Provide<soge::GraphicsCore>();
-            auto commandList = graphicsCore.GetRawDevice().createCommandList();
-            commandList->open();
-            texture.WriteResource(*commandList);
-            commandList->close();
-            graphicsCore.ExecuteCommandList(commandList);
-        }
+        const auto [texture, textureUuid] =
+            graphicsModule->GetResourceManager().CreateResource<soge::SimpleTextureResource>(
+                container.Provide<soge::GraphicsCore>(), "cardboard", "./resources/textures/cardboard.png");
+        SOGE_INFO_LOG(R"(Created texture with UUID {})", textureUuid.str());
 
         constexpr std::size_t gridSize = 3;
         constexpr glm::vec3 gridOffset{-0.5f * (gridSize - 1)};

@@ -222,14 +222,14 @@ namespace soge
     }
 
     void D3D12GraphicsCore::Update(RenderGraph& aRenderGraph, const nvrhi::Viewport& aViewport, const Camera& aCamera,
-                                   const Entities aEntities)
+                                   const Entities aEntities, const Resources aResources)
     {
         SOGE_INFO_LOG("Rendering {} frame with input delta time of {}...", m_totalFrameCount, Timestep::DeltaTime());
 
         m_swapChain->WaitForPresent();
         m_nvrhiDevice->runGarbageCollection();
 
-        aRenderGraph.Execute(aViewport, aCamera, aEntities);
+        aRenderGraph.Execute(aViewport, aCamera, aEntities, aResources);
 
         m_swapChain->Present();
         m_totalFrameCount++;

@@ -20,7 +20,8 @@ namespace soge
     {
     }
 
-    void DeferredRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities)
+    void DeferredRenderGraph::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, const Entities aEntities,
+                                      const Resources aResources)
     {
         GraphicsCore& core = m_core;
         nvrhi::IDevice& device = core.GetRawDevice();
@@ -39,6 +40,11 @@ namespace soge
         const nvrhi::CommandListHandle commandList = device.createCommandList(commandListDesc);
         {
             GraphicsCommandListGuard commandListGuard{*commandList};
+
+            for (auto&& resource : aResources)
+            {
+                resource.get().WriteResource(commandListGuard);
+            }
 
             geometryPass.ClearFramebuffer(commandListGuard);
             geometryPipeline.WriteConstantBuffer(aCamera, commandListGuard);

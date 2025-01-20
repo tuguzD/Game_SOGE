@@ -23,8 +23,10 @@ namespace soge
         constexpr virtual ~RenderGraph() = default;
 
         using Entities = GraphicsCore::Entities;
+        using Resources = GraphicsCore::Resources;
 
-        constexpr virtual void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) = 0;
+        constexpr virtual void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities,
+                                       Resources aResources) = 0;
     };
 
     constexpr RenderGraph::RenderGraph(GraphicsCore&) noexcept
