@@ -233,7 +233,8 @@ namespace soge
             if (scene == nullptr)
             {
                 const char* message = importer.GetErrorString();
-                throw std::runtime_error{message};
+                SOGE_WARN_LOG("{}", message);
+                return;
             }
 
             const aiNode* node = scene->mRootNode;

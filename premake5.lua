@@ -116,10 +116,8 @@ workspace "SOGE"
                 config = "%{!wks.location}/SOGE/resources/shaders/config.shadermake",
                 output = "%{!wks.location}/GAME/resources/shaders"
             },
-            "{MKDIR} %[%{!wks.location}GAME/resources/meshes]",
-            "{COPYFILE} %[%{!wks.location}SOGE/resources/meshes/*] %[%{!wks.location}GAME/resources/meshes/]",
-            "{MKDIR} %[%{!wks.location}GAME/resources/textures]",
-            "{COPYFILE} %[%{!wks.location}SOGE/resources/textures/*] %[%{!wks.location}GAME/resources/textures/]"
+            "{COPYDIR} %[%{!wks.location}SOGE/resources/meshes/] %[%{!wks.location}GAME/resources/meshes/]",
+            "{COPYDIR} %[%{!wks.location}SOGE/resources/textures/] %[%{!wks.location}GAME/resources/textures/]"
         }
 
         filter "files:**.hlsl"

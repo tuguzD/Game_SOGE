@@ -93,16 +93,27 @@ namespace soge_game
             .m_scale = glm::vec3{0.5f},
         };
 
-        const auto [mesh, meshUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+        const auto [hog, hogUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
             container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created mesh with UUID {})", meshUuid.str());
-        mesh.GetFilePath() = "./resources/meshes/hog.fbx";
-        mesh.GetTransform() = soge::Transform{
+        SOGE_INFO_LOG(R"(Created hog with UUID {})", hogUuid.str());
+        hog.GetFilePath() = "./resources/meshes/hog.fbx";
+        hog.GetTransform() = soge::Transform{
             .m_position = glm::vec3{0.0f, 2.0f, 0.0f},
             .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
             .m_scale = glm::vec3{0.01f},
         };
-        mesh.Load();
+        hog.Load();
+
+        const auto [cake, cameUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+            container.Provide<soge::StaticMeshEntity>());
+        SOGE_INFO_LOG(R"(Created cake with UUID {})", cameUuid.str());
+        cake.GetFilePath() = "./resources/meshes/cake/cake.fbx";
+        cake.GetTransform() = soge::Transform{
+            .m_position = glm::vec3{0.0f, -2.5f, 0.0f},
+            .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
+            .m_scale = glm::vec3{0.01f},
+        };
+        cake.Load();
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
