@@ -34,6 +34,7 @@ namespace soge
         bindingLayoutDesc.bindings = {
             nvrhi::BindingLayoutItem::Texture_SRV(0), // depth
             nvrhi::BindingLayoutItem::Texture_SRV(1), // albedo
+            nvrhi::BindingLayoutItem::Texture_SRV(2), // ambient
         };
         m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
 
@@ -107,6 +108,7 @@ namespace soge
         bindingSetDesc.bindings = {
             nvrhi::BindingSetItem::Texture_SRV(0, depthTexture),
             nvrhi::BindingSetItem::Texture_SRV(1, &aGeometryRenderPass.GetAlbedoTexture()),
+            nvrhi::BindingSetItem::Texture_SRV(2, &aGeometryRenderPass.GetAmbientTexture()),
         };
 
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);

@@ -51,6 +51,8 @@ VS_Output VSMain(VS_Input input)
 Texture2D<float> gBuffer_depth : register(t0);
 Texture2D<float4> gBuffer_albedo : register(t1);
 Texture2D<float4> gBuffer_normal : register(t2);
+Texture2D<float4> gBuffer_diffuse : register(t3);
+Texture2D<float4> gBuffer_specularShininess : register(t4);
 
 typedef VS_Output PS_Input;
 
@@ -66,6 +68,9 @@ float4 PSMain(PS_Input input) : SV_Target
     float3 world_position = WorldPositionFromDepth(input.clip_coord, depth, inv_projection, inv_view);
     float4 albedo = gBuffer_albedo.Load(gBuffer_coord);
     float3 normal = gBuffer_normal.Load(gBuffer_coord).xyz;
+    float3 diffuse = gBuffer_diffuse.Load(gBuffer_coord).xyz;
+    float3 specular = gBuffer_specularShininess.Load(gBuffer_coord).xyz;
+    float shininess = gBuffer_specularShininess.Load(gBuffer_coord).w;
 
     float3 to_light = world_position - position;
     float to_light_distance = length(to_light);
@@ -74,11 +79,12 @@ float4 PSMain(PS_Input input) : SV_Target
     final_attenuation = (length(final_attenuation) > 0.0f) ? final_attenuation : float3(1.0f, 1.0f, 1.0f);
 
     float3 direction = normalize(to_light);
-    float diffuse = max(0.0f, dot(normal, -direction));
+    float lightDiffuse = max(0.0f, dot(normal, -direction));
 
-    // float3 to_view_direction = normalize(view_position - world_position);
-    // float3 reflect_direction = normalize(reflect(-direction, normal));
-    // float specular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), 16.0f);
+    float3 to_view_direction = normalize(view_position - world_position);
+    float3 reflect_direction = normalize(reflect(-direction, normal));
+    float lightSpecular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), shininess);
 
-    return albedo * float4(color * intensity * diffuse / final_attenuation, 1.0f);
+    return albedo *
+           float4(color * intensity * (diffuse * lightDiffuse + specular * lightSpecular) / final_attenuation, 1.0f);
 }

@@ -34,6 +34,8 @@ namespace soge
             nvrhi::BindingLayoutItem::Texture_SRV(0),    // depth
             nvrhi::BindingLayoutItem::Texture_SRV(1),    // albedo
             nvrhi::BindingLayoutItem::Texture_SRV(2),    // normal
+            nvrhi::BindingLayoutItem::Texture_SRV(3),    // diffuse
+            nvrhi::BindingLayoutItem::Texture_SRV(4),    // specularShininess
         };
         m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
 
@@ -83,6 +85,8 @@ namespace soge
             nvrhi::BindingSetItem::Texture_SRV(0, depthTexture),
             nvrhi::BindingSetItem::Texture_SRV(1, &aGeometryRenderPass.GetAlbedoTexture()),
             nvrhi::BindingSetItem::Texture_SRV(2, &aGeometryRenderPass.GetNormalTexture()),
+            nvrhi::BindingSetItem::Texture_SRV(3, &aGeometryRenderPass.GetDiffuseTexture()),
+            nvrhi::BindingSetItem::Texture_SRV(4, &aGeometryRenderPass.GetSpecularShininessTexture()),
         };
 
         m_nvrhiBindingSet = device.createBindingSet(bindingSetDesc, m_nvrhiBindingLayout);
