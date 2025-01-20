@@ -9,8 +9,8 @@ cbuffer Object_ConstantBuffer : register(b1)
     float3 ambient;
     float3 diffuse;
     float3 specular;
-    float3 emissive;
     float shininess;
+    float3 emissive;
 }
 
 struct VS_Input
@@ -44,6 +44,10 @@ struct PS_Output
 {
     float4 albedo : SV_Target0;
     float4 normal : SV_Target1;
+    float4 ambient : SV_Target2;
+    float4 diffuse : SV_Target3;
+    float4 specularShininess : SV_Target4;
+    float4 emissive : SV_Target5;
 };
 
 PS_Output PSMain(PS_Input input)
@@ -52,6 +56,10 @@ PS_Output PSMain(PS_Input input)
 
     output.albedo = float4(input.color, 1.0f);
     output.normal = float4(input.normal, 1.0f);
+    output.ambient = float4(ambient, 1.0f);
+    output.diffuse = float4(diffuse, 1.0f);
+    output.specularShininess = float4(specular, shininess);
+    output.emissive = float4(emissive, 1.0f);
 
     return output;
 }

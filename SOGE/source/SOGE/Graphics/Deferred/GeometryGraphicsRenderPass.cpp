@@ -19,53 +19,46 @@ namespace soge
         const auto& swapChainTextureDesc = swapChainTextures[0].get().getDesc();
 
         SOGE_INFO_LOG("Creating NVRHI albedo texture for geometry render pass...");
-        nvrhi::TextureDesc nvrhiAlbedoTextureDesc{};
-        nvrhiAlbedoTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
-        nvrhiAlbedoTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
-        nvrhiAlbedoTextureDesc.width = swapChainTextureDesc.width;
-        nvrhiAlbedoTextureDesc.height = swapChainTextureDesc.height;
-        nvrhiAlbedoTextureDesc.isRenderTarget = true;
-        nvrhiAlbedoTextureDesc.isShaderResource = true;
-        nvrhiAlbedoTextureDesc.mipLevels = 1;
-        nvrhiAlbedoTextureDesc.useClearValue = true;
-        nvrhiAlbedoTextureDesc.clearValue = nvrhi::Color{};
-        nvrhiAlbedoTextureDesc.initialState = nvrhi::ResourceStates::RenderTarget;
-        nvrhiAlbedoTextureDesc.keepInitialState = true;
-        nvrhiAlbedoTextureDesc.debugName = "SOGE geometry render pass albedo texture";
-
-        m_nvrhiAlbedoTexture = device.createTexture(nvrhiAlbedoTextureDesc);
+        nvrhi::TextureDesc textureDesc{};
+        textureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+        textureDesc.format = nvrhi::Format::RGBA16_FLOAT;
+        textureDesc.width = swapChainTextureDesc.width;
+        textureDesc.height = swapChainTextureDesc.height;
+        textureDesc.isRenderTarget = true;
+        textureDesc.isShaderResource = true;
+        textureDesc.mipLevels = 1;
+        textureDesc.useClearValue = true;
+        textureDesc.clearValue = nvrhi::Color{};
+        textureDesc.initialState = nvrhi::ResourceStates::RenderTarget;
+        textureDesc.keepInitialState = true;
+        textureDesc.debugName = "SOGE geometry render pass albedo texture";
+        m_nvrhiAlbedoTexture = device.createTexture(textureDesc);
 
         SOGE_INFO_LOG("Creating NVRHI normal texture for geometry render pass...");
-        nvrhi::TextureDesc nvrhiNormalTextureDesc{};
-        nvrhiNormalTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
-        nvrhiNormalTextureDesc.format = nvrhi::Format::RGBA16_FLOAT;
-        nvrhiNormalTextureDesc.width = swapChainTextureDesc.width;
-        nvrhiNormalTextureDesc.height = swapChainTextureDesc.height;
-        nvrhiNormalTextureDesc.isRenderTarget = true;
-        nvrhiNormalTextureDesc.isShaderResource = true;
-        nvrhiNormalTextureDesc.mipLevels = 1;
-        nvrhiNormalTextureDesc.useClearValue = true;
-        nvrhiNormalTextureDesc.clearValue = nvrhi::Color{};
-        nvrhiNormalTextureDesc.initialState = nvrhi::ResourceStates::RenderTarget;
-        nvrhiNormalTextureDesc.keepInitialState = true;
-        nvrhiNormalTextureDesc.debugName = "SOGE geometry render pass normal texture";
+        textureDesc.debugName = "SOGE geometry render pass normal texture";
+        m_nvrhiNormalTexture = device.createTexture(textureDesc);
 
-        m_nvrhiNormalTexture = device.createTexture(nvrhiNormalTextureDesc);
+        SOGE_INFO_LOG("Creating NVRHI ambient texture for geometry render pass...");
+        textureDesc.debugName = "SOGE geometry render pass ambient texture";
+        m_nvrhiAmbientTexture = device.createTexture(textureDesc);
+
+        SOGE_INFO_LOG("Creating NVRHI diffuse texture for geometry render pass...");
+        textureDesc.debugName = "SOGE geometry render pass diffuse texture";
+        m_nvrhiDiffuseTexture = device.createTexture(textureDesc);
+
+        SOGE_INFO_LOG("Creating NVRHI specular shininess texture for geometry render pass...");
+        textureDesc.debugName = "SOGE geometry render pass specular shininess texture";
+        m_nvrhiSpecularShininessTexture = device.createTexture(textureDesc);
+
+        SOGE_INFO_LOG("Creating NVRHI emissive texture for geometry render pass...");
+        textureDesc.debugName = "SOGE geometry render pass emissive texture";
+        m_nvrhiEmissiveTexture = device.createTexture(textureDesc);
 
         SOGE_INFO_LOG("Creating NVRHI depth texture for geometry render pass...");
-        nvrhi::TextureDesc nvrhiDepthTextureDesc{};
-        nvrhiDepthTextureDesc.dimension = nvrhi::TextureDimension::Texture2D;
-        nvrhiDepthTextureDesc.width = swapChainTextureDesc.width;
-        nvrhiDepthTextureDesc.height = swapChainTextureDesc.height;
-        nvrhiDepthTextureDesc.isRenderTarget = true;
-        nvrhiDepthTextureDesc.isShaderResource = true;
-        nvrhiDepthTextureDesc.isTypeless = true;
-        nvrhiDepthTextureDesc.mipLevels = 1;
-        nvrhiDepthTextureDesc.useClearValue = true;
-        nvrhiDepthTextureDesc.clearValue = nvrhi::Color{1.0f, 0.0f, 0.0f, 0.0f};
-        nvrhiDepthTextureDesc.initialState = nvrhi::ResourceStates::DepthWrite;
-        nvrhiDepthTextureDesc.keepInitialState = true;
-        nvrhiDepthTextureDesc.debugName = "SOGE geometry render pass depth texture";
+        textureDesc.isTypeless = true;
+        textureDesc.clearValue = nvrhi::Color{1.0f, 0.0f, 0.0f, 0.0f};
+        textureDesc.initialState = nvrhi::ResourceStates::DepthWrite;
+        textureDesc.debugName = "SOGE geometry render pass depth texture";
 
         const nvrhi::FormatSupport requiredDepthFeatures =
             nvrhi::FormatSupport::Texture | nvrhi::FormatSupport::DepthStencil | nvrhi::FormatSupport::ShaderLoad;
@@ -75,15 +68,19 @@ namespace soge
             nvrhi::Format::D32,
             nvrhi::Format::D16,
         };
-        nvrhiDepthTextureDesc.format = nvrhi::utils::ChooseFormat(
-            &device, requiredDepthFeatures, requestedDepthFormats.data(), requestedDepthFormats.size());
+        textureDesc.format = nvrhi::utils::ChooseFormat(&device, requiredDepthFeatures, requestedDepthFormats.data(),
+                                                        requestedDepthFormats.size());
 
-        const nvrhi::TextureHandle nvrhiDepthTexture = device.createTexture(nvrhiDepthTextureDesc);
+        const nvrhi::TextureHandle nvrhiDepthTexture = device.createTexture(textureDesc);
 
         SOGE_INFO_LOG("Creating NVRHI framebuffer for geometry render pass...");
         nvrhi::FramebufferDesc framebufferDesc{};
         framebufferDesc.addColorAttachment(m_nvrhiAlbedoTexture);
         framebufferDesc.addColorAttachment(m_nvrhiNormalTexture);
+        framebufferDesc.addColorAttachment(m_nvrhiAmbientTexture);
+        framebufferDesc.addColorAttachment(m_nvrhiDiffuseTexture);
+        framebufferDesc.addColorAttachment(m_nvrhiSpecularShininessTexture);
+        framebufferDesc.addColorAttachment(m_nvrhiEmissiveTexture);
         framebufferDesc.setDepthAttachment(nvrhiDepthTexture);
 
         m_nvrhiFramebuffer = device.createFramebuffer(framebufferDesc);
@@ -93,9 +90,12 @@ namespace soge
     {
         nvrhi::IFramebuffer& currentFramebuffer = GetFramebuffer();
 
-        // Clear albedo & normal textures
         nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 0, nvrhi::Color{});
         nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 1, nvrhi::Color{});
+        nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 2, nvrhi::Color{});
+        nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 3, nvrhi::Color{});
+        nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 4, nvrhi::Color{});
+        nvrhi::utils::ClearColorAttachment(&aCommandList, &currentFramebuffer, 5, nvrhi::Color{});
 
         nvrhi::utils::ClearDepthStencilAttachment(&aCommandList, &currentFramebuffer, 1.0f, 0);
     }
@@ -108,6 +108,26 @@ namespace soge
     nvrhi::ITexture& GeometryGraphicsRenderPass::GetNormalTexture()
     {
         return *m_nvrhiNormalTexture;
+    }
+
+    nvrhi::ITexture& GeometryGraphicsRenderPass::GetAmbientTexture()
+    {
+        return *m_nvrhiAmbientTexture;
+    }
+
+    nvrhi::ITexture& GeometryGraphicsRenderPass::GetDiffuseTexture()
+    {
+        return *m_nvrhiDiffuseTexture;
+    }
+
+    nvrhi::ITexture& GeometryGraphicsRenderPass::GetSpecularShininessTexture()
+    {
+        return *m_nvrhiSpecularShininessTexture;
+    }
+
+    nvrhi::ITexture& GeometryGraphicsRenderPass::GetEmissiveTexture()
+    {
+        return *m_nvrhiEmissiveTexture;
     }
 
     nvrhi::IFramebuffer& GeometryGraphicsRenderPass::GetFramebuffer()

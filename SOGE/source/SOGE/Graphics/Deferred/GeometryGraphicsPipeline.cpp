@@ -28,7 +28,7 @@ namespace soge
             },
             nvrhi::VertexAttributeDesc{
                 .name = "color",
-                .format = nvrhi::Format::RGBA32_FLOAT,
+                .format = nvrhi::Format::RGB32_FLOAT,
                 .offset = offsetof(Entity::Vertex, m_color),
                 .elementStride = sizeof(Entity::Vertex),
             },
@@ -45,9 +45,9 @@ namespace soge
         m_nvrhiBindingLayout = device.createBindingLayout(bindingLayoutDesc);
 
         nvrhi::BindingLayoutDesc entityBindingLayoutDesc{};
-        entityBindingLayoutDesc.visibility = nvrhi::ShaderType::Vertex;
+        entityBindingLayoutDesc.visibility = nvrhi::ShaderType::All;
         entityBindingLayoutDesc.bindings = {
-            nvrhi::BindingLayoutItem::ConstantBuffer(1), // model matrix
+            nvrhi::BindingLayoutItem::ConstantBuffer(1), // model matrix & material
         };
         m_nvrhiEntityBindingLayout = device.createBindingLayout(entityBindingLayoutDesc);
 
