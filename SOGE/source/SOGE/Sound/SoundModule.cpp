@@ -1,11 +1,12 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Core/ModuleManager.hpp"
 #include "SOGE/DI/Container.hpp"
 
-#include "SOGE/Sound/SoundModule.hpp"
 #include "SOGE/Sound/SoundCompilePreproc.hpp"
+#include "SOGE/Sound/SoundModule.hpp"
 
-#include SOGE_ABS_COMPILED_SOUNDSYSTEM_IMPL_HEADER(SOGE/Sound, SoundCore.hpp);
+#include SOGE_ABS_COMPILED_SOUNDSYSTEM_IMPL_HEADER(SOGE/Sound, SoundCore.hpp)
 
 
 namespace soge
@@ -64,8 +65,7 @@ namespace soge
         m_soundCore->Update();
     }
 
-    void SoundModule::Update3DListener(const glm::vec3& aPosition,
-                                       const glm::vec3& aForwardVec,
+    void SoundModule::Update3DListener(const glm::vec3& aPosition, const glm::vec3& aForwardVec,
                                        const glm::vec3& aUpwardVec) const
     {
         m_soundCore->Update3DListener(aPosition, aForwardVec, aUpwardVec);

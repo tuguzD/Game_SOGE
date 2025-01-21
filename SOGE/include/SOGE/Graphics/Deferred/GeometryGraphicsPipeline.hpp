@@ -2,6 +2,8 @@
 #define SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP
 
 #include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/Deferred/GeometryPixelShaderResource.hpp"
+#include "SOGE/Graphics/Deferred/GeometryVertexShaderResource.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
@@ -28,11 +30,11 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
-        nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
-        explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass);
+        explicit GeometryGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aRenderPass,
+                                          GeometryVertexShaderResource& aVertexShader,
+                                          GeometryPixelShaderResource& aPixelShader);
 
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();
@@ -55,14 +57,26 @@ namespace soge
 
         struct ConstantBufferData
         {
+            struct Material
+            {
+                alignas(16) glm::vec3 m_ambient{1.0f};
+                alignas(16) glm::vec3 m_diffuse{1.0f};
+                alignas(16) glm::vec3 m_specular{1.0f};
+                float m_shininess = 8.0f;
+                alignas(16) glm::vec3 m_emissive{0.0f};
+            };
+
             glm::mat4x4 m_model;
+            Material m_material;
+            std::uint32_t m_hasColorTexture = false;
         };
 
         struct Vertex
         {
             alignas(16) glm::vec3 m_position;
             alignas(16) glm::vec3 m_normal;
-            glm::vec4 m_color{1.0f};
+            alignas(16) glm::vec3 m_color{1.0f};
+            alignas(16) glm::vec2 m_texCoord;
         };
 
         using Index = std::uint32_t;
@@ -83,14 +97,11 @@ namespace soge
         constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
         [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
-
-        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
-        constexpr virtual void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
-        constexpr virtual void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 
 SOGE_DI_REGISTER_NS(soge, GeometryGraphicsPipeline,
-                    df::Single<GeometryGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass>)
+                    df::Single<GeometryGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass,
+                               GeometryVertexShaderResource, GeometryPixelShaderResource>)
 
 #endif // SOGE_GRAPHICS_DEFERRED_GEOMETRYGRAPHICSPIPELINE_HPP

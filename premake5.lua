@@ -23,6 +23,7 @@ workspace "SOGE"
         include "3rdparty/NRI/premake5.lua"
         include "3rdparty/NVRHI/premake5.lua"
         include "3rdparty/ShaderMake/premake5.lua"
+        include "3rdparty/Assimp/premake5.lua"
     group ""
 
     project "SOGE"
@@ -64,7 +65,9 @@ workspace "SOGE"
             "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}",
             "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
             "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
-            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
+            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.Assimp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.stb}"
         }
 
         defines
@@ -112,7 +115,9 @@ workspace "SOGE"
                 platform = shadermake_platform.DXIL,
                 config = "%{!wks.location}/SOGE/resources/shaders/config.shadermake",
                 output = "%{!wks.location}/GAME/resources/shaders"
-            }
+            },
+            "{COPYDIR} %[%{!wks.location}SOGE/resources/meshes/] %[%{!wks.location}GAME/resources/meshes/]",
+            "{COPYDIR} %[%{!wks.location}SOGE/resources/textures/] %[%{!wks.location}GAME/resources/textures/]"
         }
 
         filter "files:**.hlsl"
@@ -159,7 +164,11 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_D}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D}",
-                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_D}"
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_D}",
+
+                -- Assimp
+                "%{wks.location}/%{Libraries.ASSIMP_D}",
+                "%{wks.location}/%{Libraries.ASSIMP_DLL_D}"
             }
 
             postbuildcommands
@@ -169,7 +178,8 @@ workspace "SOGE"
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME", -- For FMOD Studio 
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_D} %{wks.location}/GAME"
             }
 
         filter "configurations:Release"
@@ -202,7 +212,11 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_R}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R}",
-                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_R}"
+                "%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_R}",
+
+                -- Assimp
+                "%{wks.location}/%{Libraries.ASSIMP_R}",
+                "%{wks.location}/%{Libraries.ASSIMP_DLL_R}"
             }
 
             postbuildcommands
@@ -211,7 +225,8 @@ workspace "SOGE"
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME"
+                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME",
+                "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_R} %{wks.location}/GAME"
             }
 
 -----------------------

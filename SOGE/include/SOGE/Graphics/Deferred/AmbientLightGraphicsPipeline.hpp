@@ -1,6 +1,8 @@
 ﻿#ifndef SOGE_GRAPHICS_DEFERRED_AMBIENTLIGHTGRAPHICSPIPELINE_HPP
 #define SOGE_GRAPHICS_DEFERRED_AMBIENTLIGHTGRAPHICSPIPELINE_HPP
 
+#include "SOGE/Graphics/Deferred/AmbientLightPixelShaderResource.hpp"
+#include "SOGE/Graphics/Deferred/AmbientLightVertexShaderResource.hpp"
 #include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
@@ -24,12 +26,12 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
-        nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit AmbientLightGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                              FinalGraphicsRenderPass& aFinalRenderPass);
+                                              FinalGraphicsRenderPass& aFinalRenderPass,
+                                              AmbientLightVertexShaderResource& aVertexShader,
+                                              AmbientLightPixelShaderResource& aPixelShader);
 
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();
@@ -67,13 +69,12 @@ namespace soge
 
         [[nodiscard]]
         constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
-
-        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 
 SOGE_DI_REGISTER_NS(
     soge, AmbientLightGraphicsPipeline,
-    df::Single<AmbientLightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass>)
+    df::Single<AmbientLightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass,
+               AmbientLightVertexShaderResource, AmbientLightPixelShaderResource>)
 
 #endif // SOGE_GRAPHICS_DEFERRED_AMBIENTLIGHTGRAPHICSPIPELINE_HPP

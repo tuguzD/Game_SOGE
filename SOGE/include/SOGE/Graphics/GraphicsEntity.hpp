@@ -1,6 +1,8 @@
 ﻿#ifndef SOGE_GRAPHICS_GRAPHICSENTITY_HPP
 #define SOGE_GRAPHICS_GRAPHICSENTITY_HPP
 
+#include <nvrhi/nvrhi.h>
+
 
 namespace soge
 {
@@ -16,6 +18,8 @@ namespace soge
         constexpr GraphicsEntity& operator=(GraphicsEntity&&) noexcept = default;
 
         constexpr virtual ~GraphicsEntity() noexcept = default;
+
+        constexpr virtual void WriteResources(nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

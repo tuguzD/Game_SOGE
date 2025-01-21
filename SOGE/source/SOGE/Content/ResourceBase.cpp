@@ -1,18 +1,16 @@
 #include "sogepch.hpp"
+
 #include "SOGE/Content/ResourceBase.hpp"
+
 #include "SOGE/Utils/StringHelpers.hpp"
 
 
 namespace soge
 {
-    ResourceBase::ResourceBase(const eastl::string_view& aName, const cppfs::FilePath& aFullPath)
-        : m_name(aName), m_fullPath(aFullPath), m_loaded(false)
+    ResourceBase::ResourceBase(const eastl::string_view aName, cppfs::FilePath aFullPath)
+        : m_fullPath(std::move(aFullPath)), m_name(aName), m_loaded(false)
     {
         m_resourceUUID = UUID::Generate();
-    }
-
-    ResourceBase::~ResourceBase()
-    {
     }
 
     void ResourceBase::SetFilePath(const eastl::string& aFullPath)
@@ -25,19 +23,20 @@ namespace soge
         m_fullPath.setPath(aFullPath.fullPath());
     }
 
-    void ResourceBase::SetLoaded(bool aLoaded)
+    void ResourceBase::SetLoaded(const bool aLoaded)
     {
         m_loaded = aLoaded;
     }
 
-    const eastl::string_view& ResourceBase::GetName() const
+    eastl::string_view ResourceBase::GetName() const
     {
         return m_name;
     }
 
-    const eastl::string& ResourceBase::GetFullPath() const
+    eastl::string_view ResourceBase::GetFullPath() const
     {
-        return m_fullPath.fullPath().c_str();
+        const auto& fullPath = m_fullPath.fullPath();
+        return {fullPath.c_str(), fullPath.size()};
     }
 
     bool ResourceBase::IsLoaded() const

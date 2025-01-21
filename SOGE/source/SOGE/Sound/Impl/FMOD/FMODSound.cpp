@@ -1,7 +1,8 @@
 #include "sogepch.hpp"
-#include "SOGE/Sound/Impl/FMOD/FMODSound.hpp"
+
 #include "SOGE/Sound/Impl/FMOD/FMODConfig.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODException.hpp"
+#include "SOGE/Sound/Impl/FMOD/FMODSound.hpp"
 #include "SOGE/Sound/Impl/FMOD/FMODSoundCore.hpp"
 
 
@@ -32,7 +33,7 @@ namespace soge
             SOGE_WARN_LOG("Loop mode: {}", m_soundResource->IsLooping());
 
             FMODThrowIfFailed(
-                fmodSystem->createSound(m_soundResource->GetFullPath().c_str(), dimMode, nullptr, &m_fmodSound));
+                fmodSystem->createSound(m_soundResource->GetFullPath().data(), dimMode, nullptr, &m_fmodSound));
             FMODThrowIfFailed(m_fmodSound->setMode(loopMode));
 
             if (dimMode == FMOD_3D)

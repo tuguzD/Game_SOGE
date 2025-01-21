@@ -1,6 +1,8 @@
 ﻿#ifndef SOGE_GRAPHICS_DEFERRED_DIRECTIONALLIGHTGRAPHICSPIPELINE_HPP
 #define SOGE_GRAPHICS_DEFERRED_DIRECTIONALLIGHTGRAPHICSPIPELINE_HPP
 
+#include "SOGE/Graphics/Deferred/DirectionalLightPixelShaderResource.hpp"
+#include "SOGE/Graphics/Deferred/DirectionalLightVertexShaderResource.hpp"
 #include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
@@ -33,12 +35,12 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
-        nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit DirectionalLightGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                                  FinalGraphicsRenderPass& aFinalRenderPass);
+                                                  FinalGraphicsRenderPass& aFinalRenderPass,
+                                                  DirectionalLightVertexShaderResource& aVertexShader,
+                                                  DirectionalLightPixelShaderResource& aPixelShader);
 
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();
@@ -80,13 +82,12 @@ namespace soge
 
         [[nodiscard]]
         constexpr virtual nvrhi::BindingSetHandle GetBindingSet(Tag) = 0;
-
-        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 
 SOGE_DI_REGISTER_NS(
     soge, DirectionalLightGraphicsPipeline,
-    df::Single<DirectionalLightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass>)
+    df::Single<DirectionalLightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass,
+               DirectionalLightVertexShaderResource, DirectionalLightPixelShaderResource>)
 
 #endif // SOGE_GRAPHICS_DEFERRED_DIRECTIONALLIGHTGRAPHICSPIPELINE_HPP

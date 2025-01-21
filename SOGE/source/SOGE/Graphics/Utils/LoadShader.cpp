@@ -4,7 +4,8 @@
 
 #include "SOGE/Graphics/Utils/GetCompiledShaderPath.hpp"
 
-#include <fstream>
+#include <cppfs/FileHandle.h>
+#include <cppfs/fs.h>
 
 
 namespace soge
@@ -16,17 +17,19 @@ namespace soge
     }
 
     nvrhi::ShaderHandle LoadShader(GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
-                                   const std::filesystem::path& aSourcePath, const eastl::string_view aEntryName)
+                                   const cppfs::FilePath& aSourcePath)
     {
-        const auto compiledPath = soge::GetCompiledShaderPath(aCore, aSourcePath, aEntryName);
-        if (!std::filesystem::exists(compiledPath))
+        const eastl::string_view entryName{aDesc.entryName.c_str(), aDesc.entryName.size()};
+        const auto compiledPath = soge::GetCompiledShaderPath(aCore, aSourcePath, entryName);
+        const auto shaderFile = cppfs::fs::open(compiledPath.path());
+        if (!shaderFile.exists())
         {
-            const auto errorMessage = fmt::format(R"(Shader file "{}" does not exist)", compiledPath.generic_string());
-            throw std::runtime_error{errorMessage};
+            SOGE_WARN_LOG(R"(Shader file "{}" does not exist)", compiledPath.path());
+            return {};
         }
 
-        std::ifstream shaderFile{compiledPath, std::ios::in | std::ios::binary};
-        const std::vector<std::uint8_t> shaderBinary{std::istreambuf_iterator{shaderFile}, {}};
+        const auto stream = shaderFile.createInputStream(std::ios::in | std::ios::binary);
+        const std::vector<std::uint8_t> shaderBinary{std::istreambuf_iterator{*stream}, {}};
         return LoadShader(aCore.GetRawDevice(), aDesc, shaderBinary);
     }
 }

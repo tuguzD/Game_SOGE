@@ -40,6 +40,11 @@ namespace soge
         {
             GraphicsCommandListGuard commandListGuard{*commandList};
 
+            for (auto&& entity : aEntities)
+            {
+                entity.get().WriteResources(commandListGuard);
+            }
+
             geometryPass.ClearFramebuffer(commandListGuard);
             geometryPipeline.WriteConstantBuffer(aCamera, commandListGuard);
             for (auto&& entityRef : aEntities)

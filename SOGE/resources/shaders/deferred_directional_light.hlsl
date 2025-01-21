@@ -38,6 +38,8 @@ cbuffer DirectionalLight_ConstantBuffer : register(b1)
 Texture2D<float> gBuffer_depth : register(t0);
 Texture2D<float4> gBuffer_albedo : register(t1);
 Texture2D<float4> gBuffer_normal : register(t2);
+Texture2D<float4> gBuffer_diffuse : register(t3);
+Texture2D<float4> gBuffer_specularShininess : register(t4);
 
 typedef VS_Output PS_Input;
 
@@ -53,12 +55,15 @@ float4 PSMain(PS_Input input) : SV_Target
     float3 world_position = WorldPositionFromDepth(input.clip_coord, depth, inv_projection, inv_view);
     float4 albedo = gBuffer_albedo.Load(gBuffer_coord);
     float3 normal = gBuffer_normal.Load(gBuffer_coord).xyz;
+    float3 diffuse = gBuffer_diffuse.Load(gBuffer_coord).xyz;
+    float3 specular = gBuffer_specularShininess.Load(gBuffer_coord).xyz;
+    float shininess = gBuffer_specularShininess.Load(gBuffer_coord).w;
 
-    float diffuse = max(0.0f, dot(normal, -direction));
+    float lightDiffuse = max(0.0f, dot(normal, -direction));
 
     float3 to_view_direction = normalize(view_position - world_position);
     float3 reflect_direction = normalize(reflect(-direction, normal));
-    float specular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), 64.0f);
+    float lightSpecular = pow(max(dot(-to_view_direction, reflect_direction), 0.0f), shininess);
 
-    return albedo * float4(color * intensity * (diffuse + specular), 1.0f);
+    return albedo * float4(color * intensity * (diffuse * lightDiffuse + specular * lightSpecular), 1.0f);
 }

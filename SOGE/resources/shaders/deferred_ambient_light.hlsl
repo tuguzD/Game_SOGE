@@ -25,6 +25,7 @@ cbuffer AmbientLight_ConstantBuffer : register(b0)
 
 Texture2D<float> gBuffer_depth : register(t0);
 Texture2D<float4> gBuffer_albedo : register(t1);
+Texture2D<float4> gBuffer_ambient : register(t2);
 
 typedef VS_Output PS_Input;
 
@@ -39,5 +40,6 @@ float4 PSMain(PS_Input input) : SV_Target
     }
 
     float4 albedo = gBuffer_albedo.Load(gBuffer_coord);
-    return albedo * float4(color * intensity, 1.0f);
+    float4 ambient = gBuffer_ambient.Load(gBuffer_coord);
+    return albedo * ambient * float4(color * intensity, 1.0f);
 }

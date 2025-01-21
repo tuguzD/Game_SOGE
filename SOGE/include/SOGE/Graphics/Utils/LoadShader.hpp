@@ -3,10 +3,7 @@
 
 #include "SOGE/Graphics/GraphicsCore.hpp"
 
-#include <EASTL/span.h>
-#include <nvrhi/nvrhi.h>
-
-#include <filesystem>
+#include <cppfs/FilePath.h>
 
 
 namespace soge
@@ -17,7 +14,7 @@ namespace soge
 
     [[nodiscard]]
     nvrhi::ShaderHandle LoadShader(GraphicsCore& aCore, const nvrhi::ShaderDesc& aDesc,
-                                   const std::filesystem::path& aSourcePath, eastl::string_view aEntryName = "");
+                                   const cppfs::FilePath& aSourcePath);
 }
 
 #endif // SOGE_GRAPHICS_UTILS_LOADSHADER_HPP

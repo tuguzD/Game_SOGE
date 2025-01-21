@@ -2,6 +2,8 @@
 #define SOGE_GRAPHICS_DEFERRED_POINTLIGHTGRAPHICSPIPELINE_HPP
 
 #include "SOGE/Graphics/Deferred/GeometryGraphicsRenderPass.hpp"
+#include "SOGE/Graphics/Deferred/PointLightPixelShaderResource.hpp"
+#include "SOGE/Graphics/Deferred/PointLightVertexShaderResource.hpp"
 #include "SOGE/Graphics/FinalGraphicsRenderPass.hpp"
 #include "SOGE/Graphics/GraphicsPipeline.hpp"
 
@@ -32,12 +34,12 @@ namespace soge
         nvrhi::BindingLayoutHandle m_nvrhiEntityBindingLayout;
         nvrhi::BindingLayoutHandle m_nvrhiBindingLayout;
         nvrhi::InputLayoutHandle m_nvrhiInputLayout;
-        nvrhi::ShaderHandle m_nvrhiPixelShader;
-        nvrhi::ShaderHandle m_nvrhiVertexShader;
 
     public:
         explicit PointLightGraphicsPipeline(GraphicsCore& aCore, GeometryGraphicsRenderPass& aGeometryRenderPass,
-                                            FinalGraphicsRenderPass& aFinalRenderPass);
+                                            FinalGraphicsRenderPass& aFinalRenderPass,
+                                            PointLightVertexShaderResource& aVertexShader,
+                                            PointLightPixelShaderResource& aPixelShader);
 
         [[nodiscard]]
         nvrhi::IBindingLayout& GetEntityBindingLayout();
@@ -97,15 +99,11 @@ namespace soge
         constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
         [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
-
-        constexpr virtual void WriteConstantBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
-        constexpr virtual void WriteVertexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
-        constexpr virtual void WriteIndexBuffer(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 
-SOGE_DI_REGISTER_NS(
-    soge, PointLightGraphicsPipeline,
-    df::Single<PointLightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass, FinalGraphicsRenderPass>)
+SOGE_DI_REGISTER_NS(soge, PointLightGraphicsPipeline,
+                    df::Single<PointLightGraphicsPipeline, GraphicsCore, GeometryGraphicsRenderPass,
+                               FinalGraphicsRenderPass, PointLightVertexShaderResource, PointLightPixelShaderResource>)
 
 #endif // SOGE_GRAPHICS_DEFERRED_POINTLIGHTGRAPHICSPIPELINE_HPP
