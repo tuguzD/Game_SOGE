@@ -117,7 +117,8 @@ workspace "SOGE"
                 output = "%{!wks.location}/GAME/resources/shaders"
             },
             "{COPYDIR} %[%{!wks.location}SOGE/resources/meshes/] %[%{!wks.location}GAME/resources/meshes/]",
-            "{COPYDIR} %[%{!wks.location}SOGE/resources/textures/] %[%{!wks.location}GAME/resources/textures/]"
+            "{COPYDIR} %[%{!wks.location}SOGE/resources/textures/] %[%{!wks.location}GAME/resources/textures/]",
+            "{COPYDIR} %[%{!wks.location}SOGE/resources/sounds/] %[%{!wks.location}GAME/resources/sounds/]"
         }
 
         filter "files:**.hlsl"

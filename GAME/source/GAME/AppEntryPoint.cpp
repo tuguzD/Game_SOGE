@@ -43,6 +43,7 @@ namespace soge_game
         const auto inputModule = GetModule<soge::InputModule>();
         const auto windowModule = GetModule<soge::WindowModule>();
         const auto graphicsModule = GetModule<soge::GraphicsModule>();
+        const auto soundModule = GetModule<soge::SoundModule>();
 
         const auto [window, windowUuid] = windowModule->CreateWindow();
         SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
@@ -186,6 +187,15 @@ namespace soge_game
         });
         SOGE_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
 
+        const auto soundMixer = soundModule->GetChannelMixer();
+
+        constexpr auto ambientSoundChannelName = "Ambient";
+        soundMixer->CreateChannel(ambientSoundChannelName);
+
+        const auto ambientSound =
+            soundModule->CreateSoundResource("Ambient sound", "./resources/sounds/Sea waves and seagulls.wav", false);
+        soundModule->LoadSoundResource(ambientSound);
+
         // share state between two lambdas
         auto mouseDeltaX = soge::CreateShared<float>(0.0f);
         auto mouseDeltaY = soge::CreateShared<float>(0.0f);
@@ -203,6 +213,23 @@ namespace soge_game
             pointLightEntity1.GetPosition() += glm::vec3{0.0f, aEvent.GetXOffset() * 0.1f, 0.0f};
         };
         eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
+
+        bool playAmbientSound = false;
+        auto soundUpdate = [playAmbientSound, soundMixer, ambientSound](const soge::KeyPressedEvent& aEvent) mutable {
+            if (aEvent.GetKey() == soge::Keys::T)
+            {
+                playAmbientSound = !playAmbientSound;
+                if (playAmbientSound)
+                {
+                    soundMixer->PlayOnChannel(ambientSoundChannelName, ambientSound);
+                }
+                else
+                {
+                    soundMixer->StopChannel(ambientSoundChannelName);
+                }
+            }
+        };
+        eventModule->PushBack<soge::KeyPressedEvent>(soundUpdate);
 
         float cameraPitch{}, cameraYaw{};
         constexpr float cameraSpeed = 1.0f;
