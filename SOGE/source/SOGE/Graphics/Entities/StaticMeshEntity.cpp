@@ -25,10 +25,12 @@ namespace soge
         eastl::vector<Item> m_transforms{1, Item{}};
 
         eastl::hash_map<UUIDv4::UUID, std::size_t> m_geometryToTransform;
+        eastl::vector<UUIDv4::UUID> m_resources;
 
         void Reset()
         {
             m_geometryToTransform.clear();
+            m_resources.clear();
             m_transforms.resize(1);
         }
 
@@ -210,6 +212,7 @@ namespace
                 SOGE_INFO_LOG("Created texture (current node index is {}) with UUID: {}", currentHierarchyIndex,
                               textureUuid.str());
                 entity.GetColorTexture() = texture.GetResource();
+                aHierarchy.m_resources.push_back(textureUuid);
             }
         }
 
@@ -282,6 +285,14 @@ namespace soge
                 return;
             }
 
+            for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
+            {
+                m_entityManager.get().DestroyEntity(entityUuid);
+            }
+            for (auto&& resourceUuid : m_hierarchy->m_resources)
+            {
+                m_resourceManager.get().DestroyResource(resourceUuid);
+            }
             m_hierarchy->Reset();
             TraverseNode(m_filePath, *scene, *node, m_core, m_pipeline, m_entityManager, m_resourceManager,
                          *m_hierarchy, 0);
