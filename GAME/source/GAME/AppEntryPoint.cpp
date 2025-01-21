@@ -69,28 +69,27 @@ namespace soge_game
             {
                 for (std::size_t k = 0; k < gridSize; ++k)
                 {
-                    const auto [entity, entityUuid] =
-                        graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
-                            container.Provide<soge::BoxPrimitive>());
-                    SOGE_INFO_LOG(R"(Created box ({}, {}, {}) with UUID {})", i, j, k, entityUuid.str());
+                    const auto [box, boxUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
+                        container.Provide<soge::BoxPrimitive>());
+                    SOGE_INFO_LOG(R"(Created box ({}, {}, {}) with UUID {})", i, j, k, boxUuid.str());
 
                     const auto x = static_cast<float>(i);
                     const auto y = static_cast<float>(j);
                     const auto z = static_cast<float>(k);
-                    entity.GetTransform() = soge::Transform{
+                    box.GetTransform() = soge::Transform{
                         .m_position = glm::vec3{x, y, z} + gridOffset,
                         // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
-                    entity.GetColorTexture() = texture.GetTextureResource();
+                    box.GetColorTexture() = texture.GetTextureResource();
                 }
             }
         }
 
-        const auto [entity, entityUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::SpherePrimitive>(
+        const auto [sphere, sphereUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::SpherePrimitive>(
             container.Provide<soge::SpherePrimitive>());
-        SOGE_INFO_LOG(R"(Created sphere with UUID {})", entityUuid.str());
-        entity.GetTransform() = soge::Transform{
+        SOGE_INFO_LOG(R"(Created sphere with UUID {})", sphereUuid.str());
+        sphere.GetTransform() = soge::Transform{
             .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
             .m_scale = glm::vec3{0.5f},
         };
@@ -100,7 +99,7 @@ namespace soge_game
         SOGE_INFO_LOG(R"(Created hog with UUID {})", hogUuid.str());
         hog.GetFilePath() = "./resources/meshes/hog.fbx";
         hog.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{0.0f, 2.0f, 0.0f},
+            .m_position = glm::vec3{0.0f, -1.0f, 4.0f},
             .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
             .m_scale = glm::vec3{0.01f},
         };
@@ -133,7 +132,7 @@ namespace soge_game
         SOGE_INFO_LOG(R"(Created cheese with UUID {})", cheeseUuid.str());
         cheese.GetFilePath() = "./resources/meshes/cheese/cheese.fbx";
         cheese.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{-2.5f, 0.0f, 0.0f},
+            .m_position = glm::vec3{0.0f, 0.0f, 7.0f},
             // .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
             .m_scale = glm::vec3{0.1f},
         };
@@ -144,7 +143,7 @@ namespace soge_game
         SOGE_INFO_LOG(R"(Created axe with UUID {})", axeUuid.str());
         axe.GetFilePath() = "./resources/meshes/axe/axe.fbx";
         axe.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{0.0f, -2.5f, 0.0f},
+            .m_position = glm::vec3{0.0f, 0.0f, 10.0f},
             .m_rotation = glm::vec3{0.0f, 0.0f, glm::radians(90.0f)},
             .m_scale = glm::vec3{0.05f},
         };
