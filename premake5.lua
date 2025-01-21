@@ -6,7 +6,7 @@ os.execute("git submodule update --init --recursive")
 
 workspace "SOGE"
     architecture "x64"
-    -- startproject "GAME"
+    startproject "GAME"
     configurations {"Debug", "Release"}
 
     buildpattern = "%{cfg.buildcfg}.%{cfg.system}.%{cfg.architecture}"
@@ -227,6 +227,87 @@ workspace "SOGE"
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME",
                 "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_R} %{wks.location}/GAME"
+            }
+
+-----------------------
+--- Engine application
+-----------------------
+
+    project "GAME"
+        location "GAME"
+        -- kind "ConsoleApp"
+        language "C++"
+        cppdialect "C++20"
+        staticruntime "on"
+        characterset "MBCS"
+
+        -- Executable will be placed in the root of application folder
+        -- to have easier eaccess to game resources.
+        targetdir("%{wks.location}/%{prj.name}/")
+        objdir("build/int/" .. buildpattern .. "/%{prj.name}")
+
+        files
+        {
+            "%{wks.location}/%{prj.name}/include/**.hpp",
+            "%{wks.location}/%{prj.name}/source/**.cpp"
+        }
+
+        includedirs
+        {
+            "%{wks.location}/%{prj.name}/include",
+            "%{wks.location}/SOGE/include",
+            "%{wks.location}/%{IncludeThirdpartyDirs.spdlog}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.backwardcpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.EASTL}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.EABase}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.UUID_v4}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.kangaru}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.eventpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.cppfs}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.FMOD}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.glm}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.XoshiroCpp}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.SDL3}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.NRI}",
+            "%{wks.location}/%{IncludeThirdpartyDirs.NVRHI}"
+        }
+
+        defines
+        {
+            "GLM_ENABLE_EXPERIMENTAL"
+        }
+
+        links
+        {
+            "SOGE"
+        }
+
+        filter "system:windows"
+            systemversion "latest"
+            kind 'WindowedApp'
+            entrypoint "wWinMainCRTStartup"
+
+            defines
+            {
+                "SOGE_WINDOWS"
+            }
+
+        filter "configurations:Debug"
+            symbols "on"
+
+            defines
+            {
+                "SOGE_DEBUG"
+            }
+
+        filter "configurations:Release"
+            optimize "on"
+
+            defines
+            {
+                "SOGE_RELEASE"
             }
 
 -----------------------
