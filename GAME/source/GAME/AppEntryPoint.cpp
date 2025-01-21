@@ -104,16 +104,16 @@ namespace soge_game
         };
         hog.Load();
 
-        const auto [cake, cakeUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-            container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created cake with UUID {})", cakeUuid.str());
-        cake.GetFilePath() = "./resources/meshes/cake/cake.fbx";
-        cake.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{0.0f, -2.5f, 0.0f},
-            .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
-            .m_scale = glm::vec3{0.01f},
-        };
-        cake.Load();
+        // const auto [cake, cakeUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+        //     container.Provide<soge::StaticMeshEntity>());
+        // SOGE_INFO_LOG(R"(Created cake with UUID {})", cakeUuid.str());
+        // cake.GetFilePath() = "./resources/meshes/cake/cake.fbx";
+        // cake.GetTransform() = soge::Transform{
+        //     .m_position = glm::vec3{0.0f, -2.5f, 0.0f},
+        //     .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
+        //     .m_scale = glm::vec3{0.01f},
+        // };
+        // cake.Load();
 
         // const auto [boat, boatUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
         //     container.Provide<soge::StaticMeshEntity>());
@@ -132,10 +132,21 @@ namespace soge_game
         cheese.GetFilePath() = "./resources/meshes/cheese/cheese.fbx";
         cheese.GetTransform() = soge::Transform{
             .m_position = glm::vec3{-2.5f, 0.0f, 0.0f},
-            .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
+            // .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
             .m_scale = glm::vec3{0.1f},
         };
         cheese.Load();
+
+        const auto [axe, axeUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+            container.Provide<soge::StaticMeshEntity>());
+        SOGE_INFO_LOG(R"(Created axe with UUID {})", axeUuid.str());
+        axe.GetFilePath() = "./resources/meshes/axe/axe.fbx";
+        axe.GetTransform() = soge::Transform{
+            .m_position = glm::vec3{0.0f, -2.5f, 0.0f},
+            .m_rotation = glm::vec3{0.0f, 0.0f, glm::radians(90.0f)},
+            .m_scale = glm::vec3{0.05f},
+        };
+        axe.Load();
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
