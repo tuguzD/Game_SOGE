@@ -18,7 +18,6 @@ namespace soge
         eastl::reference_wrapper<GraphicsCore> m_core;
         eastl::reference_wrapper<GeometryGraphicsPipeline> m_pipeline;
         eastl::reference_wrapper<GraphicsEntityManager> m_entityManager;
-        eastl::reference_wrapper<GraphicsResourceManager> m_resourceManager;
 
         cppfs::FilePath m_filePath;
         UniquePtr<Hierarchy> m_hierarchy;
@@ -46,6 +45,8 @@ namespace soge
         cppfs::FilePath& GetFilePath();
 
         void Load();
+
+        void WriteResources(nvrhi::ICommandList& aCommandList) override;
     };
 }
 

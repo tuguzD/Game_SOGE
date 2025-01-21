@@ -2,12 +2,18 @@
 
 #include "SOGE/Graphics/GraphicsEntityManager.hpp"
 
+#include "SOGE/Content/ResourceBase.hpp"
+
 
 namespace soge
 {
     auto GraphicsEntityManager::CreateEntity(UniqueEntity aEntity) -> eastl::pair<GraphicsEntity&, Key>
     {
-        const auto key = UUID::Generate();
+        auto key = UUID::Generate();
+        if (const auto resource = dynamic_cast<ResourceBase*>(aEntity.get()))
+        {
+            key = resource->GetUUID();
+        }
 
         const auto [iter, created] = m_entities.try_emplace(key, std::move(aEntity));
         if (created)

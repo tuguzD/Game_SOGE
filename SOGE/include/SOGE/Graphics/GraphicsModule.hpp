@@ -5,7 +5,6 @@
 #include "SOGE/Graphics/CameraManager.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
 #include "SOGE/Graphics/GraphicsEntityManager.hpp"
-#include "SOGE/Graphics/GraphicsResourceManager.hpp"
 #include "SOGE/Graphics/RenderGraph.hpp"
 #include "SOGE/Graphics/ViewportManager.hpp"
 
@@ -18,7 +17,6 @@ namespace soge
         CameraManager m_cameraManager;
         ViewportManager m_viewportManager;
         GraphicsEntityManager m_entityManager;
-        GraphicsResourceManager m_resourceManager;
 
         GraphicsCore* m_graphicsCore;
         RenderGraph* m_renderGraph;
@@ -37,8 +35,6 @@ namespace soge
         CameraManager& GetCameraManager() noexcept;
         [[nodiscard]]
         ViewportManager& GetViewportManager() noexcept;
-        [[nodiscard]]
-        GraphicsResourceManager& GetResourceManager() noexcept;
 
         void Load(di::Container& aContainer, ModuleManager& aModuleManager) override;
         void Unload(di::Container& aContainer, ModuleManager& aModuleManager) override;

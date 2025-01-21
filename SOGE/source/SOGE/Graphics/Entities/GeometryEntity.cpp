@@ -110,7 +110,7 @@ namespace soge
         return m_nvrhiIndexBuffer;
     }
 
-    void GeometryEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
+    void GeometryEntity::WriteResources(nvrhi::ICommandList& aCommandList)
     {
         WriteConstantBuffer(aCommandList);
         WriteVertexBuffer(aCommandList);

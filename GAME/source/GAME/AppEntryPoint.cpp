@@ -55,7 +55,7 @@ namespace soge_game
         graphicsModule->SetRenderGraph(renderGraph);
 
         const auto [texture, textureUuid] =
-            graphicsModule->GetResourceManager().CreateResource<soge::SimpleTextureResource>(
+            graphicsModule->GetEntityManager().CreateEntity<soge::SimpleTextureResource>(
                 container.Provide<soge::GraphicsCore>(), "cardboard", "./resources/textures/cardboard.png");
         SOGE_INFO_LOG(R"(Created texture with UUID {})", textureUuid.str());
 
@@ -80,7 +80,7 @@ namespace soge_game
                         // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
-                    entity.GetColorTexture() = texture.GetResource();
+                    entity.GetColorTexture() = texture.GetTextureResource();
                 }
             }
         }

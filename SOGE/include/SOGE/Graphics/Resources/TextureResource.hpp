@@ -1,13 +1,14 @@
 ﻿#ifndef SOGE_GRAPHICS_RESOURCES_TEXTURERESOURCE_HPP
 #define SOGE_GRAPHICS_RESOURCES_TEXTURERESOURCE_HPP
 
+#include "SOGE/Content/ResourceBase.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
-#include "SOGE/Graphics/GraphicsResource.hpp"
+#include "SOGE/Graphics/GraphicsEntity.hpp"
 
 
 namespace soge
 {
-    class TextureResource : public GraphicsResource
+    class TextureResource : public GraphicsEntity, public ResourceBase
     {
     protected:
         eastl::reference_wrapper<GraphicsCore> m_core;
@@ -20,7 +21,7 @@ namespace soge
                         nvrhi::TextureDesc aTextureDesc);
 
         [[nodiscard]]
-        nvrhi::ITexture* GetResource() override;
+        nvrhi::ITexture* GetTextureResource();
     };
 }
 

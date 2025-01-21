@@ -22,7 +22,7 @@ namespace soge
         return m_pixels;
     }
 
-    void SimpleTextureResource::WriteResource(nvrhi::ICommandList& aCommandList)
+    void SimpleTextureResource::WriteResources(nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWrite)
         {

@@ -97,8 +97,6 @@ namespace soge
         constexpr virtual nvrhi::BufferHandle GetVertexBuffer(Tag) = 0;
         [[nodiscard]]
         constexpr virtual nvrhi::BufferHandle GetIndexBuffer(Tag) = 0;
-
-        constexpr virtual void WriteResources(Tag, nvrhi::ICommandList& aCommandList) = 0;
     };
 }
 

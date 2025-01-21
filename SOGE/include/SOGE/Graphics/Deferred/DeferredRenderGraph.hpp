@@ -30,8 +30,7 @@ namespace soge
                                      DirectionalLightGraphicsPipeline& aDirectionalLightPipeline,
                                      PointLightGraphicsPipeline& aPointLightPipeline);
 
-        void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities,
-                     Resources aResources) override;
+        void Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entities aEntities) override;
     };
 }
 

@@ -1,13 +1,14 @@
 ﻿#ifndef SOGE_GRAPHICS_RESOURCES_SHADERRESOURCE_HPP
 #define SOGE_GRAPHICS_RESOURCES_SHADERRESOURCE_HPP
 
+#include "SOGE/Content/ResourceBase.hpp"
 #include "SOGE/Graphics/GraphicsCore.hpp"
-#include "SOGE/Graphics/GraphicsResource.hpp"
+#include "SOGE/Graphics/GraphicsEntity.hpp"
 
 
 namespace soge
 {
-    class ShaderResource : public GraphicsResource
+    class ShaderResource : public GraphicsEntity, public ResourceBase
     {
     private:
         void Initialize();
@@ -22,8 +23,9 @@ namespace soge
                        nvrhi::ShaderDesc aShaderDesc);
 
         [[nodiscard]]
-        nvrhi::IShader* GetResource() override;
-        void WriteResource(nvrhi::ICommandList& aCommandList) override;
+        nvrhi::IShader* GetShaderResource();
+
+        void WriteResources(nvrhi::ICommandList& aCommandList) override;
 
         bool Reload() override;
         void Unload() override;

@@ -22,7 +22,7 @@ namespace soge
         m_nvrhiConstantBuffer = device.createBuffer(constantBufferDesc);
 
         SOGE_INFO_LOG("Creating NVRHI binding set for ambient light entity...");
-        nvrhi::BindingSetDesc bindingSetDesc{};
+        nvrhi::BindingSetDesc bindingSetDesc;
         bindingSetDesc.trackLiveness = true;
         bindingSetDesc.bindings = {
             nvrhi::BindingSetItem::ConstantBuffer(0, m_nvrhiConstantBuffer),
@@ -57,7 +57,7 @@ namespace soge
         return m_nvrhiBindingSet;
     }
 
-    void AmbientLightEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
+    void AmbientLightEntity::WriteResources(nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWrite)
         {

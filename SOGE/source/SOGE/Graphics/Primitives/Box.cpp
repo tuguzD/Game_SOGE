@@ -125,7 +125,7 @@ namespace soge
         return m_geometryEntity.GetIndexBuffer(aTag);
     }
 
-    void BoxPrimitive::WriteResources(const Tag aTag, nvrhi::ICommandList& aCommandList)
+    void BoxPrimitive::WriteResources(nvrhi::ICommandList& aCommandList)
     {
         if (m_shouldWrite)
         {
@@ -135,6 +135,6 @@ namespace soge
             m_geometryEntity.GetIndices() = CreateBoxIndicesVector();
         }
 
-        m_geometryEntity.WriteResources(aTag, aCommandList);
+        m_geometryEntity.WriteResources(aCommandList);
     }
 }

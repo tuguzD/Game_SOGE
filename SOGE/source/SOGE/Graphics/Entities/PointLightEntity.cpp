@@ -219,7 +219,7 @@ namespace soge
         return m_nvrhiIndexBuffer;
     }
 
-    void PointLightEntity::WriteResources(Tag, nvrhi::ICommandList& aCommandList)
+    void PointLightEntity::WriteResources(nvrhi::ICommandList& aCommandList)
     {
         if (!m_shouldWrite)
         {

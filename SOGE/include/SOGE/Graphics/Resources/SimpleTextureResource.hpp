@@ -20,7 +20,7 @@ namespace soge
         [[nodiscard]]
         eastl::span<const std::uint8_t> GetPixels() const noexcept;
 
-        void WriteResource(nvrhi::ICommandList& aCommandList) override;
+        void WriteResources(nvrhi::ICommandList& aCommandList) override;
 
         bool Reload() override;
         void Unload() override;

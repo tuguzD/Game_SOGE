@@ -68,8 +68,7 @@ namespace soge
             {
                 continue;
             }
-            m_graphicsCore->Update(*m_renderGraph, viewport.m_viewport, *camera, m_entityManager.GetEntities(),
-                                   m_resourceManager.GetResources());
+            m_graphicsCore->Update(*m_renderGraph, viewport.m_viewport, *camera, m_entityManager.GetEntities());
         }
     }
 
@@ -86,10 +85,5 @@ namespace soge
     ViewportManager& GraphicsModule::GetViewportManager() noexcept
     {
         return m_viewportManager;
-    }
-
-    GraphicsResourceManager& GraphicsModule::GetResourceManager() noexcept
-    {
-        return m_resourceManager;
     }
 }

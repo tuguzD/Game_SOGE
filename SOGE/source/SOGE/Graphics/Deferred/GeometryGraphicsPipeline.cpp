@@ -41,7 +41,7 @@ namespace soge
         };
         m_nvrhiInputLayout = device.createInputLayout(vertexAttributeDescArray.data(),
                                                       static_cast<std::uint32_t>(vertexAttributeDescArray.size()),
-                                                      aVertexShader.GetResource());
+                                                      aVertexShader.GetShaderResource());
 
         nvrhi::BindingLayoutDesc bindingLayoutDesc{};
         bindingLayoutDesc.visibility = nvrhi::ShaderType::Vertex;
@@ -61,8 +61,8 @@ namespace soge
 
         nvrhi::GraphicsPipelineDesc pipelineDesc{};
         pipelineDesc.inputLayout = m_nvrhiInputLayout;
-        pipelineDesc.VS = aVertexShader.GetResource();
-        pipelineDesc.PS = aPixelShader.GetResource();
+        pipelineDesc.VS = aVertexShader.GetShaderResource();
+        pipelineDesc.PS = aPixelShader.GetShaderResource();
         pipelineDesc.bindingLayouts = {m_nvrhiBindingLayout, m_nvrhiEntityBindingLayout};
         nvrhi::IFramebuffer& compatibleFramebuffer = aRenderPass.GetFramebuffer();
         m_nvrhiGraphicsPipeline = device.createGraphicsPipeline(pipelineDesc, &compatibleFramebuffer);
@@ -106,8 +106,6 @@ namespace soge
     void GeometryGraphicsPipeline::Execute(const nvrhi::Viewport& aViewport, const Camera& aCamera, Entity& aEntity,
                                            nvrhi::ICommandList& aCommandList)
     {
-        aEntity.WriteResources({}, aCommandList);
-
         const auto entityBindingSet = aEntity.GetBindingSet({});
         const auto entityVertexBuffer = aEntity.GetVertexBuffer({});
         const auto entityIndexBuffer = aEntity.GetIndexBuffer({});

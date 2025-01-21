@@ -201,7 +201,7 @@ namespace soge
         return m_geometryEntity.GetIndexBuffer(aTag);
     }
 
-    void SpherePrimitive::WriteResources(const Tag aTag, nvrhi::ICommandList& aCommandList)
+    void SpherePrimitive::WriteResources(nvrhi::ICommandList& aCommandList)
     {
         if (m_shouldWrite)
         {
@@ -211,6 +211,6 @@ namespace soge
             m_geometryEntity.GetIndices() = CreateSphereIndices(m_meridians, m_parallels);
         }
 
-        m_geometryEntity.WriteResources(aTag, aCommandList);
+        m_geometryEntity.WriteResources(aCommandList);
     }
 }

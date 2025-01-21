@@ -4,10 +4,9 @@
 
 #include "SOGE/Graphics/Resources/SimpleTextureResource.hpp"
 
+#include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-
-#include <assimp/Importer.hpp>
 
 
 namespace soge
@@ -25,12 +24,12 @@ namespace soge
         eastl::vector<Item> m_transforms{1, Item{}};
 
         eastl::hash_map<UUIDv4::UUID, std::size_t> m_geometryToTransform;
-        eastl::vector<UUIDv4::UUID> m_resources;
+        eastl::vector<UUIDv4::UUID> m_textures;
 
         void Reset()
         {
             m_geometryToTransform.clear();
-            m_resources.clear();
+            m_textures.clear();
             m_transforms.resize(1);
         }
 
@@ -180,8 +179,8 @@ namespace
 
     void TraverseNode(const cppfs::FilePath& aStaticMeshPath, const aiScene& aScene, const aiNode& aNode,
                       soge::GraphicsCore& aCore, soge::GeometryGraphicsPipeline& aPipeline,
-                      soge::GraphicsEntityManager& aEntityManager, soge::GraphicsResourceManager& aResourceManager,
-                      soge::StaticMeshEntity::Hierarchy& aHierarchy, const std::size_t aHierarchyParent)
+                      soge::GraphicsEntityManager& aEntityManager, soge::StaticMeshEntity::Hierarchy& aHierarchy,
+                      const std::size_t aHierarchyParent)
     {
         aHierarchy.m_transforms.push_back({
             .m_localTransform = TransformFromNode(aNode),
@@ -207,19 +206,19 @@ namespace
 
             if (entityFromMesh.second.has_value())
             {
-                const auto [texture, textureUuid] = aResourceManager.CreateResource<soge::SimpleTextureResource>(
-                    std::move(entityFromMesh.second).value());
+                const auto [texture, textureUuid] =
+                    aEntityManager.CreateEntity<soge::SimpleTextureResource>(std::move(entityFromMesh.second).value());
                 SOGE_INFO_LOG("Created texture (current node index is {}) with UUID: {}", currentHierarchyIndex,
                               textureUuid.str());
-                entity.GetColorTexture() = texture.GetResource();
-                aHierarchy.m_resources.push_back(textureUuid);
+                entity.GetColorTexture() = texture.GetTextureResource();
+                aHierarchy.m_textures.push_back(textureUuid);
             }
         }
 
         for (const aiNode* childNode : eastl::span{aNode.mChildren, aNode.mNumChildren})
         {
-            TraverseNode(aStaticMeshPath, aScene, *childNode, aCore, aPipeline, aEntityManager, aResourceManager,
-                         aHierarchy, currentHierarchyIndex);
+            TraverseNode(aStaticMeshPath, aScene, *childNode, aCore, aPipeline, aEntityManager, aHierarchy,
+                         currentHierarchyIndex);
         }
     }
 }
@@ -229,8 +228,7 @@ namespace soge
     StaticMeshEntity::StaticMeshEntity(GraphicsCore& aCore, GeometryGraphicsPipeline& aPipeline,
                                        GraphicsModule& aGraphicsModule)
         : m_core{aCore}, m_pipeline{aPipeline}, m_entityManager{aGraphicsModule.GetEntityManager()},
-          m_resourceManager{aGraphicsModule.GetResourceManager()}, m_hierarchy{CreateUnique<Hierarchy>()},
-          m_shouldReadFromFile{false}, m_shouldUpdateTransforms{false}
+          m_hierarchy{CreateUnique<Hierarchy>()}, m_shouldReadFromFile{false}, m_shouldUpdateTransforms{false}
     {
     }
 
@@ -289,13 +287,12 @@ namespace soge
             {
                 m_entityManager.get().DestroyEntity(entityUuid);
             }
-            for (auto&& resourceUuid : m_hierarchy->m_resources)
+            for (auto&& entityUuid : m_hierarchy->m_textures)
             {
-                m_resourceManager.get().DestroyResource(resourceUuid);
+                m_entityManager.get().DestroyEntity(entityUuid);
             }
             m_hierarchy->Reset();
-            TraverseNode(m_filePath, *scene, *node, m_core, m_pipeline, m_entityManager, m_resourceManager,
-                         *m_hierarchy, 0);
+            TraverseNode(m_filePath, *scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
         }
 
         if (m_shouldUpdateTransforms)
@@ -312,5 +309,10 @@ namespace soge
                 entity->GetTransform() = m_hierarchy->GetWorldTransform(hierarchyIndex);
             }
         }
+    }
+
+    void StaticMeshEntity::WriteResources(nvrhi::ICommandList& aCommandList)
+    {
+        // nothing for now
     }
 }
