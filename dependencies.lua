@@ -78,5 +78,5 @@ Libraries["FMOD_WIN64_STUDIO_R"] = "3rdparty/FMOD/FMOD/lib/x64/fmodstudio_vc.lib
 Libraries["ASSIMP_D"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mtd.lib"
 Libraries["ASSIMP_DLL_D"] = "3rdparty/assimp/bin/Debug/assimp-vc143-mtd.dll"
 
-Libraries["ASSIMP_R"] = "3rdparty/assimp/lib/Debug/assimp-vc143-mt.lib"
-Libraries["ASSIMP_DLL_R"] = "3rdparty/assimp/bin/Debug/assimp-vc143-mt.dll"
+Libraries["ASSIMP_R"] = "3rdparty/assimp/lib/Release/assimp-vc143-mt.lib"
+Libraries["ASSIMP_DLL_R"] = "3rdparty/assimp/bin/Release/assimp-vc143-mt.dll"
