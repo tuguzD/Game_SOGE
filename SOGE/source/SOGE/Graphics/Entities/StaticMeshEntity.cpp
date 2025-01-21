@@ -262,57 +262,58 @@ namespace soge
 
     void StaticMeshEntity::Load()
     {
-        if (m_shouldReadFromFile)
+        if (!m_shouldReadFromFile)
         {
-            m_shouldReadFromFile = false;
+            return;
+        }
+        m_shouldReadFromFile = false;
 
-            Assimp::Importer importer;
+        Assimp::Importer importer;
 
-            constexpr std::uint32_t flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs;
-            const aiScene* scene = importer.ReadFile(m_filePath.path(), flags);
-            if (scene == nullptr)
-            {
-                const char* message = importer.GetErrorString();
-                SOGE_WARN_LOG("{}", message);
-                return;
-            }
-
-            const aiNode* node = scene->mRootNode;
-            if (node == nullptr)
-            {
-                return;
-            }
-
-            for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
-            {
-                m_entityManager.get().DestroyEntity(entityUuid);
-            }
-            for (auto&& entityUuid : m_hierarchy->m_textures)
-            {
-                m_entityManager.get().DestroyEntity(entityUuid);
-            }
-            m_hierarchy->Reset();
-            TraverseNode(m_filePath, *scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
+        constexpr std::uint32_t flags = aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs;
+        const aiScene* scene = importer.ReadFile(m_filePath.path(), flags);
+        if (scene == nullptr)
+        {
+            const char* message = importer.GetErrorString();
+            SOGE_WARN_LOG("{}", message);
+            return;
         }
 
-        if (m_shouldUpdateTransforms)
+        const aiNode* node = scene->mRootNode;
+        if (node == nullptr)
         {
-            m_shouldUpdateTransforms = false;
-
-            for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
-            {
-                const auto entity = dynamic_cast<GeometryEntity*>(m_entityManager.get().GetEntity(entityUuid));
-                if (entity == nullptr)
-                {
-                    return;
-                }
-                entity->GetTransform() = m_hierarchy->GetWorldTransform(hierarchyIndex);
-            }
+            SOGE_WARN_LOG(R"(Mesh loaded by path "{}" has no root node)", m_filePath.path());
+            return;
         }
+
+        for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
+        {
+            m_entityManager.get().DestroyEntity(entityUuid);
+        }
+        for (auto&& entityUuid : m_hierarchy->m_textures)
+        {
+            m_entityManager.get().DestroyEntity(entityUuid);
+        }
+        m_hierarchy->Reset();
+        TraverseNode(m_filePath, *scene, *node, m_core, m_pipeline, m_entityManager, *m_hierarchy, 0);
     }
 
     void StaticMeshEntity::WriteResources(nvrhi::ICommandList& aCommandList)
     {
-        // nothing for now
+        if (!m_shouldUpdateTransforms)
+        {
+            return;
+        }
+        m_shouldUpdateTransforms = false;
+
+        for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
+        {
+            const auto entity = dynamic_cast<GeometryEntity*>(m_entityManager.get().GetEntity(entityUuid));
+            if (entity == nullptr)
+            {
+                return;
+            }
+            entity->GetTransform() = m_hierarchy->GetWorldTransform(hierarchyIndex);
+        }
     }
 }
