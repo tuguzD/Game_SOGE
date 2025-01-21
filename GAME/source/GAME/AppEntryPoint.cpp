@@ -192,9 +192,16 @@ namespace soge_game
         constexpr auto ambientSoundChannelName = "Ambient";
         soundMixer->CreateChannel(ambientSoundChannelName);
 
+        constexpr auto effectSoundChannelName = "Effect";
+        soundMixer->CreateChannel(effectSoundChannelName);
+
         const auto ambientSound =
             soundModule->CreateSoundResource("Ambient sound", "./resources/sounds/Sea waves and seagulls.wav", false);
         soundModule->LoadSoundResource(ambientSound);
+
+        const auto metalBarFallingSound =
+            soundModule->CreateSoundResource("Metal bar falling sound", "./resources/sounds/metal-bar.mp3", true);
+        soundModule->LoadSoundResource(metalBarFallingSound);
 
         // share state between two lambdas
         auto mouseDeltaX = soge::CreateShared<float>(0.0f);
@@ -214,12 +221,13 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
 
-        bool playAmbientSound = false;
-        auto soundUpdate = [playAmbientSound, soundMixer, ambientSound](const soge::KeyPressedEvent& aEvent) mutable {
+        bool ambientSoundFlag = false;
+        auto soundUpdate = [soundMixer, ambientSound, metalBarFallingSound,
+                            ambientSoundFlag](const soge::KeyPressedEvent& aEvent) mutable {
             if (aEvent.GetKey() == soge::Keys::T)
             {
-                playAmbientSound = !playAmbientSound;
-                if (playAmbientSound)
+                ambientSoundFlag = !ambientSoundFlag;
+                if (ambientSoundFlag)
                 {
                     soundMixer->PlayOnChannel(ambientSoundChannelName, ambientSound);
                 }
@@ -227,6 +235,10 @@ namespace soge_game
                 {
                     soundMixer->StopChannel(ambientSoundChannelName);
                 }
+            }
+            else if (aEvent.GetKey() == soge::Keys::E)
+            {
+                soundMixer->PlayOnChannel(effectSoundChannelName, metalBarFallingSound);
             }
         };
         eventModule->PushBack<soge::KeyPressedEvent>(soundUpdate);
