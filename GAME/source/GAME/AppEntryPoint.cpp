@@ -115,16 +115,27 @@ namespace soge_game
         };
         cake.Load();
 
-        const auto [boat, boatUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+        // const auto [boat, boatUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+        //     container.Provide<soge::StaticMeshEntity>());
+        // SOGE_INFO_LOG(R"(Created boat with UUID {})", boatUuid.str());
+        // boat.GetFilePath() = "./resources/meshes/boat/boat.fbx";
+        // boat.GetTransform() = soge::Transform{
+        //     .m_position = glm::vec3{-2.5f, 0.0f, 0.0f},
+        //     .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
+        //     .m_scale = glm::vec3{0.005f},
+        // };
+        // boat.Load();
+
+        const auto [cheese, cheeseUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
             container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created boat with UUID {})", boatUuid.str());
-        boat.GetFilePath() = "./resources/meshes/boat/boat.fbx";
-        boat.GetTransform() = soge::Transform{
+        SOGE_INFO_LOG(R"(Created cheese with UUID {})", cheeseUuid.str());
+        cheese.GetFilePath() = "./resources/meshes/cheese/cheese.fbx";
+        cheese.GetTransform() = soge::Transform{
             .m_position = glm::vec3{-2.5f, 0.0f, 0.0f},
             .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
-            .m_scale = glm::vec3{0.005f},
+            .m_scale = glm::vec3{0.1f},
         };
-        boat.Load();
+        cheese.Load();
 
         const auto [ambientLightEntity1, ambientLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
