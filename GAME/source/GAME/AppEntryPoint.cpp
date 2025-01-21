@@ -16,6 +16,7 @@
 #include <SOGE/Graphics/Resources/SimpleTextureResource.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
+#include <algorithm>
 
 #undef CreateWindow
 
@@ -160,7 +161,7 @@ namespace soge_game
                 container.Provide<soge::DirectionalLightEntity>());
         SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
         const soge::Transform directionalLightTransform1{
-            .m_rotation = glm::quat{glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f}},
+            .m_rotation = glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f},
         };
         directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
 
@@ -204,20 +205,28 @@ namespace soge_game
         soundModule->LoadSoundResource(metalBarFallingSound);
 
         // share state between two lambdas
-        auto mouseDeltaX = soge::CreateShared<float>(0.0f);
-        auto mouseDeltaY = soge::CreateShared<float>(0.0f);
-        auto mouseMoved = [mouseDeltaX, mouseDeltaY, inputModule](const soge::MouseMovedEvent& aEvent) {
-            if (!inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
+        auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
+        auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
+        auto lightMouseDeltaX = soge::CreateShared<float>(0.0f);
+        auto lightMouseDeltaY = soge::CreateShared<float>(0.0f);
+        auto mouseMoved = [cameraMouseDeltaX, cameraMouseDeltaY, lightMouseDeltaX, lightMouseDeltaY,
+                           inputModule](const soge::MouseMovedEvent& aEvent) {
+            if (inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
             {
-                return;
+                *cameraMouseDeltaX = aEvent.GetXOffset();
+                *cameraMouseDeltaY = aEvent.GetYOffset();
             }
-            *mouseDeltaX = aEvent.GetXOffset();
-            *mouseDeltaY = aEvent.GetYOffset();
+            if (inputModule->IsKeyPressed(soge::Keys::RightMouseButton))
+            {
+                *lightMouseDeltaX = aEvent.GetXOffset();
+                *lightMouseDeltaY = aEvent.GetYOffset();
+            }
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        auto mouseWheel = [&pointLightEntity1](const soge::MouseWheelEvent& aEvent) {
-            pointLightEntity1.GetPosition() += glm::vec3{0.0f, aEvent.GetXOffset() * 0.1f, 0.0f};
+        auto mouseWheel = [&directionalLightEntity1](const soge::MouseWheelEvent& aEvent) {
+            directionalLightEntity1.GetColor().r += aEvent.GetXOffset() * 0.1f;
+            directionalLightEntity1.GetColor().r = glm::max(directionalLightEntity1.GetColor().r, 1.0f);
         };
         eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
 
@@ -244,9 +253,10 @@ namespace soge_game
         eventModule->PushBack<soge::KeyPressedEvent>(soundUpdate);
 
         float cameraPitch{}, cameraYaw{};
+        float lightPitch{glm::radians(45.0f)}, lightYaw{glm::radians(45.0f)};
         constexpr float cameraSpeed = 1.0f;
         constexpr float cameraSensitivity = 0.005f;
-        auto update = [=, &camera](const soge::UpdateEvent& aEvent) mutable {
+        auto update = [=, &camera, &directionalLightEntity1](const soge::UpdateEvent& aEvent) mutable {
             {
                 const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
                                 static_cast<float>(inputModule->IsKeyPressed(soge::Keys::A));
@@ -259,12 +269,19 @@ namespace soge_game
                 camera.m_transform.m_position += direction * cameraSpeed * aEvent.GetDeltaTime();
             }
 
-            cameraYaw += *mouseDeltaX * cameraSensitivity;
-            cameraPitch += *mouseDeltaY * cameraSensitivity;
-            camera.m_transform.m_rotation = glm::quat{glm::vec3{cameraPitch, cameraYaw, 0.0f}};
+            cameraYaw += *cameraMouseDeltaX * cameraSensitivity;
+            cameraPitch += *cameraMouseDeltaY * cameraSensitivity;
+            camera.m_transform.m_rotation = glm::vec3{cameraPitch, cameraYaw, 0.0f};
 
-            *mouseDeltaX = 0.0f;
-            *mouseDeltaY = 0.0f;
+            lightYaw += *lightMouseDeltaX * cameraSensitivity;
+            lightPitch += *lightMouseDeltaY * cameraSensitivity;
+            directionalLightEntity1.GetDirection() =
+                soge::Transform{.m_rotation = glm::vec3{lightPitch, lightYaw, 0.0f}}.Forward();
+
+            *cameraMouseDeltaX = 0.0f;
+            *cameraMouseDeltaY = 0.0f;
+            *lightMouseDeltaX = 0.0f;
+            *lightMouseDeltaY = 0.0f;
         };
         eventModule->PushBack<soge::UpdateEvent>(update);
     }
