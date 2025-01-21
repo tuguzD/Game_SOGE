@@ -81,7 +81,10 @@ namespace soge_game
                         // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
                         .m_scale = glm::vec3{0.5f},
                     };
-                    box.GetColorTexture() = texture.GetTextureResource();
+                    if ((i + j + k) % 2 == 0)
+                    {
+                        box.GetColorTexture() = texture.GetTextureResource();
+                    }
                 }
             }
         }
