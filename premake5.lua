@@ -103,9 +103,9 @@ workspace "SOGE"
 
         postbuildcommands
         {
-            "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_FSBANK_DLL} %{wks.location}/GAME",
-            "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_LIBFSVORBIS_DLL} %{wks.location}/GAME",
-            "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_OPUS_DLL} %{wks.location}/GAME"
+            "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_FSBANK_DLL}] %[%{wks.location}/GAME]",
+            "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_LIBFSVORBIS_DLL}] %[%{wks.location}/GAME]",
+            "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_OPUS_DLL}] %[%{wks.location}/GAME]"
         }
 
         prebuildcommands
@@ -151,7 +151,6 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.SDL3_LIB_D}",
 
                 -- NRI
-
                 "%{wks.location}/%{Libraries.NRI_D3D11_D}",
                 "%{wks.location}/%{Libraries.NRI_D3D12_D}",
                 "%{wks.location}/%{Libraries.NRI_NONE_D}",
@@ -161,6 +160,7 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.NRI_D}",
                 "%{wks.location}/%{Libraries.NRI_DLL_D}",
                 "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D}",
+
                 -- fmod
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_D}",
@@ -174,13 +174,13 @@ workspace "SOGE"
 
             postbuildcommands
             {
-                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_D} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_D} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME", -- For FMOD Studio 
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_D} %{wks.location}/GAME"
+                "{COPYFILE} %[%{wks.location}/%{Libraries.SDL3_DLL_D}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.NRI_DLL_D}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_D}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_D}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R}] %[%{wks.location}/GAME]", -- For FMOD Studio 
+                "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_D}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.ASSIMP_DLL_D}] %[%{wks.location}/GAME]"
             }
 
         filter "configurations:Release"
@@ -199,7 +199,6 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.SDL3_LIB_R}",
 
                 -- NRI
-
                 "%{wks.location}/%{Libraries.NRI_D3D11_R}",
                 "%{wks.location}/%{Libraries.NRI_D3D12_R}",
                 "%{wks.location}/%{Libraries.NRI_NONE_R}",
@@ -209,6 +208,7 @@ workspace "SOGE"
                 "%{wks.location}/%{Libraries.NRI_R}",
                 "%{wks.location}/%{Libraries.NRI_DLL_R}",
                 "%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R}",
+
                 -- fmod
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R}",
                 "%{wks.location}/%{Libraries.FMOD_WIN64_CORE_R}",
@@ -222,12 +222,12 @@ workspace "SOGE"
 
             postbuildcommands
             {
-                "{COPYFILE} %{wks.location}/%{Libraries.SDL3_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.NRI_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R} %{wks.location}/GAME",
-                "{COPYFILE} %{wks.location}/%{Libraries.ASSIMP_DLL_R} %{wks.location}/GAME"
+                "{COPYFILE} %[%{wks.location}/%{Libraries.SDL3_DLL_R}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.NRI_DLL_R}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.NRI_AMDAGS_DLL_R}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_CORE_DLL_R}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.FMOD_WIN64_STUDIO_DLL_R}] %[%{wks.location}/GAME]",
+                "{COPYFILE} %[%{wks.location}/%{Libraries.ASSIMP_DLL_R}] %[%{wks.location}/GAME]"
             }
 
 -----------------------
