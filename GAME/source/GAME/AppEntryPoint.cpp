@@ -1,7 +1,6 @@
 #include "GAME/AppEntryPoint.hpp"
 
 #include "GAME/Cursor.hpp"
-#include "GAME/Piece.hpp"
 #include "GAME/Layers/MainGameLayer.hpp"
 
 #include <SOGE/Core/EntryPoint.hpp>
@@ -56,26 +55,6 @@ namespace soge_game
 
         auto board = Board{};
         board.init(graphicsModule->GetEntityManager(), container);
-
-        for (std::size_t i = 0; i < 2; ++i)
-        {
-            const auto name = !i ? "light_piece" : "dark_piece";
-            for (std::size_t j = 0; j < 3; ++j)
-                for (std::size_t k = 0; k < 4; ++k)
-                {
-                    auto z = static_cast<int>(j);
-                    auto x = z % 2 + static_cast<int>(k) * 2;
-                    
-                    const auto coords_x = Board::get_coords(i, x);
-                    const auto coords_z = Board::get_coords(i, z);
-                    x = Board::get_cell(false, coords_x);
-                    z = Board::get_cell(false, coords_z);
-                    
-                    board.matrix[x][z] = Piece{.darkTeam = static_cast<bool>(i)};
-                    board.matrix[x][z].init(name, {coords_x, coords_z},
-                        graphicsModule->GetEntityManager(), container);
-                }
-        }
 
         auto cursorLight = Cursor{.darkTeam = false};
         cursorLight.init(graphicsModule->GetEntityManager(), container);

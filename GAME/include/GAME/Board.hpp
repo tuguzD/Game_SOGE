@@ -28,6 +28,25 @@ namespace soge_game
             };
             boardEntity.Load();
             uuid = boardUuid;
+
+            for (std::size_t i = 0; i < 2; ++i)
+            {
+                const auto name = !i ? "light_piece" : "dark_piece";
+                for (std::size_t j = 0; j < 3; ++j)
+                    for (std::size_t k = 0; k < 4; ++k)
+                    {
+                        auto z = static_cast<int>(j);
+                        auto x = z % 2 + static_cast<int>(k) * 2;
+
+                        const auto coords_x = get_coords(i, x);
+                        const auto coords_z = get_coords(i, z);
+                        x = get_cell(false, coords_x);
+                        z = get_cell(false, coords_z);
+
+                        matrix[x][z] = Piece{.darkTeam = static_cast<bool>(i)};
+                        matrix[x][z].init(name, {coords_x, coords_z}, entities, container);
+                    }
+            }
         }
 
         static float get_coords(const bool darkTeam, int cell)
