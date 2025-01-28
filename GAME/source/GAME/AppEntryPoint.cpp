@@ -1,5 +1,6 @@
 #include "GAME/AppEntryPoint.hpp"
 
+#include "GAME/Cursor.hpp"
 #include "GAME/Piece.hpp"
 #include "GAME/Layers/MainGameLayer.hpp"
 #include "SOGE/Graphics/Primitives/Box.hpp"
@@ -62,7 +63,7 @@ namespace soge_game
         SOGE_APP_INFO_LOG(R"(Created board with UUID {})", boardUuid.str());
         board.GetFilePath() = "./resources/meshes/board/board.fbx";
         board.GetTransform() = soge::Transform{
-            .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(90.0f), 0.0f}},
+            .m_rotation = glm::vec3{0.0f, glm::radians(90.0f), 0.0f},
             .m_scale = glm::vec3{0.1f},
         };
         board.Load();
@@ -111,6 +112,8 @@ namespace soge_game
             },
             .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
         };
+        auto cursorClass = Cursor{.uuid = cursorUuid, .darkTeam = false};
+        cursorClass.color(graphicsModule->GetEntityManager(), board_matrix);
 
         auto cursorUpdate = [=, &cursor](const soge::KeyPressedEvent& aEvent) mutable {
             auto cell_x = Piece::get_cell(false, cursor.GetTransform().m_position.x);
@@ -140,15 +143,7 @@ namespace soge_game
                 cursor.GetTransform().m_position.x = Piece::get_coords(false, cell_x);
                 SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
             }
-
-            if (graphicsModule->GetEntityManager().GetEntity(board_matrix[cell_x][cell_z].uuid))
-            {
-                if (!board_matrix[cell_x][cell_z].darkTeam)
-                    cursor.GetMaterial().m_diffuse = glm::vec3{0.0f, 0.75f, 0.0f};
-                else
-                    cursor.GetMaterial().m_diffuse = glm::vec3{0.75f, 0.0f, 0.0f};
-            }
-            else cursor.GetMaterial().m_diffuse = glm::vec3{1.0f, 1.0f, 1.0f};
+            cursorClass.color(graphicsModule->GetEntityManager(), board_matrix);
         };
         eventModule->PushBack<soge::KeyPressedEvent>(cursorUpdate);
 
@@ -164,9 +159,8 @@ namespace soge_game
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
             .m_height = static_cast<float>(window.GetHeight()),
-            .m_nearPlane = 0.01f,
-            .m_farPlane = 100.0f,
-            .m_transform = soge::Transform{.m_position = glm::vec3{0.0f, 0.0f, -2.0f}},
+            .m_nearPlane = 0.01f, .m_farPlane = 100.0f,
+            .m_transform = soge::Transform{.m_position = glm::vec3{0.0f, 3.5f, -4.0f}},
             .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
         });
         SOGE_APP_INFO_LOG(R"(Created camera with UUID {})", cameraUuid.str());
@@ -197,7 +191,7 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        float cameraPitch{}, cameraYaw{};
+        float cameraPitch{glm::radians(50.0f)}, cameraYaw{};
         float lightPitch{glm::radians(45.0f)}, lightYaw{glm::radians(45.0f)};
         constexpr float cameraSpeed = 1.0f;
         constexpr float cameraSensitivity = 0.005f;
