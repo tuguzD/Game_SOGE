@@ -42,7 +42,6 @@ namespace soge_game
         const auto inputModule = GetModule<soge::InputModule>();
         const auto windowModule = GetModule<soge::WindowModule>();
         const auto graphicsModule = GetModule<soge::GraphicsModule>();
-        const auto soundModule = GetModule<soge::SoundModule>();
 
         const auto [window, windowUuid] = windowModule->CreateWindow();
         SOGE_INFO_LOG(
@@ -172,22 +171,6 @@ namespace soge_game
         });
         SOGE_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
 
-        const auto soundMixer = soundModule->GetChannelMixer();
-
-        constexpr auto ambientSoundChannelName = "Ambient";
-        soundMixer->CreateChannel(ambientSoundChannelName);
-
-        constexpr auto effectSoundChannelName = "Effect";
-        soundMixer->CreateChannel(effectSoundChannelName);
-
-        const auto ambientSound =
-            soundModule->CreateSoundResource("Ambient sound", "./resources/sounds/Sea waves and seagulls.wav", false);
-        soundModule->LoadSoundResource(ambientSound);
-
-        const auto metalBarFallingSound =
-            soundModule->CreateSoundResource("Metal bar falling sound", "./resources/sounds/metal-bar.mp3", true);
-        soundModule->LoadSoundResource(metalBarFallingSound);
-
         // share state between two lambdas
         auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
         auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
@@ -213,28 +196,6 @@ namespace soge_game
         //     directionalLightEntity1.GetColor().r = glm::max(directionalLightEntity1.GetColor().r, 1.0f);
         // };
         // eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
-
-        bool ambientSoundFlag = false;
-        auto soundUpdate = [soundMixer, ambientSound, metalBarFallingSound, ambientSoundFlag]
-        (const soge::KeyPressedEvent& aEvent) mutable {
-            if (aEvent.GetKey() == soge::Keys::T)
-            {
-                ambientSoundFlag = !ambientSoundFlag;
-                if (ambientSoundFlag)
-                {
-                    soundMixer->PlayOnChannel(ambientSoundChannelName, ambientSound);
-                }
-                else
-                {
-                    soundMixer->StopChannel(ambientSoundChannelName);
-                }
-            }
-            else if (aEvent.GetKey() == soge::Keys::E)
-            {
-                soundMixer->PlayOnChannel(effectSoundChannelName, metalBarFallingSound);
-            }
-        };
-        eventModule->PushBack<soge::KeyPressedEvent>(soundUpdate);
 
         float cameraPitch{}, cameraYaw{};
         float lightPitch{glm::radians(45.0f)}, lightYaw{glm::radians(45.0f)};
