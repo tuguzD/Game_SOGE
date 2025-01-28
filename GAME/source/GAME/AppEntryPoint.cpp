@@ -68,8 +68,6 @@ namespace soge_game
         board.Load();
 
         constexpr std::int8_t matrix_order = 8;
-        constexpr std::float_t piece_height = 0.26715f * 2;
-
         Piece board_matrix[matrix_order][matrix_order]{};
 
         const auto get_coords = [](const bool darkTeam, int cell) {
@@ -104,7 +102,7 @@ namespace soge_game
                     const auto coords_z = get_coords(i, z);
 
                     piece.GetTransform() = soge::Transform{
-                        .m_position = glm::vec3{coords_x, piece_height, coords_z},
+                        .m_position = glm::vec3{coords_x, Piece::height, coords_z},
                         .m_scale = glm::vec3{0.1f},
                     };
                     piece.Load();
@@ -124,7 +122,7 @@ namespace soge_game
         SOGE_APP_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
         cursor.GetTransform() = soge::Transform{
             .m_position = glm::vec3{
-                get_coords(false, 7), piece_height / 3, get_coords(false, 1),
+                get_coords(false, 7), Piece::height / 3, get_coords(false, 1),
             },
             .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
         };

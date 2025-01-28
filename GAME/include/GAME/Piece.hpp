@@ -11,6 +11,8 @@ namespace soge_game
     public:
         UUIDv4::UUID uuid;
         bool darkTeam;
+
+        static constexpr std::float_t height = 0.26715f * 2;
     };
 }
 
