@@ -102,88 +102,133 @@ namespace soge_game
 
         // example stuff
 
-        const auto [directionalLightEntity1, directionalLightEntityUuid1] =
+        const auto [light, lightUuid] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
                 container.Provide<soge::DirectionalLightEntity>());
-        SOGE_APP_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
+        SOGE_APP_INFO_LOG(R"(Created directional light entity with UUID {})", lightUuid.str());
         const soge::Transform directionalLightTransform1{
             .m_rotation = glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f},
         };
-        directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
+        light.GetDirection() = directionalLightTransform1.Forward();
 
-        const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
+        const auto [cameraLight, cameraLightUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
             .m_height = static_cast<float>(window.GetHeight()),
             .m_nearPlane = 0.01f, .m_farPlane = 100.0f,
             .m_transform = soge::Transform{
                 .m_position = glm::vec3{0.0f, 3.5f, -4.0f},
-                // .m_rotation = glm::vec3{glm::radians(50.0f), 0.0f, 0.0f},
+                .m_rotation = glm::vec3{glm::radians(50.0f), 0.0f, 0.0f},
             },
             .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
         });
-        SOGE_APP_INFO_LOG(R"(Created camera with UUID {})", cameraUuid.str());
+        SOGE_APP_INFO_LOG(R"(Created "light" camera with UUID {})", cameraLightUuid.str());
 
+        const auto [cameraDark, cameraDarkUuid] = graphicsModule->GetCameraManager().CreateCamera({
+            .m_width = static_cast<float>(window.GetWidth()),
+            .m_height = static_cast<float>(window.GetHeight()),
+            .m_nearPlane = 0.01f, .m_farPlane = 100.0f,
+            .m_transform = soge::Transform{
+                .m_position = glm::vec3{0.0f, 3.5f, 4.0f},
+                .m_rotation = glm::vec3{glm::radians(50.0f), glm::radians(180.0f), 0.0f},
+            },
+            .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
+        });
+        SOGE_APP_INFO_LOG(R"(Created "dark" camera with UUID {})", cameraDarkUuid.str());
+
+        bool darkCameraActive = false;
         const auto [viewport, viewportUuid] = graphicsModule->GetViewportManager().CreateViewport({
             .m_viewport = {static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight())},
-            .m_cameraId = cameraUuid,
+            .m_cameraId = darkCameraActive ? cameraDarkUuid : cameraLightUuid,
         });
         SOGE_APP_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
 
         // share state between two lambdas
         auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
         auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
-        // auto lightMouseDeltaX = soge::CreateShared<float>(0.0f);
-        // auto lightMouseDeltaY = soge::CreateShared<float>(0.0f);
-        auto mouseMoved = [cameraMouseDeltaX, cameraMouseDeltaY, /*lightMouseDeltaX, lightMouseDeltaY,*/ inputModule]
-        (const soge::MouseMovedEvent& aEvent) {
+        auto mouseMoved = [cameraMouseDeltaX, cameraMouseDeltaY, inputModule](const soge::MouseMovedEvent& aEvent) {
             if (inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
             {
                 *cameraMouseDeltaX = aEvent.GetXOffset();
                 *cameraMouseDeltaY = aEvent.GetYOffset();
             }
-            // if (inputModule->IsKeyPressed(soge::Keys::RightMouseButton))
-            // {
-            //     *lightMouseDeltaX = aEvent.GetXOffset();
-            //     *lightMouseDeltaY = aEvent.GetYOffset();
-            // }
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        float cameraPitch{glm::radians(50.0f)}, cameraYaw{};
-        // float lightPitch{glm::radians(45.0f)}, lightYaw{glm::radians(45.0f)};
-        // constexpr float cameraSpeed = 1.0f;
-        constexpr float cameraSensitivity = 0.0025f;
-        auto update = [=, &camera, &directionalLightEntity1](const soge::UpdateEvent& aEvent) mutable {
-            // {
-            //     const float x = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::D)) -
-            //                     static_cast<float>(inputModule->IsKeyPressed(soge::Keys::A));
-            //     const float y = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::SpaceBar)) -
-            //                     static_cast<float>(inputModule->IsKeyPressed(soge::Keys::LeftShift));
-            //     const float z = static_cast<float>(inputModule->IsKeyPressed(soge::Keys::W)) -
-            //                     static_cast<float>(inputModule->IsKeyPressed(soge::Keys::S));
-            //     const auto direction =
-            //         camera.m_transform.Right() * x + camera.m_transform.Up() * y + camera.m_transform.Forward() * z;
-            //     camera.m_transform.m_position += direction * cameraSpeed * aEvent.GetDeltaTime();
-            // }
-
-            cameraYaw += *cameraMouseDeltaX * cameraSensitivity;
-            cameraPitch += *cameraMouseDeltaY * cameraSensitivity;
-            camera.m_transform.m_rotation = glm::vec3{
-                glm::clamp(cameraPitch, glm::radians(40.0f), glm::radians(60.0f)),
-                glm::clamp(cameraYaw, glm::radians(-30.0f), glm::radians(30.0f)), 0.0f,
+        {
+            auto cameraSwitch = [cameraDarkUuid, cameraLightUuid, graphicsModule, viewportUuid, darkCameraActive]
+                (const soge::KeyPressedEvent& aEvent) mutable
+            {
+                if (aEvent.GetKey() == soge::Keys::Q)
+                {
+                    darkCameraActive = !darkCameraActive;
+                    SOGE_APP_INFO_LOG(R"(Switched to "{}" camera)", darkCameraActive ? "dark" : "light");
+                    graphicsModule->GetViewportManager().GetViewport(viewportUuid)->m_cameraId =
+                        darkCameraActive ? cameraDarkUuid : cameraLightUuid;
+                }
             };
+            eventModule->PushBack<soge::KeyPressedEvent>(cameraSwitch);
+        }
 
-            // lightYaw += *lightMouseDeltaX * cameraSensitivity;
-            // lightPitch += *lightMouseDeltaY * cameraSensitivity;
-            // directionalLightEntity1.GetDirection() =
-            //     soge::Transform{.m_rotation = glm::vec3{lightPitch, lightYaw, 0.0f}}.Forward();
+        // constexpr float cameraSensitivity = 0.0025f;
+        // float cameraLightPitch{glm::radians(50.0f)}, cameraLightYaw{};
+        // constexpr auto yawDarkOffset = 180.0f;
+        // float cameraDarkPitch{glm::radians(50.0f)}, cameraDarkYaw{glm::radians(yawDarkOffset)};
+        //
+        // auto cameraUpdate = [=, &cameraLight, &cameraDark](const soge::UpdateEvent&) mutable {
+        //     if (darkCameraActive)
+        //     {
+        //         cameraDarkYaw += *cameraMouseDeltaX * cameraSensitivity;
+        //         cameraDarkPitch += *cameraMouseDeltaY * cameraSensitivity;
+        //         cameraDark.m_transform.m_rotation = glm::vec3{
+        //             glm::clamp(cameraDarkPitch, glm::radians(40.0f), glm::radians(60.0f)),
+        //             glm::clamp(cameraDarkYaw, glm::radians(yawDarkOffset - 30),
+        //                 glm::radians(yawDarkOffset + 30)), 0.0f,
+        //         };
+        //     }
+        //     else
+        //     {
+        //         cameraLightYaw += *cameraMouseDeltaX * cameraSensitivity;
+        //         cameraLightPitch += *cameraMouseDeltaY * cameraSensitivity;
+        //         cameraLight.m_transform.m_rotation = glm::vec3{
+        //             glm::clamp(cameraLightPitch, glm::radians(40.0f), glm::radians(60.0f)),
+        //             glm::clamp(cameraLightYaw, glm::radians(-30.0f),
+        //                 glm::radians(30.0f)), 0.0f,
+        //         };
+        //     }
+        //     *cameraMouseDeltaX = 0.0f;
+        //     *cameraMouseDeltaY = 0.0f;
+        // };
+        // eventModule->PushBack<soge::UpdateEvent>(cameraUpdate);
 
+        constexpr float cameraSensitivity = 0.0025f;
+
+        float cameraLightPitch{glm::radians(50.0f)}, cameraLightYaw{};
+        auto cameraLightUpdate = [=, &cameraLight](const soge::UpdateEvent&) mutable {
+            cameraLightYaw += *cameraMouseDeltaX * cameraSensitivity;
+            cameraLightPitch += *cameraMouseDeltaY * cameraSensitivity;
+            cameraLight.m_transform.m_rotation = glm::vec3{
+                glm::clamp(cameraLightPitch, glm::radians(40.0f), glm::radians(60.0f)),
+                glm::clamp(cameraLightYaw, glm::radians(-30.0f), glm::radians(30.0f)), 0.0f,
+            };
             *cameraMouseDeltaX = 0.0f;
             *cameraMouseDeltaY = 0.0f;
-            // *lightMouseDeltaX = 0.0f;
-            // *lightMouseDeltaY = 0.0f;
         };
-        eventModule->PushBack<soge::UpdateEvent>(update);
+        eventModule->PushBack<soge::UpdateEvent>(cameraLightUpdate);
+
+        constexpr auto yawDarkOffset = 180.0f;
+        float cameraDarkPitch{glm::radians(50.0f)}, cameraDarkYaw{glm::radians(yawDarkOffset)};
+        auto cameraDarkUpdate = [=, &cameraDark](const soge::UpdateEvent&) mutable {
+            cameraDarkYaw += *cameraMouseDeltaX * cameraSensitivity;
+            cameraDarkPitch += *cameraMouseDeltaY * cameraSensitivity;
+            cameraDark.m_transform.m_rotation = glm::vec3{
+                glm::clamp(cameraDarkPitch, glm::radians(40.0f), glm::radians(60.0f)),
+                glm::clamp(cameraDarkYaw, glm::radians(yawDarkOffset - 30),
+                    glm::radians(yawDarkOffset + 30)), 0.0f,
+            };
+            *cameraMouseDeltaX = 0.0f;
+            *cameraMouseDeltaY = 0.0f;
+        };
+        eventModule->PushBack<soge::UpdateEvent>(cameraDarkUpdate);
     }
 }
 
