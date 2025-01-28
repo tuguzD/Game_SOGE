@@ -31,7 +31,7 @@ namespace soge_game
             uuid = cursorUuid;
         }
 
-        void move(const soge::GraphicsEntityManager &entities, int vert = 0, int horz = 0)
+        void move(const soge::GraphicsEntityManager &entities, int vert = 0, int horz = 0, const bool log = false)
         {
             const auto entity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
             if (entity == nullptr) return;
@@ -45,7 +45,7 @@ namespace soge_game
             x = Board::clamp_cell(x + horz);
             entity->GetTransform().m_position.x = Board::get_coords(darkTeam, x);
 
-            SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", x, z);
+            if (log) SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", x, z);
         }
 
         void color(const soge::GraphicsEntityManager &entities, const Board& board)
