@@ -1,5 +1,6 @@
 #include "GAME/AppEntryPoint.hpp"
 
+#include "GAME/Piece.hpp"
 #include "GAME/Layers/MainGameLayer.hpp"
 #include "SOGE/Graphics/Primitives/Box.hpp"
 
@@ -41,8 +42,10 @@ namespace soge_game
         const auto windowModule = GetModule<soge::WindowModule>();
         const auto graphicsModule = GetModule<soge::GraphicsModule>();
 
+        soge::Logger::GetEngineSideLogger()->set_level(soge::Logger::Level::warn);
+
         const auto [window, windowUuid] = windowModule->CreateWindow();
-        SOGE_INFO_LOG(
+        SOGE_APP_INFO_LOG(
             R"(Created window "{}" of width {} and height {} with UUID {})",
             soge::EAToNarrow(window.GetTitle()).c_str(),
             window.GetWidth(), window.GetHeight(), windowUuid.str()
@@ -56,7 +59,7 @@ namespace soge_game
         const auto [board, boardUuid] =
             graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
                 container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created board with UUID {})", boardUuid.str());
+        SOGE_APP_INFO_LOG(R"(Created board with UUID {})", boardUuid.str());
         board.GetFilePath() = "./resources/meshes/board/board.fbx";
         board.GetTransform() = soge::Transform{
             .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(90.0f), 0.0f}},
@@ -67,16 +70,20 @@ namespace soge_game
         constexpr std::int8_t matrix_order = 8;
         constexpr std::float_t piece_height = 0.26715f * 2;
 
-        const auto get_coords = [](const bool darkTeam, int cell)
-        {
+        Piece board_matrix[matrix_order][matrix_order]{};
+
+        const auto get_coords = [](const bool darkTeam, int cell) {
             const auto offset = 2.38f * static_cast<float_t>(!darkTeam ? -1 : 1);
             cell = std::max(0, std::min(cell, matrix_order - 1));
-            return offset * (1 - static_cast<float_t>(cell)*2 / (matrix_order - 1));
+            return offset * (1 - static_cast<float_t>(cell) * 2 / (matrix_order - 1));
         };
-        const auto get_cell = [](const bool darkTeam, auto coords)
-        {
+        const auto get_cell = [](const bool darkTeam, float_t coords) {
             const auto offset = 2.38f * static_cast<float_t>(!darkTeam ? -1 : 1);
-            return (1 - coords / offset) * (matrix_order - 1) / 2;
+            const auto result = (1 - coords / offset) * (matrix_order - 1) / 2;
+            return static_cast<int>(round(result));
+        };
+        const auto clamp_cell = [](int cell) {
+            return std::max(0, std::min(cell, matrix_order - 1));
         };
 
         for (std::size_t i = 0; i < 2; ++i)
@@ -88,66 +95,84 @@ namespace soge_game
                     const auto [piece, pieceUuid] =
                         graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
                             container.Provide<soge::StaticMeshEntity>());
-                    SOGE_INFO_LOG(R"(Created {} with UUID {})", name, pieceUuid.str());
+                    SOGE_APP_INFO_LOG(R"(Created {} with UUID {})", name, pieceUuid.str());
                     piece.GetFilePath() = std::format("./resources/meshes/{}/{}.fbx", name, name);
 
-                    const auto x = static_cast<int>(k);
                     const auto z = static_cast<int>(j);
+                    const auto x = z % 2 + static_cast<int>(k) * 2;
+                    const auto coords_x = get_coords(i, x);
+                    const auto coords_z = get_coords(i, z);
+
                     piece.GetTransform() = soge::Transform{
-                        .m_position = glm::vec3{
-                            get_coords(i, z%2 + x*2),
-                            piece_height, get_coords(i, z),
-                        },
+                        .m_position = glm::vec3{coords_x, piece_height, coords_z},
                         .m_scale = glm::vec3{0.1f},
                     };
                     piece.Load();
+
+                    const auto uni_x = get_cell(false, coords_x);
+                    const auto uni_z = get_cell(false, coords_z);
+                    board_matrix[uni_x][uni_z] = Piece{
+                        .uuid = pieceUuid,
+                        .darkTeam = static_cast<bool>(i),
+                    };
                 }
         }
 
         const auto [cursor, cursorUuid] =
             graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
                 container.Provide<soge::BoxPrimitive>());
-        SOGE_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
+        SOGE_APP_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
         cursor.GetTransform() = soge::Transform{
             .m_position = glm::vec3{
-                get_coords(false, 7),piece_height / 3, get_coords(false, 1),
+                get_coords(false, 7), piece_height / 3, get_coords(false, 1),
             },
             .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
         };
-        // cursor.GetMaterial().m_diffuse = glm::vec3{1.0f, 0.0f, 0.0f};
 
         auto cursorUpdate = [=, &cursor](const soge::KeyPressedEvent& aEvent) mutable {
+            auto cell_x = get_cell(false, cursor.GetTransform().m_position.x);
+            auto cell_z = get_cell(false, cursor.GetTransform().m_position.z);
+
             if (aEvent.GetKey() == soge::Keys::Up)
             {
-                auto cell = get_cell(false, cursor.GetTransform().m_position.z);
-                SOGE_INFO_LOG(R"(Cell before key 'up' pressed: {})", cell);
-                cursor.GetTransform().m_position.z = get_coords(false, static_cast<int>(cell + 1));
+                cell_z = clamp_cell(cell_z + 1);
+                cursor.GetTransform().m_position.z = get_coords(false, cell_z);
+                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
             }
             else if (aEvent.GetKey() == soge::Keys::Down)
             {
-                auto cell = get_cell(false, cursor.GetTransform().m_position.z);
-                SOGE_INFO_LOG(R"(Cell before key 'down' pressed: {})", cell);
-                cursor.GetTransform().m_position.z = get_coords(false, static_cast<int>(cell - 1));
+                cell_z = clamp_cell(cell_z - 1);
+                cursor.GetTransform().m_position.z = get_coords(false, cell_z);
+                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
             }
             else if (aEvent.GetKey() == soge::Keys::Right)
             {
-                auto cell = get_cell(false, cursor.GetTransform().m_position.x);
-                SOGE_INFO_LOG(R"(Cell before key 'right' pressed: {})", cell);
-                cursor.GetTransform().m_position.x = get_coords(false, static_cast<int>(cell + 1));
+                cell_x = clamp_cell(cell_x + 1);
+                cursor.GetTransform().m_position.x = get_coords(false, cell_x);
+                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
             }
             else if (aEvent.GetKey() == soge::Keys::Left)
             {
-                auto cell = get_cell(false, cursor.GetTransform().m_position.x);
-                SOGE_INFO_LOG(R"(Cell before key 'left' pressed: {})", cell);
-                cursor.GetTransform().m_position.x = get_coords(false, static_cast<int>(cell - 1));
+                cell_x = clamp_cell(cell_x - 1);
+                cursor.GetTransform().m_position.x = get_coords(false, cell_x);
+                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
             }
+
+            if (graphicsModule->GetEntityManager().GetEntity(board_matrix[cell_x][cell_z].uuid))
+            {
+                if (!board_matrix[cell_x][cell_z].darkTeam)
+                    cursor.GetMaterial().m_diffuse = glm::vec3{0.0f, 0.75f, 0.0f};
+                else
+                    cursor.GetMaterial().m_diffuse = glm::vec3{0.75f, 0.0f, 0.0f};
+            }
+            else cursor.GetMaterial().m_diffuse = glm::vec3{1.0f, 1.0f, 1.0f};
         };
         eventModule->PushBack<soge::KeyPressedEvent>(cursorUpdate);
 
         const auto [directionalLightEntity1, directionalLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
                 container.Provide<soge::DirectionalLightEntity>());
-        SOGE_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
+        SOGE_APP_INFO_LOG(R"(Created directional light entity with UUID {})", directionalLightEntityUuid1.str());
         const soge::Transform directionalLightTransform1{
             .m_rotation = glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f},
         };
@@ -161,13 +186,13 @@ namespace soge_game
             .m_transform = soge::Transform{.m_position = glm::vec3{0.0f, 0.0f, -2.0f}},
             .m_projection = soge::CreateUnique<soge::PerspectiveProjection>(glm::radians(60.0f)),
         });
-        SOGE_INFO_LOG(R"(Created camera with UUID {})", cameraUuid.str());
+        SOGE_APP_INFO_LOG(R"(Created camera with UUID {})", cameraUuid.str());
 
         const auto [viewport, viewportUuid] = graphicsModule->GetViewportManager().CreateViewport({
             .m_viewport = {static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight())},
             .m_cameraId = cameraUuid,
         });
-        SOGE_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
+        SOGE_APP_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
 
         // share state between two lambdas
         auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);

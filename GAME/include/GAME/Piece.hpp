@@ -1,13 +1,16 @@
 #ifndef GAME_PIECE_HPP
 #define GAME_PIECE_HPP
 
+#include "SOGE/Utils/UUID.hpp"
+
 
 namespace soge_game
 {
-    class Piece final
+    struct Piece final
     {
     public:
-
+        UUIDv4::UUID uuid;
+        bool darkTeam;
     };
 }
 

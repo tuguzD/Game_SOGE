@@ -1,5 +1,5 @@
-#include "GAME/Piece.hpp"
-
-namespace soge_game
-{
-}
+// #include "GAME/Piece.hpp"
+//
+// namespace soge_game
+// {
+// }
