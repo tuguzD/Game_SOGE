@@ -9,8 +9,11 @@ namespace soge_game
 {
     class Board
     {
+    private:
+        static constexpr float_t offset = 2.38f;
+
     public:
-        static constexpr std::int8_t order = 8;
+        static constexpr int8_t order = 8;
         Piece matrix[order][order]{};
 
         UUIDv4::UUID uuid{};
@@ -51,24 +54,24 @@ namespace soge_game
 
         static float get_coords(const bool darkTeam, int cell)
         {
-            const auto offset = 2.38f * static_cast<float_t>(!darkTeam ? -1 : 1);
-
+            const auto mult_offset = offset * static_cast<float_t>(!darkTeam ? -1 : 1);
             const auto temp = static_cast<float_t>(clamp_cell(cell));
-            const auto result = offset * (1 - temp * 2 / (order - 1));
+
+            const auto result = mult_offset * (1 - temp * 2 / (order - 1));
             return result;
         }
 
         static int get_cell(const bool darkTeam, float_t coords)
         {
-            const auto offset = 2.38f * static_cast<float_t>(!darkTeam ? -1 : 1);
+            const auto mult_offset = offset * static_cast<float_t>(!darkTeam ? -1 : 1);
 
-            const auto result = (1 - coords / offset) * (order - 1) / 2;
+            const auto result = (1 - coords / mult_offset) * (order - 1) / 2;
             return static_cast<int>(round(result));
         }
 
         static int clamp_cell(int cell)
         {
-            return std::max(0, std::min(cell, order - 1));
+            return glm::clamp(cell, 0, order - 1);
         }
     };
 }

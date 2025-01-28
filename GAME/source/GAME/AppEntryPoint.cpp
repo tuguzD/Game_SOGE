@@ -161,16 +161,19 @@ namespace soge_game
             //         camera.m_transform.Right() * x + camera.m_transform.Up() * y + camera.m_transform.Forward() * z;
             //     camera.m_transform.m_position += direction * cameraSpeed * aEvent.GetDeltaTime();
             // }
-        
+
             cameraYaw += *cameraMouseDeltaX * cameraSensitivity;
             cameraPitch += *cameraMouseDeltaY * cameraSensitivity;
-            camera.m_transform.m_rotation = glm::vec3{cameraPitch, cameraYaw, 0.0f};
-        
+            camera.m_transform.m_rotation = glm::vec3{
+                glm::clamp(cameraPitch, glm::radians(40.0f), glm::radians(60.0f)),
+                glm::clamp(cameraYaw, glm::radians(-30.0f), glm::radians(30.0f)), 0.0f,
+            };
+
             // lightYaw += *lightMouseDeltaX * cameraSensitivity;
             // lightPitch += *lightMouseDeltaY * cameraSensitivity;
             // directionalLightEntity1.GetDirection() =
             //     soge::Transform{.m_rotation = glm::vec3{lightPitch, lightYaw, 0.0f}}.Forward();
-        
+
             *cameraMouseDeltaX = 0.0f;
             *cameraMouseDeltaY = 0.0f;
             // *lightMouseDeltaX = 0.0f;
