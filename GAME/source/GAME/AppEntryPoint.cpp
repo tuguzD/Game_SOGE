@@ -1,6 +1,7 @@
 #include "GAME/AppEntryPoint.hpp"
 
 #include "GAME/Layers/MainGameLayer.hpp"
+#include "SOGE/Graphics/Primitives/Box.hpp"
 
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
@@ -11,9 +12,6 @@
 #include <SOGE/Graphics/Entities/PointLightEntity.hpp>
 #include <SOGE/Graphics/Entities/StaticMeshEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
-#include <SOGE/Graphics/Primitives/Box.hpp>
-#include <SOGE/Graphics/Primitives/Sphere.hpp>
-#include <SOGE/Graphics/Resources/SimpleTextureResource.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
 #include <algorithm>
@@ -47,116 +45,107 @@ namespace soge_game
         const auto soundModule = GetModule<soge::SoundModule>();
 
         const auto [window, windowUuid] = windowModule->CreateWindow();
-        SOGE_INFO_LOG(R"(Created window "{}" of width {} and height {} with UUID {})",
-                      soge::EAToNarrow(window.GetTitle()).c_str(), window.GetWidth(), window.GetHeight(),
-                      windowUuid.str());
+        SOGE_INFO_LOG(
+            R"(Created window "{}" of width {} and height {} with UUID {})",
+            soge::EAToNarrow(window.GetTitle()).c_str(),
+            window.GetWidth(), window.GetHeight(), windowUuid.str()
+        );
 
         graphicsModule->SetRenderTarget(window);
 
         auto& renderGraph = container.Provide<soge::DeferredRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
-        const auto [texture, textureUuid] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::SimpleTextureResource>(
-                container.Provide<soge::GraphicsCore>(), "cardboard", "./resources/textures/cardboard.png");
-        SOGE_INFO_LOG(R"(Created texture with UUID {})", textureUuid.str());
-
-        constexpr std::size_t gridSize = 3;
-        constexpr glm::vec3 gridOffset{-0.5f * (gridSize - 1)};
-        for (std::size_t i = 0; i < gridSize; ++i)
-        {
-            for (std::size_t j = 0; j < gridSize; ++j)
-            {
-                for (std::size_t k = 0; k < gridSize; ++k)
-                {
-                    const auto [box, boxUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
-                        container.Provide<soge::BoxPrimitive>());
-                    SOGE_INFO_LOG(R"(Created box ({}, {}, {}) with UUID {})", i, j, k, boxUuid.str());
-
-                    const auto x = static_cast<float>(i);
-                    const auto y = static_cast<float>(j);
-                    const auto z = static_cast<float>(k);
-                    box.GetTransform() = soge::Transform{
-                        .m_position = glm::vec3{x, y, z} + gridOffset,
-                        // .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(45.0f), 0.0f}},
-                        .m_scale = glm::vec3{0.5f},
-                    };
-                    if ((i + j + k) % 2 == 0)
-                    {
-                        box.GetColorTexture() = texture.GetTextureResource();
-                    }
-                }
-            }
-        }
-
-        const auto [sphere, sphereUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::SpherePrimitive>(
-            container.Provide<soge::SpherePrimitive>());
-        SOGE_INFO_LOG(R"(Created sphere with UUID {})", sphereUuid.str());
-        sphere.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{2.0f, 0.0f, 0.0f},
-            .m_scale = glm::vec3{0.5f},
-        };
-
-        const auto [hog, hogUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-            container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created hog with UUID {})", hogUuid.str());
-        hog.GetFilePath() = "./resources/meshes/hog.fbx";
-        hog.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{0.0f, -1.0f, 4.0f},
-            .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
-            .m_scale = glm::vec3{0.01f},
-        };
-        hog.Load();
-
-        // const auto [cake, cakeUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-        //     container.Provide<soge::StaticMeshEntity>());
-        // SOGE_INFO_LOG(R"(Created cake with UUID {})", cakeUuid.str());
-        // cake.GetFilePath() = "./resources/meshes/cake/cake.fbx";
-        // cake.GetTransform() = soge::Transform{
-        //     .m_position = glm::vec3{0.0f, -2.5f, 0.0f},
-        //     .m_rotation = glm::vec3{0.0f, glm::radians(180.0f), 0.0f},
-        //     .m_scale = glm::vec3{0.01f},
-        // };
-        // cake.Load();
-
-        // const auto [boat, boatUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-        //     container.Provide<soge::StaticMeshEntity>());
-        // SOGE_INFO_LOG(R"(Created boat with UUID {})", boatUuid.str());
-        // boat.GetFilePath() = "./resources/meshes/boat/boat.fbx";
-        // boat.GetTransform() = soge::Transform{
-        //     .m_position = glm::vec3{-2.5f, 0.0f, 0.0f},
-        //     .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
-        //     .m_scale = glm::vec3{0.005f},
-        // };
-        // boat.Load();
-
-        const auto [cheese, cheeseUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-            container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created cheese with UUID {})", cheeseUuid.str());
-        cheese.GetFilePath() = "./resources/meshes/cheese/cheese.fbx";
-        cheese.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{0.0f, 0.0f, 7.0f},
-            // .m_rotation = glm::vec3{glm::radians(90.0f), 0.0f, glm::radians(-90.0f)},
+        const auto [board, boardUuid] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+                container.Provide<soge::StaticMeshEntity>());
+        SOGE_INFO_LOG(R"(Created board with UUID {})", boardUuid.str());
+        board.GetFilePath() = "./resources/meshes/board/board.fbx";
+        board.GetTransform() = soge::Transform{
+            .m_rotation = glm::quat{glm::vec3{0.0f, glm::radians(90.0f), 0.0f}},
             .m_scale = glm::vec3{0.1f},
         };
-        cheese.Load();
+        board.Load();
 
-        const auto [axe, axeUuid] = graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-            container.Provide<soge::StaticMeshEntity>());
-        SOGE_INFO_LOG(R"(Created axe with UUID {})", axeUuid.str());
-        axe.GetFilePath() = "./resources/meshes/axe/axe.fbx";
-        axe.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{0.0f, 0.0f, 10.0f},
-            .m_rotation = glm::vec3{0.0f, 0.0f, glm::radians(90.0f)},
-            .m_scale = glm::vec3{0.05f},
+        constexpr std::int8_t matrix_order = 8;
+        constexpr std::float_t piece_height = 0.26715f * 2;
+
+        const auto get_coords = [](auto team, int cell)
+        {
+            const auto offset = 2.38f * (team == 0 ? -1 : 1);
+            cell = std::max(0, std::min(cell, matrix_order - 1));
+            return offset * (1 - static_cast<float_t>(cell)*2 / (matrix_order - 1));
         };
-        axe.Load();
+        const auto get_cell = [](auto team, auto coords)
+        {
+            const auto offset = 2.38f * (team == 0 ? -1 : 1);
+            return (1 - coords / offset) * (matrix_order - 1) / 2;
+        };
 
-        const auto [ambientLightEntity1, ambientLightEntityUuid1] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::AmbientLightEntity>(
-                container.Provide<soge::AmbientLightEntity>());
-        SOGE_INFO_LOG(R"(Created ambient light entity with UUID {})", ambientLightEntityUuid1.str());
-        ambientLightEntity1.GetIntensity() = 0.01f;
+        for (std::size_t i = 0; i < 2; ++i)
+        {
+            const auto name = (i == 0 ? "light_piece" : "dark_piece");
+            for (std::size_t j = 0; j < 3; ++j)
+                for (std::size_t k = 0; k < 4; ++k)
+                {
+                    const auto [piece, pieceUuid] =
+                        graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
+                            container.Provide<soge::StaticMeshEntity>());
+                    SOGE_INFO_LOG(R"(Created {} with UUID {})", name, pieceUuid.str());
+                    piece.GetFilePath() = std::format("./resources/meshes/{}/{}.fbx", name, name);
+
+                    const auto x = static_cast<int>(k);
+                    const auto z = static_cast<int>(j);
+                    piece.GetTransform() = soge::Transform{
+                        .m_position = glm::vec3{
+                            get_coords(i, z%2 + x*2),
+                            piece_height, get_coords(i, z),
+                        },
+                        .m_scale = glm::vec3{0.1f},
+                    };
+                    piece.Load();
+                }
+        }
+
+        const auto [cursor, cursorUuid] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
+                container.Provide<soge::BoxPrimitive>());
+        SOGE_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
+        cursor.GetTransform() = soge::Transform{
+            .m_position = glm::vec3{
+                get_coords(0, 7),piece_height / 3, get_coords(0, 1),
+            },
+            .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
+        };
+        // cursor.GetMaterial().m_diffuse = glm::vec3{1.0f, 0.0f, 0.0f};
+
+        auto cursorUpdate = [=, &cursor](const soge::KeyPressedEvent& aEvent) mutable {
+            if (aEvent.GetKey() == soge::Keys::Up)
+            {
+                auto cell = get_cell(0, cursor.GetTransform().m_position.z);
+                SOGE_INFO_LOG(R"(Cell before key 'up' pressed: {})", cell);
+                cursor.GetTransform().m_position.z = get_coords(0, static_cast<int>(cell + 1));
+            }
+            else if (aEvent.GetKey() == soge::Keys::Down)
+            {
+                auto cell = get_cell(0, cursor.GetTransform().m_position.z);
+                SOGE_INFO_LOG(R"(Cell before key 'down' pressed: {})", cell);
+                cursor.GetTransform().m_position.z = get_coords(0, static_cast<int>(cell - 1));
+            }
+            else if (aEvent.GetKey() == soge::Keys::Right)
+            {
+                auto cell = get_cell(0, cursor.GetTransform().m_position.x);
+                SOGE_INFO_LOG(R"(Cell before key 'right' pressed: {})", cell);
+                cursor.GetTransform().m_position.x = get_coords(0, static_cast<int>(cell + 1));
+            }
+            else if (aEvent.GetKey() == soge::Keys::Left)
+            {
+                auto cell = get_cell(0, cursor.GetTransform().m_position.x);
+                SOGE_INFO_LOG(R"(Cell before key 'left' pressed: {})", cell);
+                cursor.GetTransform().m_position.x = get_coords(0, static_cast<int>(cell - 1));
+            }
+        };
+        eventModule->PushBack<soge::KeyPressedEvent>(cursorUpdate);
 
         const auto [directionalLightEntity1, directionalLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
@@ -166,13 +155,6 @@ namespace soge_game
             .m_rotation = glm::vec3{glm::radians(45.0f), glm::radians(45.0f), 0.0f},
         };
         directionalLightEntity1.GetDirection() = directionalLightTransform1.Forward();
-
-        const auto [pointLightEntity1, pointLightEntityUuid1] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::PointLightEntity>(
-                container.Provide<soge::PointLightEntity>());
-        SOGE_INFO_LOG(R"(Created point light entity with UUID {})", pointLightEntityUuid1.str());
-        pointLightEntity1.GetAttenuation().m_linearFactor = glm::vec3{1.0f};
-        pointLightEntity1.GetAttenuation().m_quadraticFactor = glm::vec3{100.0f};
 
         const auto [camera, cameraUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
@@ -211,8 +193,8 @@ namespace soge_game
         auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
         auto lightMouseDeltaX = soge::CreateShared<float>(0.0f);
         auto lightMouseDeltaY = soge::CreateShared<float>(0.0f);
-        auto mouseMoved = [cameraMouseDeltaX, cameraMouseDeltaY, lightMouseDeltaX, lightMouseDeltaY,
-                           inputModule](const soge::MouseMovedEvent& aEvent) {
+        auto mouseMoved = [cameraMouseDeltaX, cameraMouseDeltaY, lightMouseDeltaX, lightMouseDeltaY, inputModule]
+        (const soge::MouseMovedEvent& aEvent) {
             if (inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
             {
                 *cameraMouseDeltaX = aEvent.GetXOffset();
@@ -226,15 +208,15 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        auto mouseWheel = [&directionalLightEntity1](const soge::MouseWheelEvent& aEvent) {
-            directionalLightEntity1.GetColor().r += aEvent.GetXOffset() * 0.1f;
-            directionalLightEntity1.GetColor().r = glm::max(directionalLightEntity1.GetColor().r, 1.0f);
-        };
-        eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
+        // auto mouseWheel = [&directionalLightEntity1](const soge::MouseWheelEvent& aEvent) {
+        //     directionalLightEntity1.GetColor().r += aEvent.GetXOffset() * 0.1f;
+        //     directionalLightEntity1.GetColor().r = glm::max(directionalLightEntity1.GetColor().r, 1.0f);
+        // };
+        // eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
 
         bool ambientSoundFlag = false;
-        auto soundUpdate = [soundMixer, ambientSound, metalBarFallingSound,
-                            ambientSoundFlag](const soge::KeyPressedEvent& aEvent) mutable {
+        auto soundUpdate = [soundMixer, ambientSound, metalBarFallingSound, ambientSoundFlag]
+        (const soge::KeyPressedEvent& aEvent) mutable {
             if (aEvent.GetKey() == soge::Keys::T)
             {
                 ambientSoundFlag = !ambientSoundFlag;
