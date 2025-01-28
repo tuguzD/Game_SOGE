@@ -7,9 +7,7 @@
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
-#include <SOGE/Graphics/Entities/AmbientLightEntity.hpp>
 #include <SOGE/Graphics/Entities/DirectionalLightEntity.hpp>
-#include <SOGE/Graphics/Entities/PointLightEntity.hpp>
 #include <SOGE/Graphics/Entities/StaticMeshEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Math/Camera.hpp>
@@ -69,21 +67,21 @@ namespace soge_game
         constexpr std::int8_t matrix_order = 8;
         constexpr std::float_t piece_height = 0.26715f * 2;
 
-        const auto get_coords = [](auto team, int cell)
+        const auto get_coords = [](const bool darkTeam, int cell)
         {
-            const auto offset = 2.38f * (team == 0 ? -1 : 1);
+            const auto offset = 2.38f * static_cast<float_t>(!darkTeam ? -1 : 1);
             cell = std::max(0, std::min(cell, matrix_order - 1));
             return offset * (1 - static_cast<float_t>(cell)*2 / (matrix_order - 1));
         };
-        const auto get_cell = [](auto team, auto coords)
+        const auto get_cell = [](const bool darkTeam, auto coords)
         {
-            const auto offset = 2.38f * (team == 0 ? -1 : 1);
+            const auto offset = 2.38f * static_cast<float_t>(!darkTeam ? -1 : 1);
             return (1 - coords / offset) * (matrix_order - 1) / 2;
         };
 
         for (std::size_t i = 0; i < 2; ++i)
         {
-            const auto name = (i == 0 ? "light_piece" : "dark_piece");
+            const auto name = !i ? "light_piece" : "dark_piece";
             for (std::size_t j = 0; j < 3; ++j)
                 for (std::size_t k = 0; k < 4; ++k)
                 {
@@ -112,7 +110,7 @@ namespace soge_game
         SOGE_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
         cursor.GetTransform() = soge::Transform{
             .m_position = glm::vec3{
-                get_coords(0, 7),piece_height / 3, get_coords(0, 1),
+                get_coords(false, 7),piece_height / 3, get_coords(false, 1),
             },
             .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
         };
@@ -121,27 +119,27 @@ namespace soge_game
         auto cursorUpdate = [=, &cursor](const soge::KeyPressedEvent& aEvent) mutable {
             if (aEvent.GetKey() == soge::Keys::Up)
             {
-                auto cell = get_cell(0, cursor.GetTransform().m_position.z);
+                auto cell = get_cell(false, cursor.GetTransform().m_position.z);
                 SOGE_INFO_LOG(R"(Cell before key 'up' pressed: {})", cell);
-                cursor.GetTransform().m_position.z = get_coords(0, static_cast<int>(cell + 1));
+                cursor.GetTransform().m_position.z = get_coords(false, static_cast<int>(cell + 1));
             }
             else if (aEvent.GetKey() == soge::Keys::Down)
             {
-                auto cell = get_cell(0, cursor.GetTransform().m_position.z);
+                auto cell = get_cell(false, cursor.GetTransform().m_position.z);
                 SOGE_INFO_LOG(R"(Cell before key 'down' pressed: {})", cell);
-                cursor.GetTransform().m_position.z = get_coords(0, static_cast<int>(cell - 1));
+                cursor.GetTransform().m_position.z = get_coords(false, static_cast<int>(cell - 1));
             }
             else if (aEvent.GetKey() == soge::Keys::Right)
             {
-                auto cell = get_cell(0, cursor.GetTransform().m_position.x);
+                auto cell = get_cell(false, cursor.GetTransform().m_position.x);
                 SOGE_INFO_LOG(R"(Cell before key 'right' pressed: {})", cell);
-                cursor.GetTransform().m_position.x = get_coords(0, static_cast<int>(cell + 1));
+                cursor.GetTransform().m_position.x = get_coords(false, static_cast<int>(cell + 1));
             }
             else if (aEvent.GetKey() == soge::Keys::Left)
             {
-                auto cell = get_cell(0, cursor.GetTransform().m_position.x);
+                auto cell = get_cell(false, cursor.GetTransform().m_position.x);
                 SOGE_INFO_LOG(R"(Cell before key 'left' pressed: {})", cell);
-                cursor.GetTransform().m_position.x = get_coords(0, static_cast<int>(cell - 1));
+                cursor.GetTransform().m_position.x = get_coords(false, static_cast<int>(cell - 1));
             }
         };
         eventModule->PushBack<soge::KeyPressedEvent>(cursorUpdate);
@@ -190,12 +188,6 @@ namespace soge_game
             }
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
-
-        // auto mouseWheel = [&directionalLightEntity1](const soge::MouseWheelEvent& aEvent) {
-        //     directionalLightEntity1.GetColor().r += aEvent.GetXOffset() * 0.1f;
-        //     directionalLightEntity1.GetColor().r = glm::max(directionalLightEntity1.GetColor().r, 1.0f);
-        // };
-        // eventModule->PushBack<soge::MouseWheelEvent>(mouseWheel);
 
         float cameraPitch{}, cameraYaw{};
         float lightPitch{glm::radians(45.0f)}, lightYaw{glm::radians(45.0f)};
