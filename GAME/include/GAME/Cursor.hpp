@@ -13,8 +13,40 @@ namespace soge_game
     class Cursor final
     {
     public:
-        UUIDv4::UUID uuid;
+        UUIDv4::UUID uuid{};
         bool darkTeam;
+
+        void init(soge::GraphicsEntityManager& entities, soge::di::Container& container)
+        {
+            const auto [cursorEntity, cursorUuid] = entities.CreateEntity<soge::BoxPrimitive>(
+                container.Provide<soge::BoxPrimitive>());
+            SOGE_APP_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
+            cursorEntity.GetTransform() = soge::Transform{
+                .m_position = glm::vec3{
+                    Board::get_coords(darkTeam, 0),
+                    Piece::height / 3, Board::get_coords(darkTeam, 0),
+                },
+                .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
+            };
+            uuid = cursorUuid;
+        }
+
+        void move(const soge::GraphicsEntityManager &entities, int vert = 0, int horz = 0)
+        {
+            const auto entity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
+            if (entity == nullptr) return;
+
+            auto z = Board::get_cell(darkTeam, entity->GetTransform().m_position.z);
+            auto x = Board::get_cell(darkTeam, entity->GetTransform().m_position.x);
+
+            z = Board::clamp_cell(z + vert);
+            entity->GetTransform().m_position.z = Board::get_coords(darkTeam, z);
+
+            x = Board::clamp_cell(x + horz);
+            entity->GetTransform().m_position.x = Board::get_coords(darkTeam, x);
+
+            SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", x, z);
+        }
 
         void color(const soge::GraphicsEntityManager &entities, const Board& board)
         {

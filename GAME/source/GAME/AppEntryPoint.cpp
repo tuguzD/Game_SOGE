@@ -3,14 +3,12 @@
 #include "GAME/Cursor.hpp"
 #include "GAME/Piece.hpp"
 #include "GAME/Layers/MainGameLayer.hpp"
-#include "SOGE/Graphics/Primitives/Box.hpp"
 
 #include <SOGE/Core/EntryPoint.hpp>
 #include <SOGE/Event/EventModule.hpp>
 #include <SOGE/Event/InputEvents.hpp>
 #include <SOGE/Graphics/Deferred/DeferredRenderGraph.hpp>
 #include <SOGE/Graphics/Entities/DirectionalLightEntity.hpp>
-#include <SOGE/Graphics/Entities/StaticMeshEntity.hpp>
 #include <SOGE/Graphics/GraphicsModule.hpp>
 #include <SOGE/Math/Camera.hpp>
 #include <SOGE/Window/WindowModule.hpp>
@@ -51,23 +49,13 @@ namespace soge_game
             soge::EAToNarrow(window.GetTitle()).c_str(),
             window.GetWidth(), window.GetHeight(), windowUuid.str()
         );
-
         graphicsModule->SetRenderTarget(window);
 
         auto& renderGraph = container.Provide<soge::DeferredRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
-        const auto [boardEntity, boardUuid] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-                container.Provide<soge::StaticMeshEntity>());
-        SOGE_APP_INFO_LOG(R"(Created board with UUID {})", boardUuid.str());
-        boardEntity.GetFilePath() = "./resources/meshes/board/board.fbx";
-        boardEntity.GetTransform() = soge::Transform{
-            .m_rotation = glm::vec3{0.0f, glm::radians(90.0f), 0.0f},
-            .m_scale = glm::vec3{0.1f},
-        };
-        boardEntity.Load();
-        auto board = Board{.uuid = boardUuid};
+        auto board = Board{};
+        board.init(graphicsModule->GetEntityManager(), container);
 
         for (std::size_t i = 0; i < 2; ++i)
         {
@@ -75,76 +63,55 @@ namespace soge_game
             for (std::size_t j = 0; j < 3; ++j)
                 for (std::size_t k = 0; k < 4; ++k)
                 {
-                    const auto [piece, pieceUuid] =
-                        graphicsModule->GetEntityManager().CreateEntity<soge::StaticMeshEntity>(
-                            container.Provide<soge::StaticMeshEntity>());
-                    SOGE_APP_INFO_LOG(R"(Created {} with UUID {})", name, pieceUuid.str());
-                    piece.GetFilePath() = std::format("./resources/meshes/{}/{}.fbx", name, name);
-
-                    const auto z = static_cast<int>(j);
-                    const auto x = z % 2 + static_cast<int>(k) * 2;
+                    auto z = static_cast<int>(j);
+                    auto x = z % 2 + static_cast<int>(k) * 2;
+                    
                     const auto coords_x = Board::get_coords(i, x);
                     const auto coords_z = Board::get_coords(i, z);
-
-                    piece.GetTransform() = soge::Transform{
-                        .m_position = glm::vec3{coords_x, Piece::height, coords_z},
-                        .m_scale = glm::vec3{0.1f},
-                    };
-                    piece.Load();
-
-                    const auto uni_x = Board::get_cell(false, coords_x);
-                    const auto uni_z = Board::get_cell(false, coords_z);
-                    board.matrix[uni_x][uni_z] = Piece{
-                        .uuid = pieceUuid,
-                        .darkTeam = static_cast<bool>(i),
-                    };
+                    x = Board::get_cell(false, coords_x);
+                    z = Board::get_cell(false, coords_z);
+                    
+                    board.matrix[x][z] = Piece{.darkTeam = static_cast<bool>(i)};
+                    board.matrix[x][z].init(name, {coords_x, coords_z},
+                        graphicsModule->GetEntityManager(), container);
                 }
         }
 
-        const auto [cursorEntity, cursorUuid] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::BoxPrimitive>(
-                container.Provide<soge::BoxPrimitive>());
-        SOGE_APP_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
-        cursorEntity.GetTransform() = soge::Transform{
-            .m_position = glm::vec3{
-                Board::get_coords(false, 7), Piece::height / 3, Board::get_coords(false, 1),
-            },
-            .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
-        };
-        auto cursor = Cursor{.uuid = cursorUuid, .darkTeam = false};
-        cursor.color(graphicsModule->GetEntityManager(), board);
+        auto cursorLight = Cursor{.darkTeam = false};
+        cursorLight.init(graphicsModule->GetEntityManager(), container);
+        cursorLight.color(graphicsModule->GetEntityManager(), board);
 
-        auto cursorUpdate = [=, &cursorEntity](const soge::KeyPressedEvent& aEvent) mutable {
-            auto cell_x = Board::get_cell(false, cursorEntity.GetTransform().m_position.x);
-            auto cell_z = Board::get_cell(false, cursorEntity.GetTransform().m_position.z);
+        auto cursorLightUpdate = [graphicsModule, cursorLight, board](const soge::KeyPressedEvent& aEvent) mutable {
+            glm::ivec2 cells{};
 
-            if (aEvent.GetKey() == soge::Keys::Up)
-            {
-                cell_z = Board::clamp_cell(cell_z + 1);
-                cursorEntity.GetTransform().m_position.z = Board::get_coords(false, cell_z);
-                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
-            }
-            else if (aEvent.GetKey() == soge::Keys::Down)
-            {
-                cell_z = Board::clamp_cell(cell_z - 1);
-                cursorEntity.GetTransform().m_position.z = Board::get_coords(false, cell_z);
-                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
-            }
-            else if (aEvent.GetKey() == soge::Keys::Right)
-            {
-                cell_x = Board::clamp_cell(cell_x + 1);
-                cursorEntity.GetTransform().m_position.x = Board::get_coords(false, cell_x);
-                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
-            }
-            else if (aEvent.GetKey() == soge::Keys::Left)
-            {
-                cell_x = Board::clamp_cell(cell_x - 1);
-                cursorEntity.GetTransform().m_position.x = Board::get_coords(false, cell_x);
-                SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", cell_x, cell_z);
-            }
-            cursor.color(graphicsModule->GetEntityManager(), board);
+            if (aEvent.GetKey() == soge::Keys::Up) cells.x = 1;
+            else if (aEvent.GetKey() == soge::Keys::Down) cells.x = -1;
+            else if (aEvent.GetKey() == soge::Keys::Right) cells.y = 1;
+            else if (aEvent.GetKey() == soge::Keys::Left) cells.y = -1;
+
+            cursorLight.move(graphicsModule->GetEntityManager(), cells.x, cells.y);
+            cursorLight.color(graphicsModule->GetEntityManager(), board);
         };
-        eventModule->PushBack<soge::KeyPressedEvent>(cursorUpdate);
+        eventModule->PushBack<soge::KeyPressedEvent>(cursorLightUpdate);
+
+        // auto cursorDark = Cursor{.darkTeam = true};
+        // cursorDark.init(graphicsModule->GetEntityManager(), container);
+        // cursorDark.color(graphicsModule->GetEntityManager(), board);
+        //
+        // auto cursorDarkUpdate = [graphicsModule, cursorDark, board](const soge::KeyPressedEvent& aEvent) mutable {
+        //     glm::ivec2 cells{};
+        //
+        //     if (aEvent.GetKey() == soge::Keys::Up) cells.x = 1;
+        //     else if (aEvent.GetKey() == soge::Keys::Down) cells.x = -1;
+        //     else if (aEvent.GetKey() == soge::Keys::Right) cells.y = 1;
+        //     else if (aEvent.GetKey() == soge::Keys::Left) cells.y = -1;
+        //
+        //     cursorDark.move(graphicsModule->GetEntityManager(), cells.x, cells.y);
+        //     cursorDark.color(graphicsModule->GetEntityManager(), board);
+        // };
+        // eventModule->PushBack<soge::KeyPressedEvent>(cursorDarkUpdate);
+
+        ///
 
         const auto [directionalLightEntity1, directionalLightEntityUuid1] =
             graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
