@@ -54,6 +54,7 @@ namespace soge_game
 
         auto darkTeamMove = soge::CreateShared<bool>(false);
 
+        // setup board and it's pieces, also player cursors
         auto board = soge::CreateShared<Board>();
         board->init(entities, container);
 
@@ -62,32 +63,6 @@ namespace soge_game
 
         auto cursorLight = soge::CreateShared<Cursor>(Cursor{.darkTeam = false});
         cursorLight->init(entities, container);
-
-        // move cursor with arrow keys
-        {
-            cursorDark->color(entities, *board);
-            cursorLight->color(entities, *board);
-
-            auto cursorMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
-                glm::ivec2 cells{};
-                soge::Key keys[8] = {
-                    soge::Keys::W, soge::Keys::Up,
-                    soge::Keys::S, soge::Keys::Down,
-                    soge::Keys::A, soge::Keys::Left,
-                    soge::Keys::D, soge::Keys::Right,
-                };
-
-                if (aEvent.GetKey() == keys[0] || aEvent.GetKey() == keys[1]) cells.x = +1;
-                else if (aEvent.GetKey() == keys[2] || aEvent.GetKey() == keys[3]) cells.x = -1;
-                else if (aEvent.GetKey() == keys[4] || aEvent.GetKey() == keys[5]) cells.y = -1;
-                else if (aEvent.GetKey() == keys[6] || aEvent.GetKey() == keys[7]) cells.y = +1;
-
-                auto cursor = *darkTeamMove ? cursorDark : cursorLight;
-                cursor->move(entities, cells.x, cells.y);
-                cursor->color(entities, *board);
-            };
-            eventModule->PushBack<soge::KeyPressedEvent>(cursorMove);
-        }
 
         // setup viewport, cameras, and light
         const auto [cameraLight, cameraLightUuid] = graphicsModule->GetCameraManager().CreateCamera({
@@ -129,23 +104,13 @@ namespace soge_game
         };
         light.GetDirection() = lightTransform.Forward();
 
-        auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
-        auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
-        auto mouseMove = [=](const soge::MouseMovedEvent& aEvent) {
-            if (inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
-            {
-                *cameraMouseDeltaX = aEvent.GetXOffset();
-                *cameraMouseDeltaY = aEvent.GetYOffset();
-            }
-        };
-        eventModule->PushBack<soge::MouseMovedEvent>(mouseMove);
-
+        auto needTeamSwitch = soge::CreateShared<bool>(false);
+        // switch active team (after successful player move)
         {
             cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
             cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
 
             auto delayNextFrame = false;
-            auto needTeamSwitch = soge::CreateShared<bool>(false);
             auto switchTeam = [=, &light, &entities](const soge::UpdateEvent&) mutable {
                 // skip 1 second before switching team
                 if (!*needTeamSwitch) return;
@@ -176,7 +141,10 @@ namespace soge_game
                     .m_rotation = glm::vec3{angle, 0.0f, 0.0f}}.Forward();
             };
             eventModule->PushBack<soge::UpdateEvent>(switchTeam);
+        }
 
+        // make a move (with Q or E key [for now])
+        {
             // auto bruh = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
             //     auto b = glm::ivec2{
             //         Board::clamp_cell(a.x + direction.x * modifier),
@@ -258,7 +226,45 @@ namespace soge_game
             eventModule->PushBack<soge::KeyPressedEvent>(makeMove);
         }
 
-        // rotate camera with mouse drag
+        // move cursor (with WASD / arrow keys)
+        {
+            cursorDark->color(entities, *board);
+            cursorLight->color(entities, *board);
+
+            auto cursorMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
+                glm::ivec2 cells{};
+                soge::Key keys[8] = {
+                    soge::Keys::W, soge::Keys::Up,
+                    soge::Keys::S, soge::Keys::Down,
+                    soge::Keys::A, soge::Keys::Left,
+                    soge::Keys::D, soge::Keys::Right,
+                };
+
+                if (aEvent.GetKey() == keys[0] || aEvent.GetKey() == keys[1]) cells.x = +1;
+                else if (aEvent.GetKey() == keys[2] || aEvent.GetKey() == keys[3]) cells.x = -1;
+                else if (aEvent.GetKey() == keys[4] || aEvent.GetKey() == keys[5]) cells.y = -1;
+                else if (aEvent.GetKey() == keys[6] || aEvent.GetKey() == keys[7]) cells.y = +1;
+
+                auto cursor = *darkTeamMove ? cursorDark : cursorLight;
+                cursor->move(entities, cells.x, cells.y);
+                cursor->color(entities, *board);
+            };
+            eventModule->PushBack<soge::KeyPressedEvent>(cursorMove);
+        }
+
+        // setup mouse delta for camera rotation
+        auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
+        auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
+        auto mouseMove = [=](const soge::MouseMovedEvent& aEvent) {
+            if (inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
+            {
+                *cameraMouseDeltaX = aEvent.GetXOffset();
+                *cameraMouseDeltaY = aEvent.GetYOffset();
+            }
+        };
+        eventModule->PushBack<soge::MouseMovedEvent>(mouseMove);
+        
+        // rotate camera (with mouse drag)
         {
             constexpr float cameraSensitivity = 0.0025f;
             float cameraLightPitch{glm::radians(50.0f)}, cameraLightYaw{};
