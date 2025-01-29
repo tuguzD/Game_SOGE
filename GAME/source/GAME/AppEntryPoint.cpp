@@ -173,11 +173,17 @@ namespace soge_game
             };
 
             auto makeMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
-                soge::Key keys[2] = {soge::Keys::Q, soge::Keys::E};
+                soge::Key keys[4] = {
+                    soge::Keys::Q, soge::Keys::E,
+                    soge::Keys::Z, soge::Keys::C,
+                };
                 if (std::ranges::find(keys, aEvent.GetKey()) != std::end(keys))
                 {
                     const auto modifier = *darkTeamMove ? -1 : 1;
-                    const auto direction = aEvent.GetKey() == soge::Keys::Q ? -1 : 1;
+                    const glm::ivec2 direction = {
+                        aEvent.GetKey() == soge::Keys::Q || aEvent.GetKey() == soge::Keys::Z ? -1 : 1,
+                        aEvent.GetKey() == soge::Keys::Z || aEvent.GetKey() == soge::Keys::C ? -1 : 1,
+                    };
 
                     const auto cursor = dynamic_cast<soge::BoxPrimitive*>(
                         entities.GetEntity((*darkTeamMove ? cursorDark : cursorLight)->uuid));
@@ -190,8 +196,7 @@ namespace soge_game
                         entities.GetEntity(board->matrix[a.x][a.y].uuid));
                     if (pieceAtCursor == nullptr) return;
 
-                    if (auto [b, b_null] = result(
-                        a, glm::ivec2{direction, 1}, modifier); b_null)
+                    if (auto [b, b_null] = result(a, direction, modifier); b_null)
                     {
                         std::swap(board->matrix[a.x][a.y], board->matrix[b.x][b.y]);
 
@@ -202,8 +207,7 @@ namespace soge_game
                     else
                     {
                         if (board->matrix[b.x][b.y].darkTeam == *darkTeamMove) return;
-                        if (auto [c, c_null] = result(
-                            b, glm::ivec2{direction, 1}, modifier); c_null)
+                        if (auto [c, c_null] = result(b, direction, modifier); c_null)
                         {
                             std::swap(board->matrix[a.x][a.y], board->matrix[c.x][c.y]);
                             entities.DestroyEntity(board->matrix[b.x][b.y].uuid);
