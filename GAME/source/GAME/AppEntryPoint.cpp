@@ -55,6 +55,7 @@ namespace soge_game
         graphicsModule->SetRenderGraph(renderGraph);
 
         auto darkTeamMove = soge::CreateShared<bool>(false);
+        glm::ivec2 score{};
 
         // setup board and it's pieces, also player cursors
         auto board = soge::CreateShared<Board>();
@@ -202,7 +203,7 @@ namespace soge_game
                         std::swap(board->matrix[a.x][a.y], board->matrix[b.x][b.y]);
 
                         soundMixer->PlayOnChannel(effectSoundChannelName, movementSound);
-                        SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", b.x, b.y);
+                        // SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", b.x, b.y);
                         *needTeamSwitch = true;
                     }
                     else
@@ -214,9 +215,15 @@ namespace soge_game
                             entities.DestroyEntity(board->matrix[b.x][b.y].uuid);
                             board->matrix[b.x][b.y] = Piece{};
 
+                            score[*darkTeamMove ? 1 : 0]++;
+                            SOGE_APP_INFO_LOG(
+                                R"(SCORE | WHITE ate {} | BLACK ate {})", score.x, score.y);
+                            SOGE_APP_INFO_LOG(R"(SCORE | {} is leading!)",
+                                score.x == score.y ? "no one" : (score.x > score.y ? "WHITE" : "BLACK"));
+
                             soundMixer->PlayOnChannel(effectSoundChannelName, movementSound);
                             soundMixer->PlayOnChannel(effectSoundChannelName, destructionSound);
-                            SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", b.x, b.y);
+                            // SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", b.x, b.y);
                             *needTeamSwitch = true;
                         }
                         else return;
