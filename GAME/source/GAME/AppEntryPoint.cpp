@@ -160,81 +160,61 @@ namespace soge_game
 
         // make a move (with Q or E key [for now])
         {
-            // auto bruh = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
-            //     auto b = glm::ivec2{
-            //         Board::clamp_cell(a.x + direction.x * modifier),
-            //         Board::clamp_cell(a.y + direction.y * modifier),
-            //     };
-            //     if (a.x == b.x || a.y == b.y) return nullptr;
-            //
-            //     const auto entity = dynamic_cast<soge::StaticMeshEntity*>(
-            //         entities.GetEntity(board->matrix[b.x][b.y].uuid));
-            //     return (entity != nullptr);
-            // };
+            auto result = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
+                auto b = glm::ivec2{
+                    Board::clamp_cell(a.x + modifier * direction.x),
+                    Board::clamp_cell(a.y + modifier * direction.y),
+                };
+                if (a.x == b.x || a.y == b.y) return eastl::pair(glm::ivec2{}, false);
+            
+                const auto entity = dynamic_cast<soge::StaticMeshEntity*>(
+                    entities.GetEntity(board->matrix[b.x][b.y].uuid));
+                return eastl::pair(b, entity == nullptr);
+            };
 
             auto makeMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
                 soge::Key keys[2] = {soge::Keys::Q, soge::Keys::E};
                 if (std::ranges::find(keys, aEvent.GetKey()) != std::end(keys))
                 {
-                    const auto cursor = dynamic_cast<soge::BoxPrimitive*>(
-                        entities.GetEntity((*darkTeamMove ? cursorDark : cursorLight)->uuid));
-                    if (cursor == nullptr)
-                        return;
-
-                    auto a = Board::get_cells(false, cursor->GetTransform());
-
-                    const auto pieceAtCursor = dynamic_cast<soge::StaticMeshEntity*>(
-                        entities.GetEntity(board->matrix[a.x][a.y].uuid));
-                    if (pieceAtCursor == nullptr || board->matrix[a.x][a.y].darkTeam != *darkTeamMove)
-                        return;
-
                     const auto modifier = *darkTeamMove ? -1 : 1;
                     const auto direction = aEvent.GetKey() == soge::Keys::Q ? -1 : 1;
 
-                    auto forward = glm::ivec2{
-                        Board::clamp_cell(a.x + modifier * direction),
-                        Board::clamp_cell(a.y + modifier),
-                    };
-                    if (a.x == forward.x || a.y == forward.y) return;
+                    const auto cursor = dynamic_cast<soge::BoxPrimitive*>(
+                        entities.GetEntity((*darkTeamMove ? cursorDark : cursorLight)->uuid));
+                    if (cursor == nullptr) return;
 
-                    const auto forwardPiece = dynamic_cast<soge::StaticMeshEntity*>(
-                        entities.GetEntity(board->matrix[forward.x][forward.y].uuid));
-                    if (forwardPiece == nullptr)
+                    auto a = Board::get_cells(false, cursor->GetTransform());
+                    if (board->matrix[a.x][a.y].darkTeam != *darkTeamMove) return;
+
+                    const auto pieceAtCursor = dynamic_cast<soge::StaticMeshEntity*>(
+                        entities.GetEntity(board->matrix[a.x][a.y].uuid));
+                    if (pieceAtCursor == nullptr) return;
+
+                    if (auto [b, b_null] = result(
+                        a, glm::ivec2{direction, 1}, modifier); b_null)
                     {
-                        std::swap(board->matrix[a.x][a.y], board->matrix[forward.x][forward.y]);
+                        std::swap(board->matrix[a.x][a.y], board->matrix[b.x][b.y]);
 
                         soundMixer->PlayOnChannel(effectSoundChannelName, movementSound);
-                        SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", forward.x, forward.y);
+                        SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", b.x, b.y);
                         *needTeamSwitch = true;
                     }
                     else
                     {
-                        if (board->matrix[forward.x][forward.y].darkTeam == *darkTeamMove)
-                            return;
-
-                        auto new_forward = glm::ivec2{
-                            Board::clamp_cell(forward.x + modifier * direction),
-                            Board::clamp_cell(forward.y + modifier),
-                        };
-                        if (forward.x == new_forward.x || forward.y == new_forward.y) return;
-
-                        const auto newForwardPieceEntity = dynamic_cast<soge::StaticMeshEntity*>(
-                            entities.GetEntity(board->matrix[new_forward.x][new_forward.y].uuid));
-                        if (newForwardPieceEntity == nullptr)
+                        if (board->matrix[b.x][b.y].darkTeam == *darkTeamMove) return;
+                        if (auto [c, c_null] = result(
+                            b, glm::ivec2{direction, 1}, modifier); c_null)
                         {
-                            std::swap(board->matrix[a.x][a.y], board->matrix[new_forward.x][new_forward.y]);
-                            entities.DestroyEntity(board->matrix[forward.x][forward.y].uuid);
-                            board->matrix[forward.x][forward.y] = Piece{};
+                            std::swap(board->matrix[a.x][a.y], board->matrix[c.x][c.y]);
+                            entities.DestroyEntity(board->matrix[b.x][b.y].uuid);
+                            board->matrix[b.x][b.y] = Piece{};
 
                             soundMixer->PlayOnChannel(effectSoundChannelName, movementSound);
                             soundMixer->PlayOnChannel(effectSoundChannelName, destructionSound);
-                            SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", forward.x, forward.y);
+                            SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", b.x, b.y);
                             *needTeamSwitch = true;
                         }
-                        else
-                        {
-                            return;
-                        }
+                        else return;
                     }
                     board->sync(entities);
                     cursorDark->color(entities, *board);
