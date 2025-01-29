@@ -33,6 +33,14 @@ namespace soge_game
             uuid = cursorUuid;
         }
 
+        void toggle(const soge::GraphicsEntityManager& entities, bool active = true)
+        {
+            const auto entity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
+            if (entity == nullptr) return;
+
+            entity->GetTransform().m_position.y = active ? height : 0;
+        }
+
         void move(const soge::GraphicsEntityManager& entities, int vert = 0, int horz = 0, const bool log = false)
         {
             const auto entity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));

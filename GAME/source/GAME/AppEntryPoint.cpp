@@ -52,21 +52,21 @@ namespace soge_game
         auto& renderGraph = container.Provide<soge::DeferredRenderGraph>();
         graphicsModule->SetRenderGraph(renderGraph);
 
+        auto darkTeamMove = soge::CreateShared<bool>(false);
+
         auto board = Board{};
         board.init(graphicsModule->GetEntityManager(), container);
 
-        auto darkTeamMove = soge::CreateShared<bool>(false);
-
-        // setup cursors for 2 teams
-        auto cursorLight = Cursor{.darkTeam = false};
-        cursorLight.init(graphicsModule->GetEntityManager(), container);
-        cursorLight.color(graphicsModule->GetEntityManager(), board);
-
         auto cursorDark = Cursor{.darkTeam = true};
         cursorDark.init(graphicsModule->GetEntityManager(), container);
-        cursorDark.color(graphicsModule->GetEntityManager(), board);
-        
+
+        auto cursorLight = Cursor{.darkTeam = false};
+        cursorLight.init(graphicsModule->GetEntityManager(), container);
+
         {
+            cursorDark.color(graphicsModule->GetEntityManager(), board);
+            cursorLight.color(graphicsModule->GetEntityManager(), board);
+
             auto cursorUpdate = [=](const soge::KeyPressedEvent& aEvent) mutable {
                 glm::ivec2 cells{};
                 soge::Key keys[8] = {
@@ -142,11 +142,20 @@ namespace soge_game
 
         // switch teams with a key (for now)
         {
+            cursorDark.toggle(graphicsModule->GetEntityManager(), cursorDark.darkTeam == *darkTeamMove);
+            cursorLight.toggle(graphicsModule->GetEntityManager(), cursorLight.darkTeam == *darkTeamMove);
+
             auto teamMoveSwitch = [=, &light] (const soge::KeyPressedEvent& aEvent) mutable {
                 if (aEvent.GetKey() == soge::Keys::Q)
                 {
                     *darkTeamMove = !*darkTeamMove;
                     SOGE_APP_INFO_LOG(R"(It's now "{}" team move!)", *darkTeamMove ? "dark" : "light");
+
+                    // switch active team cursor
+                    cursorDark.toggle(graphicsModule->GetEntityManager(),
+                        cursorDark.darkTeam == *darkTeamMove);
+                    cursorLight.toggle(graphicsModule->GetEntityManager(),
+                        cursorLight.darkTeam == *darkTeamMove);
 
                     // switch team camera
                     graphicsModule->GetViewportManager().GetViewport(viewportUuid)->m_cameraId =
