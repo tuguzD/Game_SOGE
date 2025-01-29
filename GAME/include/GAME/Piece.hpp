@@ -17,19 +17,21 @@ namespace soge_game
 
         static constexpr std::float_t height = 0.26715f * 2;
 
-        void init(const char* name, glm::vec2 coords,
-            soge::GraphicsEntityManager& entities, soge::di::Container& container)
+        void init(glm::vec2 coords, soge::GraphicsEntityManager& entities, soge::di::Container& container)
         {
             const auto [entity, id] = entities.CreateEntity<soge::StaticMeshEntity>(
                 container.Provide<soge::StaticMeshEntity>());
-            SOGE_APP_INFO_LOG(R"(Created {} with UUID {})", name, id.str());
-            entity.GetFilePath() = std::format("./resources/meshes/{}/{}.fbx", name, name);
+
+            std::string name = !darkTeam ? "light" : "dark";
+            entity.GetFilePath() = std::format(
+                "./resources/meshes/{}/{}.fbx", name + "_piece", name + "_piece");
 
             entity.GetTransform() = soge::Transform{
                 .m_position = glm::vec3{coords.x, height, coords.y},
                 .m_scale = glm::vec3{0.1f},
             };
             entity.Load();
+            SOGE_APP_INFO_LOG(R"(Created "{}" piece with UUID {})", name, id.str());
             this->uuid = id;
         }
     };

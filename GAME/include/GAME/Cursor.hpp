@@ -24,7 +24,6 @@ namespace soge_game
         {
             const auto [entity, id] = entities.CreateEntity<soge::BoxPrimitive>(
                 container.Provide<soge::BoxPrimitive>());
-            SOGE_APP_INFO_LOG(R"(Created box with UUID {})", id.str());
             entity.GetTransform() = soge::Transform{
                 .m_position = glm::vec3{
                     Board::get_coords(darkTeam, 0),
@@ -32,6 +31,8 @@ namespace soge_game
                 },
                 .m_scale = scale,
             };
+            auto name = darkTeam ? "dark" : "light";
+            SOGE_APP_INFO_LOG(R"(Created "{}" cursor with UUID {})", name, id.str());
             this->uuid = id;
         }
 

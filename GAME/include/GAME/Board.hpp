@@ -22,34 +22,30 @@ namespace soge_game
         {
             const auto [entity, id] = entities.CreateEntity<soge::StaticMeshEntity>(
                 container.Provide<soge::StaticMeshEntity>());
-            SOGE_APP_INFO_LOG(R"(Created board with UUID {})", id.str());
             entity.GetFilePath() = "./resources/meshes/board/board.fbx";
-
             entity.GetTransform() = soge::Transform{
                 .m_rotation = glm::vec3{0.0f, glm::radians(90.0f), 0.0f},
                 .m_scale = glm::vec3{0.1f},
             };
             entity.Load();
+            SOGE_APP_INFO_LOG(R"(Created board with UUID {})", id.str());
             this->uuid = id;
 
-            for (std::size_t i = 0; i < 2; ++i)
-            {
-                const auto name = !i ? "light_piece" : "dark_piece";
-                for (std::size_t j = 0; j < 3; ++j)
-                    for (std::size_t k = 0; k < 4; ++k)
+            for (size_t i = 0; i < 2; ++i)
+                for (size_t j = 0; j < 3; ++j)
+                    for (size_t k = 0; k < 4; ++k)
                     {
-                        auto z = static_cast<int>(j);
-                        auto x = z % 2 + static_cast<int>(k) * 2;
+                        auto y = static_cast<int>(j);
+                        auto x = y % 2 + static_cast<int>(k) * 2;
 
                         const auto coords_x = get_coords(i, x);
-                        const auto coords_z = get_coords(i, z);
+                        const auto coords_y = get_coords(i, y);
                         x = get_cell(false, coords_x);
-                        z = get_cell(false, coords_z);
+                        y = get_cell(false, coords_y);
 
-                        matrix[x][z] = Piece{.darkTeam = static_cast<bool>(i)};
-                        matrix[x][z].init(name, {coords_x, coords_z}, entities, container);
+                        matrix[x][y] = Piece{.darkTeam = static_cast<bool>(i)};
+                        matrix[x][y].init({coords_x, coords_y}, entities, container);
                     }
-            }
         }
 
         static float get_coords(const bool darkTeam, int cell)
