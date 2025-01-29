@@ -20,17 +20,17 @@ namespace soge_game
 
         void init(soge::GraphicsEntityManager& entities, soge::di::Container& container)
         {
-            const auto [boardEntity, boardUuid] = entities.CreateEntity<soge::StaticMeshEntity>(
+            const auto [entity, id] = entities.CreateEntity<soge::StaticMeshEntity>(
                 container.Provide<soge::StaticMeshEntity>());
-            SOGE_APP_INFO_LOG(R"(Created board with UUID {})", boardUuid.str());
-            boardEntity.GetFilePath() = "./resources/meshes/board/board.fbx";
+            SOGE_APP_INFO_LOG(R"(Created board with UUID {})", id.str());
+            entity.GetFilePath() = "./resources/meshes/board/board.fbx";
 
-            boardEntity.GetTransform() = soge::Transform{
+            entity.GetTransform() = soge::Transform{
                 .m_rotation = glm::vec3{0.0f, glm::radians(90.0f), 0.0f},
                 .m_scale = glm::vec3{0.1f},
             };
-            boardEntity.Load();
-            uuid = boardUuid;
+            entity.Load();
+            this->uuid = id;
 
             for (std::size_t i = 0; i < 2; ++i)
             {

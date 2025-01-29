@@ -12,26 +12,27 @@ namespace soge_game
 {
     class Cursor final
     {
+    private:
+        static constexpr float_t height = Piece::height / 3;
+        static constexpr glm::vec3 scale{0.725f, 0.1f, 0.725f};
+
     public:
         UUIDv4::UUID uuid{};
         bool darkTeam;
 
-        static constexpr float_t height = Piece::height / 3;
-        static constexpr glm::vec3 scale{0.725f, 0.1f, 0.725f};
-
         void init(soge::GraphicsEntityManager& entities, soge::di::Container& container)
         {
-            const auto [cursorEntity, cursorUuid] = entities.CreateEntity<soge::BoxPrimitive>(
+            const auto [entity, id] = entities.CreateEntity<soge::BoxPrimitive>(
                 container.Provide<soge::BoxPrimitive>());
-            SOGE_APP_INFO_LOG(R"(Created box with UUID {})", cursorUuid.str());
-            cursorEntity.GetTransform() = soge::Transform{
+            SOGE_APP_INFO_LOG(R"(Created box with UUID {})", id.str());
+            entity.GetTransform() = soge::Transform{
                 .m_position = glm::vec3{
                     Board::get_coords(darkTeam, 0),
                     height, Board::get_coords(darkTeam, 0),
                 },
                 .m_scale = scale,
             };
-            uuid = cursorUuid;
+            this->uuid = id;
         }
 
         void toggle(const soge::GraphicsEntityManager& entities, bool active = true)
