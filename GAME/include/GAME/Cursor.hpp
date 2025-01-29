@@ -16,7 +16,8 @@ namespace soge_game
         UUIDv4::UUID uuid{};
         bool darkTeam;
 
-        static constexpr std::float_t height = Piece::height / 3;
+        static constexpr float_t height = Piece::height / 3;
+        static constexpr glm::vec3 scale{0.725f, 0.1f, 0.725f};
 
         void init(soge::GraphicsEntityManager& entities, soge::di::Container& container)
         {
@@ -28,7 +29,7 @@ namespace soge_game
                     Board::get_coords(darkTeam, 0),
                     height, Board::get_coords(darkTeam, 0),
                 },
-                .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
+                .m_scale = scale,
             };
             uuid = cursorUuid;
         }
@@ -46,19 +47,18 @@ namespace soge_game
             const auto entity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
             if (entity == nullptr) return;
 
-            auto z = Board::get_cell(darkTeam, entity->GetTransform().m_position.z);
             auto x = Board::get_cell(darkTeam, entity->GetTransform().m_position.x);
-
-            z = Board::clamp_cell(z + vert);
-            entity->GetTransform().m_position.z = Board::get_coords(darkTeam, z);
+            auto y = Board::get_cell(darkTeam, entity->GetTransform().m_position.z);
 
             x = Board::clamp_cell(x + horz);
             entity->GetTransform().m_position.x = Board::get_coords(darkTeam, x);
+            y = Board::clamp_cell(y + vert);
+            entity->GetTransform().m_position.z = Board::get_coords(darkTeam, y);
 
             if (log)
             {
                 auto name = darkTeam ? "dark" : "light";
-                SOGE_APP_INFO_LOG(R"(Current "{}" cursor location: ({}, {}))", name, x, z);
+                SOGE_APP_INFO_LOG(R"(Current "{}" cursor location: ({}, {}))", name, x, y);
             }
         }
 
@@ -67,16 +67,21 @@ namespace soge_game
             const auto cursor = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
             if (cursor == nullptr) return;
 
-            auto cell_x = Board::get_cell(false, cursor->GetTransform().m_position.x);
-            auto cell_z = Board::get_cell(false, cursor->GetTransform().m_position.z);
+            const auto x = Board::get_cell(false, cursor->GetTransform().m_position.x);
+            const auto y = Board::get_cell(false, cursor->GetTransform().m_position.z);
 
-            if (entities.GetEntity(board.matrix[cell_x][cell_z].uuid))
+            if (entities.GetEntity(board.matrix[x][y].uuid))
             {
-                if (board.matrix[cell_x][cell_z].darkTeam == darkTeam)
+                if (board.matrix[x][y].darkTeam == darkTeam)
+                {
                     // color "green"
                     cursor->GetMaterial().m_diffuse = glm::vec3{0.0f, 0.75f, 0.0f};
-                else // color "red"
+                }
+                else
+                {
+                    // color "red"
                     cursor->GetMaterial().m_diffuse = glm::vec3{0.75f, 0.0f, 0.0f};
+                }
             } // color "white"
             else cursor->GetMaterial().m_diffuse = glm::vec3{0.75f};
         }
