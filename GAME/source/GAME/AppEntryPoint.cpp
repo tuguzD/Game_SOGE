@@ -57,49 +57,36 @@ namespace soge_game
 
         auto darkTeamMove = soge::CreateShared<bool>(false);
 
-        // setup cursor for team of light pieces
+        // setup cursors for 2 teams
+        auto cursorLight = Cursor{.darkTeam = false};
+        cursorLight.init(graphicsModule->GetEntityManager(), container);
+        cursorLight.color(graphicsModule->GetEntityManager(), board);
+
+        auto cursorDark = Cursor{.darkTeam = true};
+        cursorDark.init(graphicsModule->GetEntityManager(), container);
+        cursorDark.color(graphicsModule->GetEntityManager(), board);
+        
         {
-            auto cursorLight = Cursor{.darkTeam = false};
-            cursorLight.init(graphicsModule->GetEntityManager(), container);
-            cursorLight.color(graphicsModule->GetEntityManager(), board);
-
-            auto cursorLightUpdate = [graphicsModule, cursorLight, board](const soge::KeyPressedEvent& aEvent) mutable {
+            auto cursorUpdate = [=](const soge::KeyPressedEvent& aEvent) mutable {
                 glm::ivec2 cells{};
-                soge::Key keys[4] = {soge::Keys::Up, soge::Keys::Down,
-                    soge::Keys::Right, soge::Keys::Left};
+                soge::Key keys[8] = {
+                    soge::Keys::W, soge::Keys::Up,
+                    soge::Keys::S, soge::Keys::Down,
+                    soge::Keys::D, soge::Keys::Right,
+                    soge::Keys::A, soge::Keys::Left,
+                };
 
-                if (aEvent.GetKey() == keys[0]) cells.x = 1;
-                else if (aEvent.GetKey() == keys[1]) cells.x = -1;
-                else if (aEvent.GetKey() == keys[2]) cells.y = 1;
-                else if (aEvent.GetKey() == keys[3]) cells.y = -1;
+                if (aEvent.GetKey() == keys[0] || aEvent.GetKey() == keys[1]) cells.x = 1;
+                else if (aEvent.GetKey() == keys[2] || aEvent.GetKey() == keys[3]) cells.x = -1;
+                else if (aEvent.GetKey() == keys[4] || aEvent.GetKey() == keys[5]) cells.y = 1;
+                else if (aEvent.GetKey() == keys[6] || aEvent.GetKey() == keys[7]) cells.y = -1;
 
-                cursorLight.move(graphicsModule->GetEntityManager(), cells.x, cells.y,
+                auto cursor = *darkTeamMove ? cursorDark : cursorLight;
+                cursor.move(graphicsModule->GetEntityManager(), cells.x, cells.y,
                     std::ranges::find(keys, aEvent.GetKey()) != std::end(keys));
-                cursorLight.color(graphicsModule->GetEntityManager(), board);
+                cursor.color(graphicsModule->GetEntityManager(), board);
             };
-            eventModule->PushBack<soge::KeyPressedEvent>(cursorLightUpdate);
-        }
-
-        // setup cursor for team of dark pieces
-        {
-            auto cursorDark = Cursor{.darkTeam = true};
-            cursorDark.init(graphicsModule->GetEntityManager(), container);
-            cursorDark.color(graphicsModule->GetEntityManager(), board);
-
-            auto cursorDarkUpdate = [graphicsModule, cursorDark, board](const soge::KeyPressedEvent& aEvent) mutable {
-                glm::ivec2 cells{};
-                soge::Key keys[4] = {soge::Keys::W, soge::Keys::S, soge::Keys::D, soge::Keys::A};
-
-                if (aEvent.GetKey() == keys[0]) cells.x = 1;
-                else if (aEvent.GetKey() == keys[1]) cells.x = -1;
-                else if (aEvent.GetKey() == keys[2]) cells.y = 1;
-                else if (aEvent.GetKey() == keys[3]) cells.y = -1;
-
-                cursorDark.move(graphicsModule->GetEntityManager(), cells.x, cells.y,
-                    std::ranges::find(keys, aEvent.GetKey()) != std::end(keys));
-                cursorDark.color(graphicsModule->GetEntityManager(), board);
-            };
-            eventModule->PushBack<soge::KeyPressedEvent>(cursorDarkUpdate);
+            eventModule->PushBack<soge::KeyPressedEvent>(cursorUpdate);
         }
 
         // setup viewport, cameras, and light

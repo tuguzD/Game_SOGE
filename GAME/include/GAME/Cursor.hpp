@@ -33,7 +33,7 @@ namespace soge_game
             uuid = cursorUuid;
         }
 
-        void move(const soge::GraphicsEntityManager &entities, int vert = 0, int horz = 0, const bool log = false)
+        void move(const soge::GraphicsEntityManager& entities, int vert = 0, int horz = 0, const bool log = false)
         {
             const auto entity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
             if (entity == nullptr) return;
@@ -54,7 +54,7 @@ namespace soge_game
             }
         }
 
-        void color(const soge::GraphicsEntityManager &entities, const Board& board)
+        void color(const soge::GraphicsEntityManager& entities, const Board& board)
         {
             const auto cursor = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(uuid));
             if (cursor == nullptr) return;
