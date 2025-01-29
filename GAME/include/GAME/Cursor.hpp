@@ -16,6 +16,8 @@ namespace soge_game
         UUIDv4::UUID uuid{};
         bool darkTeam;
 
+        static constexpr std::float_t height = Piece::height / 3;
+
         void init(soge::GraphicsEntityManager& entities, soge::di::Container& container)
         {
             const auto [cursorEntity, cursorUuid] = entities.CreateEntity<soge::BoxPrimitive>(
@@ -24,7 +26,7 @@ namespace soge_game
             cursorEntity.GetTransform() = soge::Transform{
                 .m_position = glm::vec3{
                     Board::get_coords(darkTeam, 0),
-                    Piece::height / 3, Board::get_coords(darkTeam, 0),
+                    height, Board::get_coords(darkTeam, 0),
                 },
                 .m_scale = glm::vec3{0.725f, 0.1f, 0.725f},
             };
@@ -45,7 +47,11 @@ namespace soge_game
             x = Board::clamp_cell(x + horz);
             entity->GetTransform().m_position.x = Board::get_coords(darkTeam, x);
 
-            if (log) SOGE_APP_INFO_LOG(R"(Current cursor location: ({}, {}))", x, z);
+            if (log)
+            {
+                auto name = darkTeam ? "dark" : "light";
+                SOGE_APP_INFO_LOG(R"(Current "{}" cursor location: ({}, {}))", name, x, z);
+            }
         }
 
         void color(const soge::GraphicsEntityManager &entities, const Board& board)

@@ -155,8 +155,8 @@ namespace soge_game
 
         // switch cameras
         {
-            auto cameraSwitch = [cameraDarkUuid, cameraLightUuid, graphicsModule, viewportUuid, darkCameraActive, &light]
-            (const soge::KeyPressedEvent& aEvent) mutable {
+            auto cameraSwitch = [darkCameraActive, graphicsModule, viewportUuid,
+                    cameraDarkUuid, cameraLightUuid, &light] (const soge::KeyPressedEvent& aEvent) mutable {
                 if (aEvent.GetKey() == soge::Keys::Q)
                 {
                     *darkCameraActive = !*darkCameraActive;
