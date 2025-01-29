@@ -48,6 +48,20 @@ namespace soge_game
                     }
         }
 
+        void sync(const soge::GraphicsEntityManager& entities)
+        {
+            for (int i = 0; i < order; ++i)
+                for (int j = 0; j < order; ++j)
+                {
+                    const auto entity = dynamic_cast<soge::StaticMeshEntity*>(entities.GetEntity(matrix[i][j].uuid));
+                    if (entity != nullptr)
+                        entity->GetTransform().m_position = glm::vec3{
+                            get_coords(false, i), Piece::height, get_coords(false, j),
+                        };
+                }
+            SOGE_APP_INFO_LOG(R"(Sync went successful!!!)");
+        }
+
         static float get_coords(const bool darkTeam, int cell)
         {
             const auto mult_offset = offset * static_cast<float_t>(!darkTeam ? -1 : 1);

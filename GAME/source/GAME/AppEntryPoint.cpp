@@ -55,19 +55,19 @@ namespace soge_game
 
         auto darkTeamMove = soge::CreateShared<bool>(false);
 
-        auto board = Board{};
-        board.init(entities, container);
+        auto board = soge::CreateShared<Board>();
+        board->init(entities, container);
 
-        auto cursorDark = Cursor{.darkTeam = true};
-        cursorDark.init(entities, container);
+        auto cursorDark = soge::CreateShared<Cursor>(Cursor{.darkTeam = true});
+        cursorDark->init(entities, container);
 
-        auto cursorLight = Cursor{.darkTeam = false};
-        cursorLight.init(entities, container);
+        auto cursorLight = soge::CreateShared<Cursor>(Cursor{.darkTeam = false});
+        cursorLight->init(entities, container);
 
         // move cursor with arrow keys
         {
-            cursorDark.color(entities, board);
-            cursorLight.color(entities, board);
+            cursorDark->color(entities, *board);
+            cursorLight->color(entities, *board);
 
             auto cursorMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
                 glm::ivec2 cells{};
@@ -84,11 +84,26 @@ namespace soge_game
                 else if (aEvent.GetKey() == keys[6] || aEvent.GetKey() == keys[7]) cells.y = +1;
 
                 auto cursor = *darkTeamMove ? cursorDark : cursorLight;
-                cursor.move(entities, cells.x, cells.y,
+                cursor->move(entities, cells.x, cells.y,
                     std::ranges::find(keys, aEvent.GetKey()) != std::end(keys));
-                cursor.color(entities, board);
+                cursor->color(entities, *board);
             };
             eventModule->PushBack<soge::KeyPressedEvent>(cursorMove);
+        }
+
+        // TODO remove sync test
+        {
+            auto syncTest = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
+                if (aEvent.GetKey() == soge::Keys::R)
+                {
+                    std::swap(board->matrix[2][2], board->matrix[3][3]);
+                    board->sync(entities);
+
+                    cursorDark->color(entities, *board);
+                    cursorLight->color(entities, *board);
+                }
+            };
+            eventModule->PushBack<soge::KeyPressedEvent>(syncTest);
         }
 
         // setup viewport, cameras, and light
@@ -144,8 +159,8 @@ namespace soge_game
 
         // switch teams with a key (for now)
         {
-            cursorDark.toggle(entities, cursorDark.darkTeam == *darkTeamMove);
-            cursorLight.toggle(entities, cursorLight.darkTeam == *darkTeamMove);
+            cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
+            cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
 
             auto teamSwitch = [=, &light, &entities] (const soge::KeyPressedEvent& aEvent) mutable {
                 if (aEvent.GetKey() == soge::Keys::Q)
@@ -154,8 +169,8 @@ namespace soge_game
                     SOGE_APP_INFO_LOG(R"(It's now "{}" team move!)", *darkTeamMove ? "dark" : "light");
 
                     // switch active team cursor
-                    cursorDark.toggle(entities, cursorDark.darkTeam == *darkTeamMove);
-                    cursorLight.toggle(entities, cursorLight.darkTeam == *darkTeamMove);
+                    cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
+                    cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
 
                     // switch team camera
                     graphicsModule->GetViewportManager().GetViewport(viewportUuid)->m_cameraId =
