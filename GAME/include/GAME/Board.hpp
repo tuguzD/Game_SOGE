@@ -78,6 +78,14 @@ namespace soge_game
             return static_cast<int>(round(result));
         }
 
+        static glm::ivec2 get_cells(const bool darkTeam, const soge::Transform& transform)
+        {
+            return {
+                get_cell(darkTeam, transform.m_position.x),
+                get_cell(darkTeam, transform.m_position.z),
+            };
+        }
+
         static int clamp_cell(int cell)
         {
             return glm::clamp(cell, 0, order - 1);

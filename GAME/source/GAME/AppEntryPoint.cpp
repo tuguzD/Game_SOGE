@@ -84,79 +84,10 @@ namespace soge_game
                 else if (aEvent.GetKey() == keys[6] || aEvent.GetKey() == keys[7]) cells.y = +1;
 
                 auto cursor = *darkTeamMove ? cursorDark : cursorLight;
-                cursor->move(entities, cells.x, cells.y
-                    //, std::ranges::find(keys, aEvent.GetKey()) != std::end(keys)
-                );
+                cursor->move(entities, cells.x, cells.y);
                 cursor->color(entities, *board);
             };
             eventModule->PushBack<soge::KeyPressedEvent>(cursorMove);
-        }
-
-        {
-            auto makeMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
-                soge::Key keys[2] = {soge::Keys::Q, soge::Keys::E};
-                if (std::ranges::find(keys, aEvent.GetKey()) != std::end(keys))
-                {
-                    auto cursor = *darkTeamMove ? cursorDark : cursorLight;
-
-                    const auto cursorEntity = dynamic_cast<soge::BoxPrimitive*>(entities.GetEntity(cursor->uuid));
-                    if (cursorEntity == nullptr) return;
-
-                    auto x = Board::get_cell(false, cursorEntity->GetTransform().m_position.x);
-                    auto y = Board::get_cell(false, cursorEntity->GetTransform().m_position.z);
-                    // SOGE_APP_INFO_LOG(R"(A "{}" piece at ({}, {}))",
-                    //     board->matrix[uni_x][uni_y].darkTeam ? "dark" : "light", uni_x, uni_y);
-
-                    const auto cursorPieceEntity = dynamic_cast<soge::StaticMeshEntity*>(
-                        entities.GetEntity(board->matrix[x][y].uuid));
-                    if (cursorPieceEntity == nullptr || board->matrix[x][y].darkTeam != *darkTeamMove)
-                        return;
-
-                    const auto modifier = *darkTeamMove ? -1 : 1;
-                    const auto direction = aEvent.GetKey() == soge::Keys::Q ? -1 : 1;
-                    
-                    auto forward_x = Board::clamp_cell(x + modifier * direction);
-                    auto forward_y = Board::clamp_cell(y + modifier);
-                    if (x == forward_x || y == forward_y) return;
-
-                    const auto forwardPieceEntityUuid = board->matrix[forward_x][forward_y].uuid;
-                    const auto forwardPieceEntity = dynamic_cast<soge::StaticMeshEntity*>(
-                        entities.GetEntity(forwardPieceEntityUuid));
-                    if (forwardPieceEntity == nullptr)
-                    {
-                        std::swap(board->matrix[x][y], board->matrix[forward_x][forward_y]);
-                        SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", forward_x, forward_y);
-                    }
-                    else
-                    {
-                        if (board->matrix[forward_x][forward_y].darkTeam == *darkTeamMove)
-                            return;
-
-                        auto new_forward_x = Board::clamp_cell(forward_x + modifier * direction);
-                        auto new_forward_y = Board::clamp_cell(forward_y + modifier);
-                        if (forward_x == new_forward_x || forward_y == new_forward_y) return;
-
-                        const auto newForwardPieceEntity = dynamic_cast<soge::StaticMeshEntity*>(
-                            entities.GetEntity(board->matrix[new_forward_x][new_forward_y].uuid));
-                        if (newForwardPieceEntity == nullptr)
-                        {
-                            std::swap(board->matrix[x][y], board->matrix[new_forward_x][new_forward_y]);
-                            board->matrix[forward_x][forward_y] = Piece{};
-                            entities.DestroyEntity(forwardPieceEntityUuid);
-                            SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", forward_x, forward_y);
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    
-                    board->sync(entities);
-                    cursorDark->color(entities, *board);
-                    cursorLight->color(entities, *board);
-                }
-            };
-            eventModule->PushBack<soge::KeyPressedEvent>(makeMove);
         }
 
         // setup viewport, cameras, and light
@@ -210,32 +141,123 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMove);
 
-        // switch teams with a key (for now)
         {
+            // auto bruh = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
+            //     auto b = glm::ivec2{
+            //         Board::clamp_cell(a.x + direction.x * modifier),
+            //         Board::clamp_cell(a.y + direction.y * modifier),
+            //     };
+            //     if (a.x == b.x || a.y == b.y) return nullptr;
+            //
+            //     const auto entity = dynamic_cast<soge::StaticMeshEntity*>(
+            //         entities.GetEntity(board->matrix[b.x][b.y].uuid));
+            //     return (entity != nullptr);
+            // };
+
             cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
             cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
 
-            auto teamSwitch = [=, &light, &entities] (const soge::KeyPressedEvent& aEvent) mutable {
-                if (aEvent.GetKey() == soge::Keys::Tab)
+            auto switchTeam = [=, &light, &entities] {
+                *darkTeamMove = !*darkTeamMove;
+                SOGE_APP_INFO_LOG(R"(It's now "{}" team move!)", *darkTeamMove ? "dark" : "light");
+
+                // switch active team cursor
+                cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
+                cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
+
+                // switch team camera
+                graphicsModule->GetViewportManager().GetViewport(viewportUuid)->m_cameraId =
+                    *darkTeamMove ? cameraDarkUuid : cameraLightUuid;
+
+                // switch scene light direction
+                const auto angle = glm::radians(90.0f + 45.0f * (*darkTeamMove ? 1.0f : -1.0f));
+                light.GetDirection() = soge::Transform{
+                    .m_rotation = glm::vec3{angle, 0.0f, 0.0f}}.Forward();
+            };
+
+            auto delayNextFrame = false;
+            auto needTeamSwitch = soge::CreateShared<bool>(false);
+            auto moveUpdate = [=](const soge::UpdateEvent&) mutable {
+                if (!*needTeamSwitch) return;
+                if (!delayNextFrame)
                 {
-                    *darkTeamMove = !*darkTeamMove;
-                    SOGE_APP_INFO_LOG(R"(It's now "{}" team move!)", *darkTeamMove ? "dark" : "light");
+                    delayNextFrame = true;
+                    return;
+                }
+                *needTeamSwitch = false;
+                delayNextFrame = false;
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                switchTeam();
+            };
+            eventModule->PushBack<soge::UpdateEvent>(moveUpdate);
 
-                    // switch active team cursor
-                    cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
-                    cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
+            auto makeMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
+                soge::Key keys[2] = {soge::Keys::Q, soge::Keys::E};
+                if (std::ranges::find(keys, aEvent.GetKey()) != std::end(keys))
+                {
+                    const auto cursor = dynamic_cast<soge::BoxPrimitive*>(
+                        entities.GetEntity((*darkTeamMove ? cursorDark : cursorLight)->uuid));
+                    if (cursor == nullptr)
+                        return;
 
-                    // switch team camera
-                    graphicsModule->GetViewportManager().GetViewport(viewportUuid)->m_cameraId =
-                        *darkTeamMove ? cameraDarkUuid : cameraLightUuid;
+                    auto a = Board::get_cells(false, cursor->GetTransform());
 
-                    // switch scene light direction
-                    const auto angle = glm::radians(90.0f + 45.0f * (*darkTeamMove ? 1.0f : -1.0f));
-                    light.GetDirection() = soge::Transform{
-                        .m_rotation = glm::vec3{angle, 0.0f, 0.0f}}.Forward();
+                    const auto pieceAtCursor = dynamic_cast<soge::StaticMeshEntity*>(
+                        entities.GetEntity(board->matrix[a.x][a.y].uuid));
+                    if (pieceAtCursor == nullptr || board->matrix[a.x][a.y].darkTeam != *darkTeamMove)
+                        return;
+
+                    const auto modifier = *darkTeamMove ? -1 : 1;
+                    const auto direction = aEvent.GetKey() == soge::Keys::Q ? -1 : 1;
+
+                    auto forward = glm::ivec2{
+                        Board::clamp_cell(a.x + modifier * direction),
+                        Board::clamp_cell(a.y + modifier),
+                    };
+                    if (a.x == forward.x || a.y == forward.y) return;
+
+                    const auto forwardPiece = dynamic_cast<soge::StaticMeshEntity*>(
+                        entities.GetEntity(board->matrix[forward.x][forward.y].uuid));
+                    if (forwardPiece == nullptr)
+                    {
+                        std::swap(board->matrix[a.x][a.y], board->matrix[forward.x][forward.y]);
+                        
+                        SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", forward.x, forward.y);
+                        *needTeamSwitch = true;
+                    }
+                    else
+                    {
+                        if (board->matrix[forward.x][forward.y].darkTeam == *darkTeamMove)
+                            return;
+
+                        auto new_forward = glm::ivec2{
+                            Board::clamp_cell(forward.x + modifier * direction),
+                            Board::clamp_cell(forward.y + modifier),
+                        };
+                        if (forward.x == new_forward.x || forward.y == new_forward.y) return;
+
+                        const auto newForwardPieceEntity = dynamic_cast<soge::StaticMeshEntity*>(
+                            entities.GetEntity(board->matrix[new_forward.x][new_forward.y].uuid));
+                        if (newForwardPieceEntity == nullptr)
+                        {
+                            std::swap(board->matrix[a.x][a.y], board->matrix[new_forward.x][new_forward.y]);
+                            entities.DestroyEntity(board->matrix[forward.x][forward.y].uuid);
+                            board->matrix[forward.x][forward.y] = Piece{};
+
+                            SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", forward.x, forward.y);
+                            *needTeamSwitch = true;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    board->sync(entities);
+                    cursorDark->color(entities, *board);
+                    cursorLight->color(entities, *board);
                 }
             };
-            eventModule->PushBack<soge::KeyPressedEvent>(teamSwitch);
+            eventModule->PushBack<soge::KeyPressedEvent>(makeMove);
         }
 
         // rotate camera with mouse drag
