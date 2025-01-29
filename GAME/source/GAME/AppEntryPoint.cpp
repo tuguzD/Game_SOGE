@@ -196,7 +196,8 @@ namespace soge_game
                         entities.GetEntity(board->matrix[a.x][a.y].uuid));
                     if (pieceAtCursor == nullptr) return;
 
-                    if (auto [b, b_null] = result(a, direction, modifier); b_null)
+                    if (auto [b, b_null] = result(a, direction, modifier);
+                        b_null && direction.y != -1)
                     {
                         std::swap(board->matrix[a.x][a.y], board->matrix[b.x][b.y]);
 
