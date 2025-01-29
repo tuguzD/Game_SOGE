@@ -235,7 +235,23 @@ namespace soge
     StaticMeshEntity::StaticMeshEntity(StaticMeshEntity&& aOther) noexcept = default;
     StaticMeshEntity& StaticMeshEntity::operator=(StaticMeshEntity&& aOther) noexcept = default;
 
-    StaticMeshEntity::~StaticMeshEntity() = default;
+    StaticMeshEntity::~StaticMeshEntity()
+    {
+        if (m_hierarchy == nullptr)
+        {
+            return;
+        }
+
+        for (auto&& [entityUuid, hierarchyIndex] : m_hierarchy->m_geometryToTransform)
+        {
+            m_entityManager.get().DestroyEntity(entityUuid);
+        }
+        for (auto&& entityUuid : m_hierarchy->m_textures)
+        {
+            m_entityManager.get().DestroyEntity(entityUuid);
+        }
+        m_hierarchy->Reset();
+    }
 
     Transform StaticMeshEntity::GetTransform() const
     {
