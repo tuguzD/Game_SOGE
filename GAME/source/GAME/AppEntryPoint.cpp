@@ -55,6 +55,8 @@ namespace soge_game
         auto board = Board{};
         board.init(graphicsModule->GetEntityManager(), container);
 
+        auto darkTeamMove = soge::CreateShared<bool>(false);
+
         // setup cursor for team of light pieces
         {
             auto cursorLight = Cursor{.darkTeam = false};
@@ -125,10 +127,9 @@ namespace soge_game
         });
         SOGE_APP_INFO_LOG(R"(Created "dark" camera with UUID {})", cameraDarkUuid.str());
 
-        auto darkCameraActive = soge::CreateShared<bool>(false);
         const auto [viewport, viewportUuid] = graphicsModule->GetViewportManager().CreateViewport({
             .m_viewport = {static_cast<float>(window.GetWidth()), static_cast<float>(window.GetHeight())},
-            .m_cameraId = *darkCameraActive ? cameraDarkUuid : cameraLightUuid,
+            .m_cameraId = *darkTeamMove ? cameraDarkUuid : cameraLightUuid,
         });
         SOGE_APP_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
 
@@ -137,13 +138,13 @@ namespace soge_game
                 container.Provide<soge::DirectionalLightEntity>());
         SOGE_APP_INFO_LOG(R"(Created directional light entity with UUID {})", lightUuid.str());
         const soge::Transform lightTransform{
-            .m_rotation = glm::vec3{glm::radians(90.0f + 45.0f * (*darkCameraActive ? 1.0f : -1.0f)), 0.0f, 0.0f},
+            .m_rotation = glm::vec3{glm::radians(90.0f + 45.0f * (*darkTeamMove ? 1.0f : -1.0f)), 0.0f, 0.0f},
         };
         light.GetDirection() = lightTransform.Forward();
 
         auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
         auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
-        auto mouseMoved = [cameraMouseDeltaX, cameraMouseDeltaY, inputModule](const soge::MouseMovedEvent& aEvent) {
+        auto mouseMoved = [=](const soge::MouseMovedEvent& aEvent) {
             if (inputModule->IsKeyPressed(soge::Keys::LeftMouseButton))
             {
                 *cameraMouseDeltaX = aEvent.GetXOffset();
@@ -152,23 +153,25 @@ namespace soge_game
         };
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMoved);
 
-        // switch cameras
+        // switch teams with a key (for now)
         {
-            auto cameraSwitch = [darkCameraActive, graphicsModule, viewportUuid,
-                    cameraDarkUuid, cameraLightUuid, &light] (const soge::KeyPressedEvent& aEvent) mutable {
+            auto teamMoveSwitch = [=, &light] (const soge::KeyPressedEvent& aEvent) mutable {
                 if (aEvent.GetKey() == soge::Keys::Q)
                 {
-                    *darkCameraActive = !*darkCameraActive;
-                    const auto angle = glm::radians(90.0f + 45.0f * (*darkCameraActive ? 1.0f : -1.0f));
-                    
-                    SOGE_APP_INFO_LOG(R"(Switched to "{}" camera)", *darkCameraActive ? "dark" : "light");
+                    *darkTeamMove = !*darkTeamMove;
+                    SOGE_APP_INFO_LOG(R"(It's now "{}" team move!)", *darkTeamMove ? "dark" : "light");
+
+                    // switch team camera
                     graphicsModule->GetViewportManager().GetViewport(viewportUuid)->m_cameraId =
-                        *darkCameraActive ? cameraDarkUuid : cameraLightUuid;
+                        *darkTeamMove ? cameraDarkUuid : cameraLightUuid;
+
+                    // switch scene light direction
+                    const auto angle = glm::radians(90.0f + 45.0f * (*darkTeamMove ? 1.0f : -1.0f));
                     light.GetDirection() = soge::Transform{
                         .m_rotation = glm::vec3{angle, 0.0f, 0.0f}}.Forward();
                 }
             };
-            eventModule->PushBack<soge::KeyPressedEvent>(cameraSwitch);
+            eventModule->PushBack<soge::KeyPressedEvent>(teamMoveSwitch);
         }
 
         // rotate camera with mouse drag
@@ -179,7 +182,7 @@ namespace soge_game
             float cameraDarkPitch{glm::radians(50.0f)}, cameraDarkYaw{glm::radians(yawDarkOffset)};
 
             auto cameraUpdate = [=, &cameraLight, &cameraDark](const soge::UpdateEvent&) mutable {
-                if (*darkCameraActive)
+                if (*darkTeamMove)
                 {
                     cameraDarkYaw += *cameraMouseDeltaX * cameraSensitivity;
                     cameraDarkPitch += *cameraMouseDeltaY * cameraSensitivity;
