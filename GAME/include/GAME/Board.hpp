@@ -59,7 +59,6 @@ namespace soge_game
                             get_coords(false, i), Piece::height, get_coords(false, j),
                         };
                 }
-            SOGE_APP_INFO_LOG(R"(Sync went successful!!!)");
         }
 
         static float get_coords(const bool darkTeam, int cell)
