@@ -160,7 +160,7 @@ namespace soge_game
 
         // make a move (with Q or E key [for now])
         {
-            auto check_forward = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
+            auto check_piece = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
                 auto b = glm::ivec2{
                     Board::clamp_cell(a.x + modifier * direction.x),
                     Board::clamp_cell(a.y + modifier * direction.y),
@@ -196,7 +196,7 @@ namespace soge_game
                         entities.GetEntity(board->matrix[a.x][a.y].uuid));
                     if (pieceAtCursor == nullptr) return;
 
-                    if (auto [b, b_null] = check_forward(a, direction, modifier);
+                    if (auto [b, b_null] = check_piece(a, direction, modifier);
                         b_null && direction.y != -1)
                     {
                         std::swap(board->matrix[a.x][a.y], board->matrix[b.x][b.y]);
@@ -208,7 +208,7 @@ namespace soge_game
                     else
                     {
                         if (board->matrix[b.x][b.y].darkTeam == *darkTeamMove) return;
-                        if (auto [c, c_null] = check_forward(b, direction, modifier); c_null)
+                        if (auto [c, c_null] = check_piece(b, direction, modifier); c_null)
                         {
                             std::swap(board->matrix[a.x][a.y], board->matrix[c.x][c.y]);
                             entities.DestroyEntity(board->matrix[b.x][b.y].uuid);
