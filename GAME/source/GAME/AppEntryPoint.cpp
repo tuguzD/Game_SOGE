@@ -26,7 +26,6 @@ namespace soge_game
     Game::~Game()
     {
         SOGE_APP_INFO_LOG("Destroy game...");
-        // std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     void Game::Load(AccessTag)
@@ -142,22 +141,24 @@ namespace soge_game
         eventModule->PushBack<soge::MouseMovedEvent>(mouseMove);
 
         {
-            // auto bruh = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
-            //     auto b = glm::ivec2{
-            //         Board::clamp_cell(a.x + direction.x * modifier),
-            //         Board::clamp_cell(a.y + direction.y * modifier),
-            //     };
-            //     if (a.x == b.x || a.y == b.y) return nullptr;
-            //
-            //     const auto entity = dynamic_cast<soge::StaticMeshEntity*>(
-            //         entities.GetEntity(board->matrix[b.x][b.y].uuid));
-            //     return (entity != nullptr);
-            // };
-
             cursorDark->toggle(entities, cursorDark->darkTeam == *darkTeamMove);
             cursorLight->toggle(entities, cursorLight->darkTeam == *darkTeamMove);
 
-            auto switchTeam = [=, &light, &entities] {
+            auto delayNextFrame = false;
+            auto needTeamSwitch = soge::CreateShared<bool>(false);
+            auto switchTeam = [=, &light, &entities](const soge::UpdateEvent&) mutable {
+                // skip 1 second before switching team
+                if (!*needTeamSwitch) return;
+                if (!delayNextFrame)
+                {
+                    delayNextFrame = true;
+                    return;
+                }
+                *needTeamSwitch = false;
+                delayNextFrame = false;
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+
+                // actually switch team
                 *darkTeamMove = !*darkTeamMove;
                 SOGE_APP_INFO_LOG(R"(It's now "{}" team move!)", *darkTeamMove ? "dark" : "light");
 
@@ -174,22 +175,19 @@ namespace soge_game
                 light.GetDirection() = soge::Transform{
                     .m_rotation = glm::vec3{angle, 0.0f, 0.0f}}.Forward();
             };
+            eventModule->PushBack<soge::UpdateEvent>(switchTeam);
 
-            auto delayNextFrame = false;
-            auto needTeamSwitch = soge::CreateShared<bool>(false);
-            auto moveUpdate = [=](const soge::UpdateEvent&) mutable {
-                if (!*needTeamSwitch) return;
-                if (!delayNextFrame)
-                {
-                    delayNextFrame = true;
-                    return;
-                }
-                *needTeamSwitch = false;
-                delayNextFrame = false;
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                switchTeam();
-            };
-            eventModule->PushBack<soge::UpdateEvent>(moveUpdate);
+            // auto bruh = [=, &entities](glm::ivec2 a, glm::ivec2 direction, int modifier) {
+            //     auto b = glm::ivec2{
+            //         Board::clamp_cell(a.x + direction.x * modifier),
+            //         Board::clamp_cell(a.y + direction.y * modifier),
+            //     };
+            //     if (a.x == b.x || a.y == b.y) return nullptr;
+            //
+            //     const auto entity = dynamic_cast<soge::StaticMeshEntity*>(
+            //         entities.GetEntity(board->matrix[b.x][b.y].uuid));
+            //     return (entity != nullptr);
+            // };
 
             auto makeMove = [=, &entities](const soge::KeyPressedEvent& aEvent) mutable {
                 soge::Key keys[2] = {soge::Keys::Q, soge::Keys::E};
