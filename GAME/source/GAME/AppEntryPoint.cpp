@@ -142,8 +142,7 @@ namespace soge_game
                         {
                             std::swap(board->matrix[x][y], board->matrix[new_forward_x][new_forward_y]);
                             board->matrix[forward_x][forward_y] = Piece{};
-                            // currently does not work
-                            // entities.DestroyEntity(forwardPieceEntityUuid);
+                            entities.DestroyEntity(forwardPieceEntityUuid);
                             SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", forward_x, forward_y);
                         }
                         else
