@@ -35,7 +35,9 @@ namespace soge_game
         auto& container = GetDependencyContainer();
         const auto eventModule = GetModule<soge::EventModule>();
         const auto inputModule = GetModule<soge::InputModule>();
+        const auto soundModule = GetModule<soge::SoundModule>();
         const auto windowModule = GetModule<soge::WindowModule>();
+
         const auto graphicsModule = GetModule<soge::GraphicsModule>();
         auto& entities = graphicsModule->GetEntityManager();
 
@@ -103,6 +105,19 @@ namespace soge_game
             .m_rotation = glm::vec3{glm::radians(90.0f + 45.0f * (*darkTeamMove ? 1.0f : -1.0f)), 0.0f, 0.0f},
         };
         light.GetDirection() = lightTransform.Forward();
+
+        // setup sound effects
+        const auto soundMixer = soundModule->GetChannelMixer();
+        constexpr auto effectSoundChannelName = "Effect";
+        soundMixer->CreateChannel(effectSoundChannelName);
+
+        const auto movementSound = soundModule->CreateSoundResource(
+            "Piece moved on a board", "./resources/sounds/movement.mp3", false);
+        soundModule->LoadSoundResource(movementSound);
+
+        const auto destructionSound = soundModule->CreateSoundResource(
+            "Piece eaten by an enemy", "./resources/sounds/destruction.mp3", false);
+        soundModule->LoadSoundResource(destructionSound);
 
         auto needTeamSwitch = soge::CreateShared<bool>(false);
         // switch active team (after successful player move)
@@ -187,7 +202,8 @@ namespace soge_game
                     if (forwardPiece == nullptr)
                     {
                         std::swap(board->matrix[a.x][a.y], board->matrix[forward.x][forward.y]);
-                        
+
+                        soundMixer->PlayOnChannel(effectSoundChannelName, movementSound);
                         SOGE_APP_INFO_LOG(R"(Successfully move at ({}, {}))", forward.x, forward.y);
                         *needTeamSwitch = true;
                     }
@@ -210,6 +226,8 @@ namespace soge_game
                             entities.DestroyEntity(board->matrix[forward.x][forward.y].uuid);
                             board->matrix[forward.x][forward.y] = Piece{};
 
+                            soundMixer->PlayOnChannel(effectSoundChannelName, movementSound);
+                            soundMixer->PlayOnChannel(effectSoundChannelName, destructionSound);
                             SOGE_APP_INFO_LOG(R"(Successfully eat enemy at ({}, {}))", forward.x, forward.y);
                             *needTeamSwitch = true;
                         }
