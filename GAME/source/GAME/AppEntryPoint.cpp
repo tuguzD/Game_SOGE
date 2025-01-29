@@ -100,17 +100,7 @@ namespace soge_game
             eventModule->PushBack<soge::KeyPressedEvent>(cursorDarkUpdate);
         }
 
-        // example stuff
-
-        const auto [light, lightUuid] =
-            graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
-                container.Provide<soge::DirectionalLightEntity>());
-        SOGE_APP_INFO_LOG(R"(Created directional light entity with UUID {})", lightUuid.str());
-        const soge::Transform lightTransform{
-            .m_rotation = glm::vec3{glm::radians(135.0f - 90.0f), 0.0f, 0.0f},
-        };
-        light.GetDirection() = lightTransform.Forward();
-
+        // setup viewport, cameras, and light
         const auto [cameraLight, cameraLightUuid] = graphicsModule->GetCameraManager().CreateCamera({
             .m_width = static_cast<float>(window.GetWidth()),
             .m_height = static_cast<float>(window.GetHeight()),
@@ -141,6 +131,15 @@ namespace soge_game
             .m_cameraId = *darkCameraActive ? cameraDarkUuid : cameraLightUuid,
         });
         SOGE_APP_INFO_LOG(R"(Created viewport with UUID {})", viewportUuid.str());
+
+        const auto [light, lightUuid] =
+            graphicsModule->GetEntityManager().CreateEntity<soge::DirectionalLightEntity>(
+                container.Provide<soge::DirectionalLightEntity>());
+        SOGE_APP_INFO_LOG(R"(Created directional light entity with UUID {})", lightUuid.str());
+        const soge::Transform lightTransform{
+            .m_rotation = glm::vec3{glm::radians(90.0f + 45.0f * (*darkCameraActive ? 1.0f : -1.0f)), 0.0f, 0.0f},
+        };
+        light.GetDirection() = lightTransform.Forward();
 
         auto cameraMouseDeltaX = soge::CreateShared<float>(0.0f);
         auto cameraMouseDeltaY = soge::CreateShared<float>(0.0f);
